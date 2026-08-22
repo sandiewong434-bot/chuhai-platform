@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
 from app.models import Article
-from crawlers.utils import safe_request, parse_chinese_date, generate_id
+from crawlers.utils import safe_request, parse_chinese_date, generate_id, truncate_text
 
 
 # 出海相关关键词（用于过滤）
@@ -434,6 +434,257 @@ def import_sources_to_db(db: Session | None = None) -> int:
         if close_db:
             db.close()
 
+
+
+
+def fetch_detail_content(url: str, source: dict | None = None, timeout: int = 30) -> dict:
+    """
+    抓取文章详情页正文内容
+    
+    策略：
+    1. 优先使用信源配置中的 content 选择器
+    2. 无配置时，使用通用回退策略（常见内容区域选择器）
+    
+    Returns:
+        {"content": str, "success": bool, "error": str|None}
+    """
+    result = {"content": "", "success": False, "error": None}
+    
+    try:
+        headers = {}
+        if source and source.get("headers"):
+            headers = source["headers"]
+        
+        resp = safe_request(url, method="GET", headers=headers, timeout=timeout)
+        html = resp.text
+        soup = BeautifulSoup(html, "html.parser")
+        
+        # 去除干扰元素
+        for tag in soup(["script", "style", "nav", "header", "footer", "aside", 
+                         "noscript", "iframe", "form", "button"]):
+            tag.decompose()
+        
+        content_html = ""
+        
+        # 策略1：配置化选择器
+        if source:
+            selectors = source.get("selectors", {})
+            content_sel = selectors.get("content", "")
+            if content_sel:
+                elem = soup.select_one(content_sel)
+                if elem:
+                    content_html = str(elem)
+        
+        # 策略2：通用回退 - 尝试常见内容区域
+        if not content_html:
+            fallback_selectors = [
+                # 中文政府/新闻网站常见
+                ".zoom",
+                ".content-detail",
+                ".detail-content",
+                ".article-content",
+                ".TRS_Editor",
+                ".Custom_UnionStyle",
+                ".content_txt",
+                ".pages_content",
+                # 通用内容区域
+                "article",
+                "main",
+                "[class*='content']",
+                "[class*='article']",
+                "[class*='detail']",
+                # 特定网站
+                ".text",
+                ".news_con",
+                ".con_txt",
+                ".zoombox",
+            ]
+            for sel in fallback_selectors:
+                elem = soup.select_one(sel)
+                if elem:
+                    # 过滤掉过短的（可能是导航等）
+                    text_len = len(elem.get_text(strip=True))
+                    if text_len > 100:
+                        content_html = str(elem)
+                        break
+        
+        # 清理并提取纯文本
+        if content_html:
+            # 保留段落和换行
+            content_soup = BeautifulSoup(content_html, "html.parser")
+            # 将 <br>, <p> 等转为换行
+            for br in content_soup.find_all(["br", "p", "div", "h1", "h2", "h3", "h4", "h5", "h6"]):
+                br.append("\n")
+            text = content_soup.get_text(separator="\n", strip=True)
+            # 清理多余空行
+            lines = [l.strip() for l in text.split("\n") if l.strip()]
+            text = "\n".join(lines)
+            result["content"] = truncate_text(text, max_length=20000)
+            result["success"] = True
+        else:
+            # 最后尝试：取 body 中最大的文本块
+            body = soup.find("body")
+            if body:
+                paragraphs = body.find_all(["p", "div", "section"])
+                best = ""
+                for p in paragraphs:
+                    pt = p.get_text(strip=True)
+                    if len(pt) > len(best) and len(pt) > 200:
+                        best = pt
+                if best:
+                    result["content"] = truncate_text(best, max_length=20000)
+                    result["success"] = True
+                else:
+                    result["error"] = "未找到正文内容"
+            else:
+                result["error"] = "页面无 body 标签"
+    
+    except Exception as e:
+        result["error"] = f"抓取失败: {e}"
+    
+    return result
+
+
+def batch_fetch_contents(
+    db: Session,
+    source_id: int | None = None,
+    limit: int = 100,
+    skip_existing: bool = True,
+) -> dict:
+    """
+    批量抓取存量文章的正文内容
+    
+    Args:
+        db: 数据库会话
+        source_id: 仅抓取指定信源（None=全部）
+        limit: 最大处理数量
+        skip_existing: 跳过已有正文的记录
+    
+    Returns:
+        {"total": int, "success": int, "failed": int, "skipped": int}
+    """
+    from sqlalchemy import and_
+    
+    query = db.query(Article)
+    
+    if source_id is not None:
+        query = query.filter(Article.source_id == source_id)
+    
+    if skip_existing:
+        query = query.filter(
+            and_(
+                Article.content == None,
+                Article.url != None,
+                Article.url != "",
+            )
+        )
+    
+    articles = query.order_by(Article.id.desc()).limit(limit).all()
+    
+    # 加载信源配置用于查找 headers 和选择器
+    source_configs = {s["id"]: s for s in load_source_config()}
+    
+    stats = {"total": len(articles), "success": 0, "failed": 0, "skipped": 0}
+    
+    for i, article in enumerate(articles):
+        print(f"[{i+1}/{len(articles)}] 抓取正文: {article.title[:50]}...")
+        
+        if not article.url:
+            stats["failed"] += 1
+            continue
+        
+        source = source_configs.get(article.source_id)
+        result = fetch_detail_content(article.url, source=source)
+        
+        if result["success"]:
+            article.content = result["content"]
+            db.commit()
+            stats["success"] += 1
+            print(f"  ✓ 成功, 长度: {len(result['content'])} 字符")
+        else:
+            stats["failed"] += 1
+            print(f"  ✗ 失败: {result['error']}")
+        
+        time.sleep(1.5)  # 礼貌间隔
+    
+    print(f"\n[SUMMARY] 总计: {stats['total']}, 成功: {stats['success']}, 失败: {stats['failed']}")
+    return stats
+
+
+def fill_missing_dates(db: Session, limit: int = 200) -> dict:
+    """
+    从详情页补全缺失的发布日期
+    
+    部分信源列表页不提供日期，需要从详情页 meta 或内容中提取
+    """
+    from sqlalchemy import and_
+    
+    articles = db.query(Article).filter(
+        and_(
+            Article.publish_date == None,
+            Article.url != None,
+            Article.url != "",
+        )
+    ).order_by(Article.id.desc()).limit(limit).all()
+    
+    stats = {"total": len(articles), "success": 0, "failed": 0}
+    
+    date_meta_selectors = [
+        ("meta[property='article:published_time']", "content"),
+        ("meta[name='publishdate']", "content"),
+        ("meta[name='PublishDate']", "content"),
+        ("meta[name='pubdate']", "content"),
+    ]
+    
+    for i, article in enumerate(articles):
+        print(f"[{i+1}/{len(articles)}] 补全日期: {article.title[:50]}...")
+        
+        try:
+            resp = safe_request(article.url, method="GET", timeout=20)
+            soup = BeautifulSoup(resp.text, "html.parser")
+            
+            date_str = ""
+            # 尝试 meta 标签
+            for sel, attr in date_meta_selectors:
+                meta = soup.select_one(sel)
+                if meta:
+                    date_str = meta.get(attr, "")
+                    if date_str:
+                        break
+            
+            # 尝试常见日期元素
+            if not date_str:
+                for sel in [".date", ".time", ".publish-time", "[class*='date']", "[class*='time']"]:
+                    elem = soup.select_one(sel)
+                    if elem:
+                        date_str = elem.get_text(strip=True)
+                        if date_str:
+                            break
+            
+            if date_str:
+                publish_date = parse_chinese_date(date_str)
+                if publish_date:
+                    article.publish_date = publish_date
+                    db.commit()
+                    stats["success"] += 1
+                    print(f"  ✓ 补全日期: {publish_date.date()}")
+                else:
+                    stats["failed"] += 1
+                    print(f"  ✗ 无法解析日期: {date_str[:50]}")
+            else:
+                stats["failed"] += 1
+                print(f"  ✗ 未找到日期")
+            
+            time.sleep(1)
+            
+        except Exception as e:
+            stats["failed"] += 1
+            print(f"  ✗ 请求失败: {e}")
+            time.sleep(1)
+            continue
+    
+    print(f"\n[SUMMARY] 总计: {stats['total']}, 成功补全: {stats['success']}, 失败: {stats['failed']}")
+    return stats
 
 if __name__ == "__main__":
     # 测试：导入信源配置
