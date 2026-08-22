@@ -1304,13 +1304,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "table tbody tr, ul.data-list li, div.data-item",
+        "title": "a, td:first-child, .title",
+        "link": "a",
+        "date": "td:last-child, span.date"
       },
       "library": "B-宏观经济与贸易统计库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用data_portal通用模板，需根据实际页面验证调整"
     },
     {
       "id": 47,
@@ -1329,13 +1331,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "A-政策法规库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 48,
@@ -1354,13 +1358,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "A-政策法规库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 49,
@@ -1379,13 +1385,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "A-政策法规库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 50,
@@ -1404,13 +1412,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "table tbody tr, ul.data-list li, div.data-item",
+        "title": "a, td:first-child, .title",
+        "link": "a",
+        "date": "td:last-child, span.date"
       },
       "library": "B-宏观经济与贸易统计库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用data_portal通用模板，需根据实际页面验证调整"
     },
     {
       "id": 51,
@@ -1429,13 +1439,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "B-宏观经济与贸易统计库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 52,
@@ -1454,13 +1466,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "C-全球贸易投资流向库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 53,
@@ -1479,13 +1493,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "D-技术与出口管制库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 54,
@@ -1504,13 +1520,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "N-报告与知识库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 55,
@@ -1529,13 +1547,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "N-报告与知识库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 56,
@@ -1554,13 +1574,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "N-报告与知识库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 57,
@@ -1579,13 +1601,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "N-报告与知识库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 58,
@@ -1604,13 +1628,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "N-报告与知识库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 59,
@@ -1629,13 +1655,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "N-报告与知识库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 60,
@@ -1654,13 +1682,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "N-报告与知识库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 61,
@@ -1679,13 +1709,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-list li, ul.list li, div.list ul li",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, span.time, em"
       },
       "library": "N-报告与知识库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 62,
@@ -1704,13 +1736,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "table tbody tr, ul.data-list li, div.data-item",
+        "title": "a, td:first-child, .title",
+        "link": "a",
+        "date": "td:last-child, span.date"
       },
       "library": "N-报告与知识库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用data_portal通用模板，需根据实际页面验证调整"
     },
     {
       "id": 63,
@@ -1729,13 +1763,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul li, div.news-item, article",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, time, .date"
       },
       "library": "E-产业链图谱库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_intl通用模板，需根据实际页面验证调整"
     },
     {
       "id": 64,
@@ -1754,13 +1790,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "table tbody tr, ul.data-list li, div.data-item",
+        "title": "a, td:first-child, .title",
+        "link": "a",
+        "date": "td:last-child, span.date"
       },
       "library": "E-产业链图谱库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用data_portal通用模板，需根据实际页面验证调整"
     },
     {
       "id": 65,
@@ -1779,13 +1817,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "table tbody tr, ul.data-list li, div.data-item",
+        "title": "a, td:first-child, .title",
+        "link": "a",
+        "date": "td:last-child, span.date"
       },
       "library": "I-法律合规与知识产权库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用data_portal通用模板，需根据实际页面验证调整"
     },
     {
       "id": 66,
@@ -1804,13 +1844,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul li, div.news-item, article",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, time, .date"
       },
       "library": "E-产业链图谱库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_intl通用模板，需根据实际页面验证调整"
     },
     {
       "id": 67,
@@ -1829,13 +1871,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul li, div.news-item, article",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, time, .date"
       },
       "library": "B-宏观经济与贸易统计库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_intl通用模板，需根据实际页面验证调整"
     },
     {
       "id": 68,
@@ -1854,13 +1898,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul li, div.news-item, article",
+        "title": "a",
+        "link": "a",
+        "date": "span.date, time, .date"
       },
       "library": "A-政策法规库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用gov_intl通用模板，需根据实际页面验证调整"
     },
     {
       "id": 69,
@@ -1879,13 +1925,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-item, div.article-list-item",
+        "title": "a, h3 a, h4 a",
+        "link": "a",
+        "date": "span.date, span.time, .news-date"
       },
       "library": "E-产业链图谱库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用enterprise_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 70,
@@ -1904,13 +1952,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-item, div.article-list-item",
+        "title": "a, h3 a, h4 a",
+        "link": "a",
+        "date": "span.date, span.time, .news-date"
       },
       "library": "C-全球贸易投资流向库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用enterprise_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 71,
@@ -1929,13 +1979,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-item, div.article-list-item",
+        "title": "a, h3 a, h4 a",
+        "link": "a",
+        "date": "span.date, span.time, .news-date"
       },
       "library": "E-产业链图谱库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用enterprise_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 72,
@@ -1954,13 +2006,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-item, div.article-list-item",
+        "title": "a, h3 a, h4 a",
+        "link": "a",
+        "date": "span.date, span.time, .news-date"
       },
       "library": "N-报告与知识库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用enterprise_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 73,
@@ -1979,13 +2033,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-item, div.article-list-item",
+        "title": "a, h3 a, h4 a",
+        "link": "a",
+        "date": "span.date, span.time, .news-date"
       },
       "library": "G-企业与服务机构库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用enterprise_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 74,
@@ -2004,13 +2060,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-item, div.article-list-item",
+        "title": "a, h3 a, h4 a",
+        "link": "a",
+        "date": "span.date, span.time, .news-date"
       },
       "library": "G-企业与服务机构库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用enterprise_cn通用模板，需根据实际页面验证调整"
     },
     {
       "id": 75,
@@ -2029,13 +2087,15 @@
       "compliance": "公开发布可自由引用",
       "crawl_tier": "auto_html",
       "selectors": {
-        "list_item": "",
-        "title": "",
-        "link": "",
-        "date": ""
+        "list_item": "ul.news-list li, div.news-item, div.article-list-item",
+        "title": "a, h3 a, h4 a",
+        "link": "a",
+        "date": "span.date, span.time, .news-date"
       },
       "library": "G-企业与服务机构库",
-      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开"
+      "source_note": "来源：LX信源汇总，验证日期：2026-08-19，获取方式：免费公开",
+      "parse_mode": "html",
+      "selector_note": "使用enterprise_cn通用模板，需根据实际页面验证调整"
     }
   ]
 }
