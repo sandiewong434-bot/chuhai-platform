@@ -33,6 +33,7 @@ from crawlers.generic_crawler import (
     crawl_source_by_id,
     import_sources_to_db,
     load_source_config,
+    batch_fetch_contents,
 )
 
 
@@ -162,8 +163,8 @@ def list_sources():
         print(f"    ID{s['id']:2d}: {s['name']:<30s} ({s.get('library', '未分类')}) {flag}")
 
 
-def run_generic_all(days_back: int = 7, max_pages: int = 2):
-    """运行所有通用爬虫"""
+def run_generic_all(days_back: int = 7, max_pages: int = 2, auto_fetch_content: bool = True, content_limit: int = 50):
+    """运行所有通用爬虫，可选自动抓取正文"""
     print(f"\n{'='*60}")
     print(f"[START] 通用爬虫批量抓取 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"{'='*60}")
@@ -197,6 +198,16 @@ def run_generic_all(days_back: int = 7, max_pages: int = 2):
         print(f"  耗时: {duration}秒")
         print(f"{'='*60}\n")
         
+        # 自动抓取正文（新入库的文章）
+        if auto_fetch_content and total_new > 0:
+            print(f"[AUTO] 开始自动抓取新入库文章正文（上限 {content_limit} 条）...")
+            content_stats = batch_fetch_contents(
+                db=db,
+                limit=content_limit,
+                skip_existing=True,
+            )
+            print(f"[AUTO] 正文抓取完成: 成功 {content_stats['success']}, 失败 {content_stats['failed']}\n")
+        
         return results
         
     except Exception as e:
@@ -218,8 +229,8 @@ def run_generic_all(days_back: int = 7, max_pages: int = 2):
         db.close()
 
 
-def run_generic_one(source_id: int, days_back: int = 7, max_pages: int = 2):
-    """运行单个通用爬虫"""
+def run_generic_one(source_id: int, days_back: int = 7, max_pages: int = 2, auto_fetch_content: bool = True, content_limit: int = 30):
+    """运行单个通用爬虫，可选自动抓取正文"""
     source_config = next((s for s in load_source_config() if s.get("id") == source_id), None)
     if not source_config:
         print(f"[ERROR] 信源ID {source_id} 不存在")
@@ -254,6 +265,18 @@ def run_generic_one(source_id: int, days_back: int = 7, max_pages: int = 2):
         print(f"  总获取: {stats.get('total_fetched', 0)}")
         print(f"  耗时: {duration}秒")
         print(f"{'='*60}\n")
+        
+        # 自动抓取正文（仅本信源新入库的文章）
+        new_inserted = stats.get("new_inserted", 0)
+        if auto_fetch_content and new_inserted > 0:
+            print(f"[AUTO] 开始自动抓取 {source_config['name']} 新入库文章正文...")
+            content_stats = batch_fetch_contents(
+                db=db,
+                source_id=source_id,
+                limit=max(content_limit, new_inserted),
+                skip_existing=True,
+            )
+            print(f"[AUTO] 正文抓取完成: 成功 {content_stats['success']}, 失败 {content_stats['failed']}\n")
         
         return stats
         
@@ -294,8 +317,11 @@ if __name__ == "__main__":
     parser.add_argument("--pages", type=int, default=2, help="最大页数（通用爬虫）")
     parser.add_argument("--list", action="store_true", help="列出信源")
     parser.add_argument("--import-sources", action="store_true", help="导入信源配置到数据库")
+    parser.add_argument("--no-content", action="store_true", help="禁用自动正文抓取")
     
     args = parser.parse_args()
+    
+    auto_fetch = not args.no_content
     
     if args.list:
         list_sources()
@@ -304,10 +330,10 @@ if __name__ == "__main__":
     elif args.generic:
         if args.source_id:
             days = 1 if args.daily else args.days
-            run_generic_one(args.source_id, days_back=days, max_pages=args.pages)
+            run_generic_one(args.source_id, days_back=days, max_pages=args.pages, auto_fetch_content=auto_fetch)
         else:
             days = 1 if args.daily else args.days
-            run_generic_all(days_back=days, max_pages=args.pages)
+            run_generic_all(days_back=days, max_pages=args.pages, auto_fetch_content=auto_fetch)
     elif args.all:
         days = 1 if args.daily else args.days
         run_all(days)
