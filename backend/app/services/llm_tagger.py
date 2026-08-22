@@ -572,6 +572,34 @@ def _rule_extract_relations(title: str, content: str, article_id: int) -> list[d
 
 
 def save_relations(db: Session, relations: list[dict]) -> int:
+    """将抽取的关系保存到数据库，自动去重"""
+    import hashlib
+    count = 0
+    for rel_data in relations:
+        # 生成唯一ID：基于关系内容和来源文章
+        uid_src = f"{rel_data.get('from_obj','')}-{rel_data.get('to_obj','')}-{rel_data.get('rel_type','')}-{rel_data.get('source_article_id',0)}"
+        rel_id = "REL-" + hashlib.md5(uid_src.encode()).hexdigest()[:12]
+        
+        # 检查是否已存在
+        existing = db.query(Relation).filter(Relation.rel_id == rel_id).first()
+        if existing:
+            continue
+        
+        rel = Relation(
+            rel_id=rel_id,
+            rel_type=rel_data.get("rel_type", "未知"),
+            from_obj=rel_data.get("from_obj", ""),
+            to_obj=rel_data.get("to_obj", ""),
+            attributes_json=rel_data.get("attributes", {}),
+            source_article_id=rel_data.get("source_article_id"),
+            confidence=rel_data.get("confidence", "中"),
+            category=rel_data.get("category", "其他"),
+        )
+        db.add(rel)
+        count += 1
+    
+    db.commit()
+    return count
     """将抽取的关系保存到数据库"""
     count = 0
     for rel_data in relations:
