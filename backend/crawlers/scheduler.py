@@ -24,6 +24,7 @@ from app.models import SourceLog
 
 # 导入爬虫模块
 from crawlers.juchao import crawl_juchao as crawl_juchao_impl, SOURCE_NAME as JUCHAO_NAME
+from crawlers.hkex import crawl_hkex as crawl_hkex_impl, SOURCE_NAME as HKEX_NAME
 
 
 # 注册所有爬虫
@@ -33,6 +34,12 @@ CRAWLERS = {
         "func": crawl_juchao_impl,
         "default_days": 1,
         "default_pages": 3,
+    },
+    "hkex": {
+        "name": HKEX_NAME,
+        "func": crawl_hkex_impl,
+        "default_days": 1,
+        "default_pages": 2,
     },
     # 后续在这里注册更多爬虫
     # "mofcom": { "name": "商务部", "func": crawl_mofcom, ... },
