@@ -10,6 +10,56 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models import CountryScore
 from app.schemas import ScoreRequest, ScoreResponse, ScoreDimension
+from app.services.scoring_engine import calculate_country_scores, calculate_level
+from app.models import CountryScore
+from app.services.scoring_engine import calculate_country_scores, calculate_level
+
+router = APIRouter(prefix="/score", tags=["国别评分"])
+
+
+@router.post("/country", response_model=ScoreResponse)
+def score_country(req: ScoreRequest, db: Session = Depends(get_db)):
+    """计算某国某行业的出海评分（基于文章数据）"""
+    # 先查询最新评分
+    latest = (
+        db.query(CountryScore)
+        .filter(
+            CountryScore.country_code == req.country_code.upper(),
+            CountryScore.industry == req.industry,
+        )
+        .order_by(desc(CountryScore.scored_at))
+        .first()
+    )
+
+    if latest:
+        return ScoreResponse(
+            country_code=latest.country_code,
+            country_name=latest.country_name,
+            industry=latest.industry,
+            score_total=float(latest.score_total),
+            score_level=latest.score_level,
+            dimensions=ScoreDimension(**(latest.dimension_scores or {})),
+            subitems=latest.subitem_scores,
+            scored_at=latest.scored_at,
+        )
+
+    # 实时计算
+    scores = calculate_country_scores(db, industry=req.industry)
+    match = next((s for s in scores if s["country_code"] == req.country_code.upper()), None)
+    
+    if not match:
+        raise HTTPException(status_code=404, detail=f"暂不支持国家 {req.country_code} 的评分（数据不足）")
+
+    return ScoreResponse(
+        country_code=match["country_code"],
+        country_name=match["country_name"],
+        industry=match["industry"],
+        score_total=match["score_total"],
+        score_level=match["score_level"],
+        dimensions=ScoreDimension(**match["dimension_scores"]),
+        subitems=match["subitem_scores"],
+        scored_at=date.today(),
+    )
 
 router = APIRouter(prefix="/score", tags=["国别评分"])
 
