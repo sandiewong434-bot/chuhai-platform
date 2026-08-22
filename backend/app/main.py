@@ -9,6 +9,8 @@ from fastapi.responses import JSONResponse
 
 from app.api import (
     articles_router,
+    barriers_router,
+    enterprises_router,
     ontology_router,
     score_router,
     search_router,
@@ -22,10 +24,8 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
-    # 启动时
     print(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} 启动中...")
     yield
-    # 关闭时
     print("👋 应用关闭，清理资源...")
 
 
@@ -60,6 +60,8 @@ async def global_exception_handler(request, exc):
 
 # 注册路由
 app.include_router(articles_router, prefix="/api/v1")
+app.include_router(barriers_router, prefix="/api/v1")
+app.include_router(enterprises_router, prefix="/api/v1")
 app.include_router(ontology_router, prefix="/api/v1")
 app.include_router(search_router, prefix="/api/v1")
 app.include_router(sources_router, prefix="/api/v1")
