@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FileText, Globe, Radio, TrendingUp } from 'lucide-react'
-import { articleApi, sourceApi } from '@/lib/api'
+import { articleApi, sourceApi, scoreApi } from '@/lib/api'
 
 interface Stats {
   totalArticles: number
   weeklyArticles: number
   activeSources: number
   issueSources: number
+  countryCount: number
 }
 
 export default function Dashboard() {
@@ -16,20 +17,23 @@ export default function Dashboard() {
     weeklyArticles: 0,
     activeSources: 0,
     issueSources: 0,
+    countryCount: 0,
   })
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [articleRes, sourceRes] = await Promise.all([
+        const [articleRes, sourceRes, countryRes] = await Promise.all([
           articleApi.stats(7),
           sourceApi.overview(),
+          scoreApi.countries(),
         ])
         setStats({
           totalArticles: articleRes.data.total || 0,
           weeklyArticles: articleRes.data.total || 0,
           activeSources: sourceRes.data.active || 0,
           issueSources: sourceRes.data.with_issue || 0,
+          countryCount: countryRes?.data?.total || 0,
         })
       } catch {
         // 静默失败，使用默认值
@@ -65,7 +69,7 @@ export default function Dashboard() {
     },
     {
       title: '覆盖国家/地区',
-      value: 15,
+      value: stats.countryCount,
       icon: Globe,
       color: 'text-purple-600',
       bg: 'bg-purple-50',

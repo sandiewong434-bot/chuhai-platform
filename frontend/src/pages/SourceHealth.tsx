@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Radio, CheckCircle, AlertCircle, XCircle, Clock } from 'lucide-react'
+import { CheckCircle, AlertCircle, XCircle, Clock } from 'lucide-react'
 import { sourceApi } from '@/lib/api'
 
 interface SourceHealth {
@@ -75,7 +75,7 @@ export default function SourceHealth() {
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <p className="text-sm text-gray-500">覆盖库数</p>
             <p className="text-2xl font-bold text-gray-900">
-              {new Set(overview.by_library?.map((l: {library: string}) => l.library)).size || 0}
+              {new Set((overview.by_library || []).map((l: {library: string}) => l.library)).size || 0}
             </p>
           </div>
         </div>

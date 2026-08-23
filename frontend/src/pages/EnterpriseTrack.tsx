@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Building2, MapPin, Calendar, TrendingUp } from 'lucide-react'
+import { Building2, MapPin, Calendar } from 'lucide-react'
 import { enterpriseApi } from '@/lib/api'
 
 interface EnterpriseEvent {

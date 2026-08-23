@@ -12,7 +12,7 @@ from app.schemas import ObjectEntityResponse, OntologyFilter, RelationResponse
 router = APIRouter(prefix="/ontology", tags=["本体"])
 
 
-@router.get("/objects", response_model=list[ObjectEntityResponse])
+@router.get("/objects")
 def list_objects(
     obj_type: str | None = None,
     q: str | None = None,
@@ -31,7 +31,7 @@ def list_objects(
     total = query.count()
     items = query.offset((page - 1) * size).limit(size).all()
 
-    return items
+    return {"total": total, "items": items}
 
 
 @router.get("/objects/{obj_id}", response_model=ObjectEntityResponse)
@@ -43,7 +43,7 @@ def get_object(obj_id: str, db: Session = Depends(get_db)):
     return obj
 
 
-@router.get("/relations", response_model=list[RelationResponse])
+@router.get("/relations")
 def list_relations(
     rel_type: str | None = None,
     from_obj: str | None = None,
@@ -73,7 +73,7 @@ def list_relations(
         .all()
     )
 
-    return items
+    return {"total": total, "items": items}
 
 
 @router.get("/relations/{rel_id}", response_model=RelationResponse)

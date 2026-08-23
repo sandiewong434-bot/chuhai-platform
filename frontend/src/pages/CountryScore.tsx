@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Globe, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { Globe, Star, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { scoreApi } from '@/lib/api'

@@ -31,15 +31,12 @@ def list_articles(
     """获取文章列表，支持多维度筛选"""
     query = db.query(Article)
 
-    # 全文搜索
+    # 全文搜索（SQLite 兼容：使用 LIKE）
     if q:
-        # 使用 PostgreSQL 全文检索
-        tsquery = func.plainto_tsquery("chinese", q)
         query = query.filter(
             or_(
-                func.to_tsvector("chinese", Article.title).op("@@")(tsquery),
-                func.to_tsvector("chinese", func.coalesce(Article.content, "")).op("@@")(tsquery),
                 Article.title.ilike(f"%{q}%"),
+                Article.content.ilike(f"%{q}%"),
             )
         )
 

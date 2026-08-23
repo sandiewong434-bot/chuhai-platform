@@ -31,13 +31,12 @@ def search(
     """
     query = db.query(Article)
 
-    # 全文检索
+    # 全文检索（SQLite 兼容：使用 LIKE）
     if q:
-        tsquery = func.plainto_tsquery("chinese", q)
         query = query.filter(
             or_(
-                func.to_tsvector("chinese", Article.title).op("@@")(tsquery),
-                func.to_tsvector("chinese", func.coalesce(Article.content, "")).op("@@")(tsquery),
+                Article.title.ilike(f"%{q}%"),
+                Article.content.ilike(f"%{q}%"),
             )
         )
 
