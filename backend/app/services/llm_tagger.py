@@ -179,74 +179,31 @@ TAG_SCHEMA = {
 # Prompt 模板
 # ============================================================
 
-TAGGING_PROMPT = """你是一位专业的出海情报分析师，负责对文章进行多维度标签标注。
+TAGGING_PROMPT = """对以下出海相关文章进行标签标注。只输出JSON，不要任何解释。
 
-## 任务
-阅读以下文章，从 G1-G12 十二个维度中选择最相关的标签，并以 JSON 格式输出。
+可选标签代码（选最相关的3-6个）：
+G1: G1.L1.01政府官网 G1.L1.02行业协会 G1.L1.03主流媒体 G1.L1.04企业官方 G1.L1.05自媒体
+G2: G2.L1.01东南亚 G2.L1.02欧洲 G2.L1.03中东/非洲 G2.L1.04拉美 G2.L1.05北美 G2.L1.06中国
+G3: G3.L1.01整车制造 G3.L1.02动力电池 G3.L1.03电机电控 G3.L1.04智能驾驶 G3.L1.05充电设施 G3.L1.06上游材料 G3.L1.07零部件
+G4: G4.L1.01整车出口 G4.L1.02投资建厂 G4.L1.03并购/合资 G4.L1.04技术授权 G4.L1.05供应链出海 G4.L1.06服务贸易
+G5: G5.L1.01海外布局(D1) G5.L1.02双边关系(D2) G5.L1.03对美关系(D3) G5.L1.04政治稳定(D4) G5.L1.05产业基础(D5) G5.L1.06营商环境(D6)
+G6: G6.L1.01贸易摩擦 G6.L1.02反倾销调查 G6.L1.03政策变动 G6.L1.04汇率波动 G6.L1.05供应链中断 G6.L1.06地缘政治 G6.L1.07数据安全
+G7: G7.L1.01实时 G7.L1.02近1周 G7.L1.03近1月 G7.L1.04中期 G7.L1.05长期 G7.L1.06历史
+G8: G8.L1.01比亚迪 G8.L1.02宁德时代 G8.L1.03蔚来 G8.L1.04小鹏 G8.L1.05理想 G8.L1.06吉利/极氪 G8.L1.07上汽 G8.L1.08奇瑞 G8.L1.09长城 G8.L1.10其他
+G9: G9.L1.01投资建厂 G9.L1.02销量数据 G9.L1.03政策法规 G9.L1.04贸易壁垒 G9.L1.05技术合作 G9.L1.06供应链 G9.L1.07展会活动 G9.L1.08财报业绩 G9.L1.09人事组织 G9.L1.10产品发布
+G10: G10.L1.01关税/税收 G10.L1.02补贴/激励 G10.L1.03准入/认证 G10.L1.04本地化要求 G10.L1.05环保/碳排放 G10.L1.06数据/安全审查
+G11: G11.L1.01定量数据 G11.L1.02定性分析 G11.L1.03一手信源 G11.L1.04二手解读
+G12: G12.L1.01NEV核心 G12.L1.02NEV产业链 G12.L1.03宏观/间接 G12.L1.04不相关
 
-## 标签体系
+输出JSON格式：
+{{"tags":[{{"code":"G2.L1.01","name":"东南亚","confidence":0.95}}],"category_layer":"enterprise","relevance":"direct","reasoning":"理由"}}
+category_layer取enterprise/industry/nation/none，relevance取direct/industry/unrelated。
 
-G1 信源属性（信息来源可信度）:
-- G1.L1.01 政府官网/国际组织 | G1.L1.02 行业协会/智库 | G1.L1.03 主流媒体 | G1.L1.04 企业官方 | G1.L1.05 自媒体/博客
-
-G2 国别与区域:
-- G2.L1.01 东南亚 | G2.L1.02 欧洲 | G2.L1.03 中东/非洲 | G2.L1.04 拉美 | G2.L1.05 北美 | G2.L1.06 中国
-
-G3 产业链环节:
-- G3.L1.01 整车制造 | G3.L1.02 动力电池 | G3.L1.03 电机电控 | G3.L1.04 智能驾驶 | G3.L1.05 充电设施 | G3.L1.06 上游材料 | G3.L1.07 零部件
-
-G4 出海形式:
-- G4.L1.01 整车出口 | G4.L1.02 投资建厂 | G4.L1.03 并购/合资 | G4.L1.04 技术授权 | G4.L1.05 供应链出海 | G4.L1.06 服务贸易
-
-G5 指标映射（国别评分维度）:
-- G5.L1.01 海外布局(D1) | G5.L1.02 双边关系(D2) | G5.L1.03 对美关系(D3) | G5.L1.04 政治稳定(D4) | G5.L1.05 产业基础(D5) | G5.L1.06 营商环境(D6)
-
-G6 风险标签:
-- G6.L1.01 贸易摩擦 | G6.L1.02 反倾销调查 | G6.L1.03 政策变动 | G6.L1.04 汇率波动 | G6.L1.05 供应链中断 | G6.L1.06 地缘政治 | G6.L1.07 数据安全
-
-G7 时效标签:
-- G7.L1.01 实时 | G7.L1.02 近1周 | G7.L1.03 近1月 | G7.L1.04 1-6月 | G7.L1.05 6月以上 | G7.L1.06 历史参考
-
-G8 企业主体:
-- G8.L1.01 比亚迪 | G8.L1.02 宁德时代 | G8.L1.03 蔚来 | G8.L1.04 小鹏 | G8.L1.05 理想 | G8.L1.06 吉利/极氪 | G8.L1.07 上汽 | G8.L1.08 奇瑞 | G8.L1.09 长城 | G8.L1.10 其他
-
-G9 信息主题:
-- G9.L1.01 投资建厂 | G9.L1.02 销量数据 | G9.L1.03 政策法规 | G9.L1.04 贸易壁垒 | G9.L1.05 技术合作 | G9.L1.06 供应链 | G9.L1.07 展会活动 | G9.L1.08 财报业绩 | G9.L1.09 人事组织 | G9.L1.10 产品发布
-
-G10 政策工具:
-- G10.L1.01 关税/税收 | G10.L1.02 补贴/激励 | G10.L1.03 准入/认证 | G10.L1.04 本地化要求 | G10.L1.05 环保/碳排放 | G10.L1.06 数据/安全审查
-
-G11 数据类型:
-- G11.L1.01 定量数据 | G11.L1.02 定性分析 | G11.L1.03 一手信源 | G11.L1.04 二手解读
-
-G12 NEV相关性:
-- G12.L1.01 NEV核心 | G12.L1.02 NEV产业链 | G12.L1.03 宏观/间接 | G12.L1.04 不相关
-
-## 输出格式
-必须严格返回 JSON，不要任何其他文字：
-
-{
-  "tags": [
-    {"code": "G2.L1.01", "name": "东南亚", "confidence": 0.95},
-    {"code": "G8.L1.01", "name": "比亚迪", "confidence": 0.88}
-  ],
-  "category_layer": "enterprise",
-  "relevance": "direct",
-  "reasoning": "简短说明标注理由"
-}
-
-## 字段说明
-- category_layer: enterprise(企业级) / industry(行业级) / nation(国家级) / none(无)
-- relevance: direct(直接相关) / industry(行业相关) / unrelated(不相关)
-- confidence: 0-1 之间的置信度
-
-## 文章信息
-标题: {title}
-来源: {source_name}
-发布时间: {publish_date}
-
-正文:
-{content}
+文章：
+标题:{title}
+来源:{source_name}
+日期:{publish_date}
+正文:{content}
 """
 
 
@@ -261,40 +218,48 @@ class TagResult:
 
 
 def parse_tag_response(text: str) -> TagResult:
-    """解析 LLM 返回的 JSON，容错处理"""
-    # 尝试提取 JSON 块
+    """解析 LLM 返回的 JSON，容错处理
+
+    支持格式：
+    1. 纯 JSON
+    2. Markdown 代码块包裹的 JSON
+    3. 推理过程文字 + 最终 JSON（kimi-latest 混合格式）
+    """
     text = text.strip()
-    
-    # 去除 markdown 代码块标记
+
+    # 策略1: 去除 markdown 代码块
     if text.startswith("```"):
-        lines = text.split("\n")
-        # 找到第一个 { 和最后一个 }
-        json_lines = []
-        in_json = False
-        for line in lines:
-            if "{" in line and not in_json:
-                in_json = True
-            if in_json:
-                json_lines.append(line)
-            if "}" in line and in_json:
-                break
-        text = "\n".join(json_lines)
-    
+        match = re.search(r'```(?:json)?\s*\n(.*?)\n```', text, re.DOTALL)
+        if match:
+            text = match.group(1).strip()
+
+    # 策略2: 直接解析
     try:
         data = json.loads(text)
     except json.JSONDecodeError:
-        # 尝试正则提取
-        match = re.search(r'\{.*\}', text, re.DOTALL)
-        if match:
-            data = json.loads(match.group())
-        else:
-            raise ValueError(f"无法解析 LLM 响应: {text[:200]}")
-    
+        # 策略3: 从文本末尾向前搜索最后一个完整 JSON 对象
+        last_brace_idx = text.rfind('}')
+        if last_brace_idx == -1:
+            raise ValueError(f"LLM 响应中未找到 JSON: {text[:200]}")
+
+        data = None
+        for start_idx in range(text.rfind('{'), -1, -1):
+            if text[start_idx] == '{':
+                candidate = text[start_idx:last_brace_idx + 1]
+                try:
+                    data = json.loads(candidate)
+                    break
+                except json.JSONDecodeError:
+                    continue
+
+        if data is None:
+            raise ValueError(f"无法解析 LLM 响应中的 JSON: {text[:200]}")
+
     tags = data.get("tags", [])
     # 计算平均置信度
     confidences = [t.get("confidence", 0.5) for t in tags]
     avg_confidence = sum(confidences) / len(confidences) if confidences else 0.5
-    
+
     return TagResult(
         tags=tags,
         category_layer=data.get("category_layer", "none"),
@@ -587,24 +552,6 @@ def save_relations(db: Session, relations: list[dict]) -> int:
         
         rel = Relation(
             rel_id=rel_id,
-            rel_type=rel_data.get("rel_type", "未知"),
-            from_obj=rel_data.get("from_obj", ""),
-            to_obj=rel_data.get("to_obj", ""),
-            attributes_json=rel_data.get("attributes", {}),
-            source_article_id=rel_data.get("source_article_id"),
-            confidence=rel_data.get("confidence", "中"),
-            category=rel_data.get("category", "其他"),
-        )
-        db.add(rel)
-        count += 1
-    
-    db.commit()
-    return count
-    """将抽取的关系保存到数据库"""
-    count = 0
-    for rel_data in relations:
-        rel = Relation(
-            rel_id=f"REL-{rel_data['from_obj']}-{rel_data['to_obj']}-{count}",
             rel_type=rel_data.get("rel_type", "未知"),
             from_obj=rel_data.get("from_obj", ""),
             to_obj=rel_data.get("to_obj", ""),
