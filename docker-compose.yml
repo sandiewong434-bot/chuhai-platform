@@ -1,102 +1,58 @@
-# ============================================================
-# 出海综合服务平台 · Docker Compose
-# PostgreSQL + Redis + FastAPI Backend + Nginx
-# ============================================================
-
 version: "3.8"
 
 services:
-  # PostgreSQL 数据库
-  postgres:
-    image: postgres:16-alpine
-    container_name: chuhai-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-chuhai}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chuhai}
-      POSTGRES_DB: ${POSTGRES_DB:-chuhai}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./backend/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-chuhai} -d ${POSTGRES_DB:-chuhai}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - chuhai-net
+  # PostgreSQL 数据库（生产环境使用，测试环境注释掉）
+  # db:
+  #   image: postgres:15-alpine
+  #   environment:
+  #     POSTGRES_USER: chuhai
+  #     POSTGRES_PASSWORD: chuhai
+  #     POSTGRES_DB: chuhai
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
 
-  # Redis 缓存
-  redis:
-    image: redis:7-alpine
-    container_name: chuhai-redis
-    restart: unless-stopped
-    volumes:
-      - redis_data:/data
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    networks:
-      - chuhai-net
+  # Redis 缓存（可选）
+  # redis:
+  #   image: redis:7-alpine
+  #   ports:
+  #     - "6379:6379"
 
-  # FastAPI 后端
+  # 后端 API
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: chuhai-backend
-    restart: unless-stopped
+    ports:
+      - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-chuhai}:${POSTGRES_PASSWORD:-chuhai}@postgres:5432/${POSTGRES_DB:-chuhai}
-      REDIS_URL: redis://redis:6379/0
-      DEBUG: ${DEBUG:-false}
-      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:3000}
-    ports:
-      - "${BACKEND_PORT:-8000}:8000"
+      # 测试环境使用 SQLite（挂载宿主机已有数据库）
+      - DATABASE_URL=sqlite:///./data/chuhai.db
+      - DEBUG=false
+      - CORS_ORIGINS=["http://localhost","http://localhost:80","http://127.0.0.1"]
+      - REDIS_ENABLED=false
+      - SECRET_KEY=chuhai-test-secret-key-change-in-production
     volumes:
-      - ./backend/app:/app/app:ro
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - chuhai-net
-    command: >
-      sh -c "
-        echo '⏳ 等待数据库就绪...' &&
-        sleep 3 &&
-        alembic upgrade head || true &&
-        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-      "
-
-  # Nginx 反向代理（可选，生产环境启用）
-  nginx:
-    image: nginx:alpine
-    container_name: chuhai-nginx
+      # 挂载现有数据库（包含全部 174 篇文章、86 实体、19 关系等）
+      - ./backend/chuhai_dev.db:/app/data/chuhai.db
+      # 开发模式：挂载代码支持热更新
+      - ./backend:/app
+    working_dir: /app
     restart: unless-stopped
+
+  # 前端
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: chuhai-frontend
     ports:
-      - "${NGINX_PORT:-80}:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - "80:80"
     depends_on:
       - backend
-    networks:
-      - chuhai-net
-    profiles:
-      - production
+    restart: unless-stopped
 
 volumes:
   postgres_data:
-  redis_data:
-
-networks:
-  chuhai-net:
-    driver: bridge
