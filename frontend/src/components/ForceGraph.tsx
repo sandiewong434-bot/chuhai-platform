@@ -236,7 +236,7 @@ export default function ForceGraph({
 
   // 鼠标事件
   const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
+    (e: React.MouseEvent<HTMLCanvasElement>) => { e.preventDefault();
       const canvas = canvasRef.current
       if (!canvas) return
       const rect = canvas.getBoundingClientRect()
@@ -269,7 +269,7 @@ export default function ForceGraph({
   )
 
   const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
+    (e: React.MouseEvent<HTMLCanvasElement>) => { e.preventDefault();
       const canvas = canvasRef.current
       if (!canvas) return
       const rect = canvas.getBoundingClientRect()
@@ -293,7 +293,7 @@ export default function ForceGraph({
   }, [])
 
   const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => {
+    (e: React.MouseEvent<HTMLCanvasElement>) => { e.preventDefault();
       if (hoveredNode && onNodeClick) {
         onNodeClick(hoveredNode)
       }
