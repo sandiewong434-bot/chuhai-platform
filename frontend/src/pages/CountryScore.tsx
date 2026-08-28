@@ -1,5 +1,13 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import {
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+} from 'recharts'
 import { Globe, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { scoreApi } from '@/lib/api'
 
@@ -121,37 +129,69 @@ export default function CountryScore() {
             </div>
           </div>
 
-          {/* 维度雷达图（简化版：条形图） */}
-          <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="font-medium text-gray-900 mb-4">六维度得分</h3>
-            <div className="space-y-4">
-              {DIMENSIONS.map((dim) => {
-                const value = score.dimensions[dim.key as keyof typeof score.dimensions] || 0
-                return (
-                  <div key={dim.key}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-gray-700">{dim.name}</span>
-                      <span className="text-sm font-medium text-gray-900">
-                        {value}分
-                      </span>
+          {/* 维度雷达图 + 条形图明细 */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* 雷达图 */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="font-medium text-gray-900 mb-2">六维度雷达图</h3>
+              <div className="h-[320px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart
+                    data={DIMENSIONS.map((dim) => ({
+                      subject: dim.name.replace(/与.*/, '…'),
+                      score:
+                        score.dimensions[dim.key as keyof typeof score.dimensions] || 0,
+                      fullMark: 100,
+                    }))}
+                  >
+                    <PolarGrid />
+                    <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12 }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10 }} />
+                    <Radar
+                      name={score.country_name}
+                      dataKey="score"
+                      stroke="#2563eb"
+                      fill="#3b82f6"
+                      fillOpacity={0.3}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* 条形图明细 */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="font-medium text-gray-900 mb-4">子项明细</h3>
+              <div className="space-y-3">
+                {DIMENSIONS.map((dim) => {
+                  const value =
+                    score.dimensions[dim.key as keyof typeof score.dimensions] || 0
+                  return (
+                    <div key={dim.key}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-gray-700">{dim.name}</span>
+                        <span className="text-sm font-medium text-gray-900">
+                          {value}分
+                        </span>
+                      </div>
+                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            value >= 80
+                              ? 'bg-green-500'
+                              : value >= 60
+                              ? 'bg-blue-500'
+                              : value >= 40
+                              ? 'bg-yellow-500'
+                              : 'bg-red-500'
+                          }`}
+                          style={{ width: `${value}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${
-                          value >= 80
-                            ? 'bg-green-500'
-                            : value >= 60
-                            ? 'bg-blue-500'
-                            : value >= 40
-                            ? 'bg-yellow-500'
-                            : 'bg-red-500'
-                        }`}
-                        style={{ width: `${value}%` }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
             </div>
           </div>
         </div>
