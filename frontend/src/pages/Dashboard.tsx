@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FileText, Globe, Radio, TrendingUp } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { articleApi, sourceApi, scoreApi } from '@/lib/api'
 
 interface Stats {
@@ -11,6 +12,18 @@ interface Stats {
   countryCount: number
 }
 
+interface DailyData {
+  date: string
+  count: number
+}
+
+interface SourceData {
+  name: string
+  count: number
+}
+
+const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16']
+
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats>({
     totalArticles: 0,
@@ -19,6 +32,8 @@ export default function Dashboard() {
     issueSources: 0,
     countryCount: 0,
   })
+  const [dailyData, setDailyData] = useState<DailyData[]>([])
+  const [topSources, setTopSources] = useState<SourceData[]>([])
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -35,6 +50,8 @@ export default function Dashboard() {
           issueSources: sourceRes.data.with_issue || 0,
           countryCount: countryRes?.data?.total || 0,
         })
+        setDailyData(articleRes.data.daily || [])
+        setTopSources((articleRes.data.by_source || []).slice(0, 6))
       } catch {
         // 静默失败，使用默认值
       }
@@ -77,6 +94,12 @@ export default function Dashboard() {
     },
   ]
 
+  // 格式化日期显示
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr)
+    return `${d.getMonth() + 1}/${d.getDate()}`
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -84,6 +107,7 @@ export default function Dashboard() {
         <p className="text-gray-500 mt-1">出海综合服务平台数据概览</p>
       </div>
 
+      {/* 统计卡片 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card) => (
           <Link
@@ -104,6 +128,75 @@ export default function Dashboard() {
             </div>
           </Link>
         ))}
+      </div>
+
+      {/* 图表区域 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 文章趋势图 */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">近7天文章采集趋势</h3>
+          {dailyData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={dailyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDate}
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                  axisLine={{ stroke: '#e5e7eb' }}
+                />
+                <YAxis
+                  tick={{ fontSize: 12, fill: '#6b7280' }}
+                  axisLine={{ stroke: '#e5e7eb' }}
+                  allowDecimals={false}
+                />
+                <Tooltip
+                  formatter={(value: number) => [`${value} 篇`, '文章数']}
+                  labelFormatter={(label: string) => `日期: ${label}`}
+                  contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
+                />
+                <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-60 flex items-center justify-center text-gray-400">
+              暂无趋势数据
+            </div>
+          )}
+        </div>
+
+        {/* 来源分布图 */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">近7天文章来源分布</h3>
+          {topSources.length > 0 ? (
+            <ResponsiveContainer width="100%" height={240}>
+              <PieChart>
+                <Pie
+                  data={topSources}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={90}
+                  paddingAngle={3}
+                  dataKey="count"
+                  nameKey="name"
+                >
+                  {topSources.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value: number, name: string) => [`${value} 篇`, name]}
+                  contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-60 flex items-center justify-center text-gray-400">
+              暂无来源数据
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 快速入口 */}
