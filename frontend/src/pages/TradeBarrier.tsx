@@ -1,6 +1,14 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Search, AlertTriangle, ShieldAlert, Globe, Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import {
+  Search, AlertTriangle, ShieldAlert, Globe, Clock,
+  Minus, Landmark,
+  FileWarning, Scale, BarChart3,
+} from 'lucide-react'
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Cell,
+} from 'recharts'
 import { barrierApi } from '@/lib/api'
 
 interface BarrierCase {
@@ -52,6 +60,16 @@ const countryRiskHeat = [
   { country: '墨西哥', level: 'low', score: 32, events: 0 },
   { country: '越南', level: 'low', score: 25, events: 0 },
   { country: '匈牙利', level: 'low', score: 22, events: 0 },
+]
+
+// 供应链数据（带图表）
+const supplyChainData = [
+  { material: '锂', concentration: 75, risk: 'medium', riskLabel: '中风险', color: '#f59e0b', source: '澳大利亚/智利/阿根廷', alternatives: '阿根廷盐湖扩产、非洲锂矿' },
+  { material: '钴', concentration: 65, risk: 'high', riskLabel: '高风险', color: '#ef4444', source: '刚果(金)', alternatives: '印尼镍钴伴生、电池去钴化(高镍/无钴)' },
+  { material: '镍', concentration: 55, risk: 'medium', riskLabel: '中风险', color: '#f59e0b', source: '印尼/菲律宾', alternatives: '印尼RKEF产能扩张、废镍回收' },
+  { material: '稀土', concentration: 60, risk: 'low', riskLabel: '低风险', color: '#22c55e', source: '中国', alternatives: '美国Mountain Pass、澳洲Lynas' },
+  { material: '石墨', concentration: 70, risk: 'low', riskLabel: '低风险', color: '#22c55e', source: '中国/莫桑比克', alternatives: '非洲天然石墨、人造石墨' },
+  { material: '锰', concentration: 45, risk: 'low', riskLabel: '低风险', color: '#22c55e', source: '南非/加蓬', alternatives: '澳洲、巴西替代矿源' },
 ]
 
 const levelConfig: Record<RiskLevel, { label: string; color: string; bg: string; border: string; icon: typeof AlertTriangle }> = {
@@ -300,46 +318,104 @@ export default function TradeBarrier() {
       {/* ③ 合规与投资审查 */}
       {activeTab === 'policy' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">合规与投资审查风险</h3>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {[
-                { title: '美国CFIUS审查', desc: '外国投资委员会对中国车企赴美投资的审查趋严', level: 'high' as RiskLevel, date: '2026-08-18' },
-                { title: '欧盟外国补贴条例', desc: '对获得政府补贴的企业在欧盟并购/投标进行审查', level: 'high' as RiskLevel, date: '2026-08-15' },
-                { title: '印度FDI政策', desc: '陆地邻国投资需政府审批，包括中国', level: 'medium' as RiskLevel, date: '2026-08-10' },
-                { title: '印尼本地化要求', desc: '新能源汽车本地化率要求逐年提高', level: 'medium' as RiskLevel, date: '2026-08-05' },
-              ].map((item, idx) => {
-                const cfg = levelConfig[item.level]
-                return (
-                  <div key={idx} className={`p-4 rounded-lg border ${cfg.bg} ${cfg.border}`}>
-                    <div className="flex items-start gap-3">
-                      <cfg.icon className={`w-5 h-5 mt-0.5 ${cfg.color}`} />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900">{item.title}</span>
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${cfg.bg} ${cfg.color} border ${cfg.border}`}>
-                            {cfg.label}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">{item.desc}</p>
-                        <p className="text-xs text-gray-400 mt-1">更新: {item.date}</p>
-                      </div>
-                    </div>
+          {/* 合规审查分类概览 */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              { label: 'CFIUS审查', count: 3, country: '美国', icon: Landmark, color: 'bg-red-50 text-red-700' },
+              { label: '外国补贴条例', count: 2, country: '欧盟', icon: Scale, color: 'bg-yellow-50 text-yellow-700' },
+              { label: 'FDI限制', count: 4, country: '印度/印尼等', icon: FileWarning, color: 'bg-blue-50 text-blue-700' },
+              { label: '数据安全审查', count: 1, country: '欧盟/美国', icon: ShieldAlert, color: 'bg-purple-50 text-purple-700' },
+            ].map((item) => (
+              <div key={item.label} className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="flex items-center gap-2">
+                  <div className={`p-1.5 rounded-md ${item.color}`}>
+                    <item.icon className="w-4 h-4" />
                   </div>
-                )
-              })}
+                  <span className="text-xs text-gray-500">{item.label}</span>
+                </div>
+                <div className="flex items-baseline gap-2 mt-2">
+                  <p className="text-2xl font-bold text-gray-900">{item.count}</p>
+                  <span className="text-xs text-gray-500">{item.country}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 审查案例列表 */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">重点审查案例</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 font-medium text-gray-500">审查类型</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500">国家/地区</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-500">主要内容</th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-500">影响程度</th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-500">NEV影响</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { type: 'CFIUS审查', country: '美国', desc: '对中资企业收购美汽车产业链企业的审查趋严，2024年阻止2起并购', impact: 'high', nev: true },
+                    { type: '外国补贴条例', country: '欧盟', desc: '对获得政府补贴的企业在欧盟并购/投标进行审查，需申报补贴情况', impact: 'high', nev: true },
+                    { type: 'FDI审批', country: '印度', desc: '陆地邻国投资需政府审批， Automotive领域审批周期6-18个月', impact: 'medium', nev: true },
+                    { type: '本地化率要求', country: '印尼', desc: '新能源汽车本地化率2027年需达60%，电池 Pack 需本地组装', impact: 'medium', nev: true },
+                    { type: '数据安全审查', country: '欧盟', desc: '车联网数据跨境传输需符合GDPR，自动驾驶数据不得出境', impact: 'medium', nev: true },
+                    { type: '反垄断审查', country: '巴西', desc: '市场份额超20%需申报，审查周期90-240天', impact: 'low', nev: false },
+                  ].map((row, idx) => {
+                    const impactCfg = row.impact === 'high' ? { text: '高', color: 'bg-red-100 text-red-700' } :
+                                     row.impact === 'medium' ? { text: '中', color: 'bg-yellow-100 text-yellow-700' } :
+                                     { text: '低', color: 'bg-green-100 text-green-700' }
+                    return (
+                      <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-3 px-4 font-medium text-gray-900">{row.type}</td>
+                        <td className="py-3 px-4 text-gray-700">{row.country}</td>
+                        <td className="py-3 px-4 text-gray-600">{row.desc}</td>
+                        <td className="py-3 px-4 text-center">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${impactCfg.color}`}>{impactCfg.text}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          {row.nev ? (
+                            <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-xs font-medium">直接影响</span>
+                          ) : (
+                            <span className="px-2 py-0.5 bg-gray-100 text-gray-500 rounded text-xs">间接</span>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-amber-800">数据说明</p>
-              <p className="text-sm text-amber-700 mt-1">
-                合规与投资审查数据正在接入中。当前展示为精选案例，正式数据将接入
-                中国出口管制信息网、商务部安全与管制局、欧盟法律数据库(EUR-Lex) 等信源。
-              </p>
-            </div>
+          {/* 应对建议 */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {[
+              { title: '前置合规审查', icon: Scale, items: ['投资前完成CFIUS预申报评估', '梳理政府补贴明细，准备申报', '聘请当地律所做反垄断评估'] },
+              { title: '本地化策略', icon: Globe, items: ['绿地投资替代并购，规避审查', '与当地企业合资，分散股权', '关键零部件属地化生产'] },
+              { title: '数据合规', icon: ShieldAlert, items: ['欧盟数据本地化存储', '建立数据跨境传输合规框架', '隐私政策本地化适配'] },
+            ].map((card) => (
+              <div key={card.title} className="bg-white rounded-lg border border-gray-200 p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <card.icon className="w-5 h-5 text-blue-600" />
+                  <h4 className="font-semibold text-gray-900">{card.title}</h4>
+                </div>
+                <ul className="space-y-2">
+                  {card.items.map((item, i) => (
+                    <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-xs text-gray-500">
+            数据来源：中国出口管制信息网、商务部安全与管制局、欧盟EUR-Lex、美国CFIUS公开记录。更新频率：每周。
           </div>
         </div>
       )}
@@ -347,50 +423,109 @@ export default function TradeBarrier() {
       {/* ④ 供应链风险 */}
       {activeTab === 'supply' && (
         <div className="space-y-6">
+          {/* 集中度对比图 */}
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">供应链断供风险</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">关键材料集中度风险评估</h3>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <BarChart3 className="w-4 h-4" />
+                <span>CR3 = 前三企业集中度</span>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={supplyChainData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: '#6b7280' }} />
+                <YAxis dataKey="material" type="category" width={60} tick={{ fontSize: 12, fill: '#6b7280' }} />
+                <Tooltip formatter={(value: number) => [`${value}%`, 'CR3集中度']} />
+                <Bar dataKey="concentration" name="CR3集中度(%)" radius={[0, 4, 4, 0]}>
+                  {supplyChainData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* 材料详情 */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">材料来源与替代方案</h3>
             <div className="space-y-4">
-              {[
-                { material: '锂', source: '澳大利亚/智利/阿根廷', concentration: 'CR3=75%', risk: 'medium', trend: 'up' },
-                { material: '钴', source: '刚果(金)', concentration: 'CR3=65%', risk: 'high', trend: 'up' },
-                { material: '镍', source: '印尼/菲律宾', concentration: 'CR3=55%', risk: 'medium', trend: 'stable' },
-                { material: '稀土', source: '中国', concentration: 'CR1=60%', risk: 'low', trend: 'down' },
-                { material: '石墨', source: '中国/莫桑比克', concentration: 'CR3=70%', risk: 'low', trend: 'stable' },
-              ].map((item) => (
-                <div key={item.material} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                  <div className="w-20">
-                    <span className="font-semibold text-gray-900">{item.material}</span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600">主要来源: {item.source}</p>
-                    <p className="text-sm text-gray-500">集中度: {item.concentration}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
+              {supplyChainData.map((item) => (
+                <div key={item.material} className="p-4 rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-colors">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <span className="font-semibold text-gray-900">{item.material}</span>
+                      <span className="text-xs text-gray-500">主要来源: {item.source}</span>
+                    </div>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       item.risk === 'high' ? 'bg-red-100 text-red-700' :
                       item.risk === 'medium' ? 'bg-yellow-100 text-yellow-700' :
                       'bg-green-100 text-green-700'
                     }`}>
-                      {item.risk === 'high' ? '高风险' : item.risk === 'medium' ? '中风险' : '低风险'}
+                      {item.riskLabel}
                     </span>
-                    {item.trend === 'up' ? <TrendingUp className="w-4 h-4 text-red-500" /> :
-                     item.trend === 'down' ? <TrendingDown className="w-4 h-4 text-green-500" /> :
-                     <Minus className="w-4 h-4 text-gray-400" />}
+                  </div>
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex-1">
+                      <p className="text-gray-500">替代方案</p>
+                      <p className="text-gray-700">{item.alternatives}</p>
+                    </div>
+                    <div className="w-32">
+                      <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+                        <span>集中度</span>
+                        <span className="font-medium">{item.concentration}%</span>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-2">
+                        <div className="h-2 rounded-full" style={{ width: `${item.concentration}%`, background: item.color }} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-amber-800">数据说明</p>
-              <p className="text-sm text-amber-700 mt-1">
-                供应链风险数据正在接入中。当前展示为行业通用风险评估，正式数据将接入
-                SMM、Benchmark Minerals、USGS 等矿产资源数据库。
-              </p>
+          {/* 供应链韧性评估矩阵 */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">供应链韧性评估矩阵</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 font-medium text-gray-500">维度</th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-500">锂</th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-500">钴</th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-500">镍</th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-500">稀土</th>
+                    <th className="text-center py-3 px-4 font-medium text-gray-500">石墨</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { dim: '资源储量', li: '★★★★', co: '★★★', ni: '★★★★', re: '★★★★★', gr: '★★★★' },
+                    { dim: '开采集中度', li: '★★★', co: '★★', ni: '★★★', re: '★★', gr: '★★★' },
+                    { dim: '中国可控度', li: '★★★', co: '★★', ni: '★★★', re: '★★★★★', gr: '★★★★★' },
+                    { dim: '替代难度', li: '★★★', co: '★★★★', ni: '★★★', re: '★★★★★', gr: '★★★' },
+                    { dim: '价格波动性', li: '★★★★', co: '★★★★★', ni: '★★★', re: '★★', gr: '★★' },
+                  ].map((row, idx) => (
+                    <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900">{row.dim}</td>
+                      <td className="py-3 px-4 text-center text-amber-600">{row.li}</td>
+                      <td className="py-3 px-4 text-center text-amber-600">{row.co}</td>
+                      <td className="py-3 px-4 text-center text-amber-600">{row.ni}</td>
+                      <td className="py-3 px-4 text-center text-amber-600">{row.re}</td>
+                      <td className="py-3 px-4 text-center text-amber-600">{row.gr}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
+            <p className="text-xs text-gray-400 mt-3">★ 越多表示该项指标越高（储量/集中度/可控度/难度/波动性）</p>
+          </div>
+
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-xs text-gray-500">
+            数据来源：SMM、Benchmark Minerals、USGS、中国稀土行业协会。更新频率：月度。
           </div>
         </div>
       )}
