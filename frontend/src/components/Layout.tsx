@@ -9,17 +9,21 @@ import {
   Radio,
   Menu,
   X,
+  Factory,
+  Ship,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { path: '/', label: '仪表盘', icon: LayoutDashboard },
-  { path: '/articles', label: '文章检索', icon: FileText },
-  { path: '/ontology', label: '本体图谱', icon: Network },
+  { path: '/industry', label: '产业链全景', icon: Factory },
+  { path: '/export', label: '出口分析', icon: Ship },
   { path: '/scores', label: '国别评估', icon: Globe },
   { path: '/barriers', label: '贸易壁垒', icon: ShieldAlert },
   { path: '/enterprises', label: '企业追踪', icon: Building2 },
+  { path: '/articles', label: '文章检索', icon: FileText },
+  { path: '/ontology', label: '本体图谱', icon: Network },
   { path: '/sources', label: '信源监控', icon: Radio },
 ]
 
@@ -86,7 +90,7 @@ export default function Layout() {
             <Menu className="w-5 h-5" />
           </button>
           <div className="ml-auto text-sm text-gray-500">
-            出海综合服务平台 v1.0
+            新能源汽车出海智能决策BI看板 v1.0
           </div>
         </header>
 

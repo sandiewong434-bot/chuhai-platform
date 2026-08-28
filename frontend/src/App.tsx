@@ -9,6 +9,8 @@ import CountryScore from './pages/CountryScore'
 import TradeBarrier from './pages/TradeBarrier'
 import EnterpriseTrack from './pages/EnterpriseTrack'
 import SourceHealth from './pages/SourceHealth'
+import IndustryChain from './pages/IndustryChain'
+import ExportAnalysis from './pages/ExportAnalysis'
 
 function App() {
   return (
@@ -27,6 +29,16 @@ function App() {
         <Route path="articles/:id" element={
           <ErrorBoundary>
             <ArticleDetail />
+          </ErrorBoundary>
+        } />
+        <Route path="industry" element={
+          <ErrorBoundary>
+            <IndustryChain />
+          </ErrorBoundary>
+        } />
+        <Route path="export" element={
+          <ErrorBoundary>
+            <ExportAnalysis />
           </ErrorBoundary>
         } />
         <Route path="ontology" element={
