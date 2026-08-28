@@ -20,6 +20,16 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          query: ['@tanstack/react-query', 'axios'],
+          charts: ['recharts'],
+          ui: ['lucide-react', 'clsx', 'tailwind-merge', 'class-variance-authority', 'date-fns'],
+        },
+      },
+    },
   },
 })

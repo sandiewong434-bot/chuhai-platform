@@ -48,7 +48,8 @@ chuhai-platform/
 │   ├── scripts/          # 工具脚本
 │   │   ├── extract_ontology.py      # 本体抽取
 │   │   ├── data_quality_sprint.py   # 数据质量
-│   │   └── deduplicate_articles.py  # 去重
+│   │   ├── deduplicate_articles.py  # 去重
+│   │   └── bulk_import_sources.py   # 信源批量导入
 │   ├── chuhai_dev.db     # SQLite 开发数据库
 │   ├── Dockerfile
 │   └── requirements.txt
@@ -84,13 +85,13 @@ chuhai-platform/
 ## 📊 数据状态
 
 当前数据库包含：
-- **174 篇唯一文章**（去重后）
+- **174 篇唯一文章**（去重后，100%有标注，100%有日期，93.7%有正文）
 - **86 个实体**（27 企业 + 41 目的国 + 18 产品）
-- **19 条关系**
-- **64 个活跃信源**
-- **13 国评分数据**
-- **18 条贸易壁垒**
-- **10 家企业追踪**
+- **43 条关系**（企业-国家投资、产品-目标市场等）
+- **75 个活跃信源**（覆盖 14 个库）
+- **20 条国别评分数据**（覆盖 19 个国家/地区）
+- **18 条贸易壁垒案件**
+- **10 家企业出海动态追踪**
 
 ## 🛠️ 常用操作
 
@@ -105,6 +106,15 @@ python3 backend/scripts/data_quality_sprint.py
 
 # 文章去重
 python3 backend/scripts/deduplicate_articles.py
+
+# 日期补全
+python3 backend/scripts/fix_dates.py
+
+# 关系抽取
+python3 backend/scripts/extract_relations.py
+
+# 信源批量导入（CSV/JSON）
+python3 backend/scripts/bulk_import_sources.py --file new_sources.csv
 ```
 
 ### 数据库操作
@@ -130,3 +140,4 @@ sqlite3 backend/chuhai_dev.db '.dump' > backup.sql
 | 版本 | 日期 | 说明 |
 |------|------|------|
 | v1.0.0 | 2026-08-23 | 测试环境部署就绪 |
+| v1.1.0 | 2026-08-28 | 前端代码分割优化 + 生产构建通过 |
