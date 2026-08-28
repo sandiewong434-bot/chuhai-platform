@@ -73,6 +73,15 @@ COUNTRY_MAP = {
     "俄罗斯": {"code": "RU", "name": "俄罗斯"},
 }
 
+# 区域到具体国家的映射（区域文章可给具体国家分配分数）
+REGION_TO_COUNTRIES = {
+    "SEA": ["TH", "ID", "VN", "MY", "PH", "SG"],
+    "EU": ["HU", "DE", "ES", "FR", "IT", "PL"],
+    "NA": ["US", "CA", "MX"],
+    "MEA": ["TR", "EG", "SA", "AE", "ZA"],
+    "LAT": ["MX", "BR", "AR", "CL"],
+}
+
 # G5标签 → 维度映射
 G5_TO_DIMENSION = {
     "G5.L1.01": "d1",  # 海外布局现状与趋势
@@ -141,7 +150,6 @@ def _extract_dimensions_from_tags(article: Article) -> list[str]:
 
 def _get_article_weight(article: Article) -> float:
     """计算单篇文章的权重（基于信源）"""
-    # 简单启发式：根据source_name判断权重
     source_name = (article.source_name or "").lower()
     
     if any(k in source_name for k in ["政府", "gov.cn", "mofcom", "miit"]):
@@ -164,6 +172,21 @@ def _get_country_code_from_name(name: str) -> dict | None:
     return None
 
 
+def _add_country_scores(country_data, code, article_id, weight, dims, has_risk):
+    """给指定国家累加分数"""
+    country_data[code]["articles"].append(article_id)
+    country_data[code]["total_weight"] += weight
+    
+    for dim in dims:
+        country_data[code]["dimension_scores"][dim] += weight
+    
+    if not dims:
+        country_data[code]["dimension_scores"]["d1"] += weight * 0.5
+    
+    if has_risk:
+        country_data[code]["risk_count"] += 1
+
+
 def calculate_country_scores(db: Session, industry: str = "NEV") -> list[dict]:
     """
     计算所有国家的出海评分
@@ -175,13 +198,11 @@ def calculate_country_scores(db: Session, industry: str = "NEV") -> list[dict]:
     Returns:
         各国评分结果列表
     """
-    # 获取所有已标注文章
     articles = db.query(Article).filter(
         Article.category_tag != None,
         Article.category_tag != "",
     ).all()
     
-    # 按国家聚合数据
     country_data = defaultdict(lambda: {
         "articles": [],
         "dimension_scores": defaultdict(float),
@@ -193,8 +214,6 @@ def calculate_country_scores(db: Session, industry: str = "NEV") -> list[dict]:
         countries = _extract_country_from_tags(article)
         dims = _extract_dimensions_from_tags(article)
         weight = _get_article_weight(article)
-        
-        # 风险标签计数
         has_risk = article.category_tag and "G6" in article.category_tag
         
         for country in countries:
@@ -204,19 +223,16 @@ def calculate_country_scores(db: Session, industry: str = "NEV") -> list[dict]:
                 continue
             
             code = info["code"]
-            country_data[code]["articles"].append(article.id)
-            country_data[code]["total_weight"] += weight
             
-            # 维度分数累加
-            for dim in dims:
-                country_data[code]["dimension_scores"][dim] += weight
+            # 给主国家/区域加分
+            _add_country_scores(country_data, code, article.id, weight, dims, has_risk)
             
-            # 如果没有维度标签，默认给D1（海外布局）加分
-            if not dims:
-                country_data[code]["dimension_scores"]["d1"] += weight * 0.5
-            
-            if has_risk:
-                country_data[code]["risk_count"] += 1
+            # 区域扩散：区域标签的文章也给区域内具体国家分配分数
+            if code in REGION_TO_COUNTRIES:
+                sub_countries = REGION_TO_COUNTRIES[code]
+                sub_weight = weight * 0.4
+                for sub_code in sub_countries:
+                    _add_country_scores(country_data, sub_code, article.id, sub_weight, dims, has_risk)
     
     results = []
     
@@ -227,51 +243,35 @@ def calculate_country_scores(db: Session, industry: str = "NEV") -> list[dict]:
         
         article_count = len(data["articles"])
         if article_count < 2:
-            continue  # 文章太少不计算
+            continue
         
-        # 计算各维度原始分数（基于文章加权数量）
-        dim_raw = {}
-        for dim_code, dim_info in DIMENSIONS.items():
-            raw_score = data["dimension_scores"].get(dim_code, 0)
-            # 归一化：假设最高分的国家为基准
-            dim_raw[dim_code] = raw_score
-        
-        # 找到该维度在所有国家中的最大值，用于归一化
         all_dim_max = {dim: max(
             country_data[c]["dimension_scores"].get(dim, 0)
             for c in country_data
         ) for dim in DIMENSIONS.keys()}
         
-        # 计算各维度分数（0-100）
         dimension_scores = {}
         for dim_code, dim_info in DIMENSIONS.items():
             max_val = all_dim_max.get(dim_code, 1)
             if max_val == 0:
-                score = 50  # 无数据时给中性分
+                score = 50
             else:
                 raw = data["dimension_scores"].get(dim_code, 0)
-                # 基础分40 + 按相对比例分配60分
                 score = 40 + (raw / max_val) * 60
             
-            # 风险惩罚（每条风险新闻扣2分，最多扣10分）
             risk_penalty = min(data["risk_count"] * 2, 10)
             score = max(0, score - risk_penalty)
-            
             dimension_scores[dim_code] = round(score, 1)
         
-        # 加权总分
         total = sum(
             dimension_scores[dim] * dim_info["weight"]
             for dim, dim_info in DIMENSIONS.items()
         )
         
-        # 文章数量加成（文章越多，分数越可信，小幅加分）
         volume_bonus = min(article_count * 0.5, 5)
         total = min(100, total + volume_bonus)
-        
         total = round(total, 1)
         
-        # 36子项（简化版：每维度6个子项）
         subitems = {}
         for dim_code, dim_info in DIMENSIONS.items():
             base = dimension_scores[dim_code]
@@ -292,7 +292,6 @@ def calculate_country_scores(db: Session, industry: str = "NEV") -> list[dict]:
             "risk_count": data["risk_count"],
         })
     
-    # 按总分排序
     results.sort(key=lambda x: x["score_total"], reverse=True)
     return results
 
@@ -326,10 +325,6 @@ def refresh_all_scores(db: Session, industry: str = "NEV") -> dict:
         {"calculated": int, "saved": int, "top3": list}
     """
     scores = calculate_country_scores(db, industry)
-    
-    # 清除旧评分（保留历史）
-    # 注意：这里不清除，直接插入新记录，保留历史版本
-    
     saved = save_country_scores(db, scores)
     
     return {
