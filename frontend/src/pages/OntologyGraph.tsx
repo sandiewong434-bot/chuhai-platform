@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Search, Network } from 'lucide-react'
 import { ontologyApi } from '@/lib/api'
+import ForceGraph from '@/components/ForceGraph'
 
 interface ObjectEntity {
   obj_id: string
@@ -15,6 +16,12 @@ interface GraphData {
   nodes: { id: string; type: string }[]
   edges: { source: string; target: string; type: string; confidence: string | null }[]
 }
+
+const TYPE_LEGEND = [
+  { type: '企业', color: '#2563eb' },
+  { type: '目的国', color: '#16a34a' },
+  { type: '产品', color: '#9333ea' },
+]
 
 export default function OntologyGraph() {
   const [q, setQ] = useState('')
@@ -88,37 +95,46 @@ export default function OntologyGraph() {
 
         {/* 关系图谱 */}
         <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Network className="w-5 h-5 text-gray-500" />
-            <h3 className="font-medium text-gray-900">
-              {selectedObj ? `${selectedObj} 的关系网络` : '请选择对象查看关系'}
-            </h3>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Network className="w-5 h-5 text-gray-500" />
+              <h3 className="font-medium text-gray-900">
+                {selectedObj ? `${selectedObj} 的关系网络` : '请选择对象查看关系'}
+              </h3>
+            </div>
+            {/* 图例 */}
+            {graph && graph.nodes.length > 0 && (
+              <div className="flex gap-3">
+                {TYPE_LEGEND.map((l) => (
+                  <div key={l.type} className="flex items-center gap-1">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: l.color }}
+                    />
+                    <span className="text-xs text-gray-500">{l.type}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {graph && graph.nodes.length > 0 ? (
             <div className="space-y-4">
-              {/* 节点 */}
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-2">相关节点</h4>
-                <div className="flex flex-wrap gap-2">
-                  {graph.nodes.map((node) => (
-                    <span
-                      key={node.id}
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        node.id === graph.center
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {node.id}
-                    </span>
-                  ))}
-                </div>
+              {/* 力导向图 */}
+              <div className="border border-gray-100 rounded-lg overflow-hidden bg-gray-50">
+                <ForceGraph
+                  nodes={graph.nodes}
+                  edges={graph.edges}
+                  width={700}
+                  height={350}
+                  centerNode={graph.center}
+                  onNodeClick={(nodeId) => setSelectedObj(nodeId)}
+                />
               </div>
 
-              {/* 边 */}
+              {/* 关系列表明细 */}
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-2">关系</h4>
+                <h4 className="text-sm font-medium text-gray-500 mb-2">关系明细</h4>
                 <div className="space-y-2">
                   {graph.edges.map((edge, i) => (
                     <div
