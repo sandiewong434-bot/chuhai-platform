@@ -165,6 +165,61 @@ def migrate_relations(sqlite_conn, pg_conn):
         print("  relations 表为空，跳过")
         return
 
+    # 先获取PG中所有有效的article_id（通过unique_key映射）
+    pg_cur = pg_conn.cursor()
+    pg_cur.execute("SELECT id, unique_key FROM articles")
+    pg_articles = {row[1]: row[0] for row in pg_cur.fetchall()}
+
+    # 同时获取SQLite的id -> unique_key映射
+    sqlite_cur2 = sqlite_conn.cursor()
+    sqlite_cur2.execute("SELECT id, unique_key FROM articles")
+    sqlite_id_to_uk = {row["id"]: row["unique_key"] for row in sqlite_cur2.fetchall()}
+
+    skipped = 0
+    for row in rows:
+        sqlite_article_id = row["source_article_id"]
+        pg_article_id = None
+
+        if sqlite_article_id:
+            # 通过SQLite id找到unique_key，再映射到PG的id
+            uk = sqlite_id_to_uk.get(sqlite_article_id)
+            if uk:
+                pg_article_id = pg_articles.get(uk)
+            if not pg_article_id:
+                skipped += 1
+                pg_article_id = None  # 外键不存在时设为NULL
+
+        pg_cur.execute(
+            """
+            INSERT INTO relations (rel_id, rel_type, from_obj, to_obj, attributes_json,
+                                   source_article_id, confidence)
+            VALUES (%s, %s, %s, %s, %s::jsonb, %s, %s)
+            ON CONFLICT (rel_id) DO NOTHING
+            """,
+            (row["rel_id"], row["rel_type"], row["from_obj"], row["to_obj"],
+             row["attributes_json"] or '{}', pg_article_id, row["confidence"]),
+        )
+    pg_conn.commit()
+    pg_cur.close()
+    print(f"[3/5] ✓ relations 表迁移完成，共 {len(rows)} 条（跳过外键不匹配 {skipped} 条）")
+    """迁移 relations 表"""
+    print("[3/5] 迁移 relations 表...")
+    sqlite_cur = sqlite_conn.cursor()
+
+    sqlite_cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='relations'")
+    if not sqlite_cur.fetchone():
+        print("  SQLite 中无 relations 表，跳过")
+        return
+
+    sqlite_cur.execute(
+        "SELECT rel_id, rel_type, from_obj, to_obj, attributes_json, source_article_id, confidence FROM relations"
+    )
+    rows = sqlite_cur.fetchall()
+
+    if not rows:
+        print("  relations 表为空，跳过")
+        return
+
     pg_cur = pg_conn.cursor()
     for row in rows:
         pg_cur.execute(

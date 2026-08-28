@@ -19,12 +19,10 @@ database_url = settings.DATABASE_URL
 
 if database_url.startswith("postgresql"):
     try:
-        # 测试PostgreSQL连接
+        # 用psycopg2直接测试PostgreSQL连接（更可靠，超时可控）
         import psycopg2
-        # 从URL解析连接参数
-        test_engine = create_engine(database_url, pool_pre_ping=True)
-        with test_engine.connect() as conn:
-            conn.execute("SELECT 1")
+        conn = psycopg2.connect(database_url, connect_timeout=5)
+        conn.close()
     except Exception:
         # PostgreSQL不可用，回退到SQLite
         sqlite_path = Path(__file__).parent.parent.parent / "chuhai_dev.db"
