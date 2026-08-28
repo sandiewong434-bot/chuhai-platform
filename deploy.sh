@@ -1,7 +1,19 @@
 #!/bin/bash
 # 出海综合服务平台 - 测试环境一键部署脚本
+# 兼容 Docker Compose v1 (docker-compose) 和 v2 (docker compose)
 
 set -e
+
+# 检测 Docker Compose 命令
+COMPOSE_CMD=""
+if command -v docker-compose &> /dev/null; then
+    COMPOSE_CMD="docker-compose"
+elif docker compose version &> /dev/null 2>&1; then
+    COMPOSE_CMD="docker compose"
+else
+    echo "❌ Docker Compose 未安装，请先安装 Docker Compose"
+    exit 1
+fi
 
 echo "========================================"
 echo "  出海综合服务平台 - 测试环境部署"
@@ -14,11 +26,7 @@ if ! command -v docker &> /dev/null; then
     echo "  ❌ Docker 未安装，请先安装 Docker"
     exit 1
 fi
-if ! command -v docker-compose &> /dev/null; then
-    echo "  ❌ Docker Compose 未安装，请先安装 Docker Compose"
-    exit 1
-fi
-echo "  ✅ Docker 环境正常"
+echo "  ✅ Docker 环境正常 (Compose: $COMPOSE_CMD)"
 
 # 检查数据库文件
 echo ""
@@ -32,13 +40,13 @@ echo "  ✅ 数据库文件就绪"
 # 构建镜像
 echo ""
 echo "[3/5] 构建 Docker 镜像..."
-docker-compose build
+$COMPOSE_CMD build
 echo "  ✅ 镜像构建完成"
 
 # 启动服务
 echo ""
 echo "[4/5] 启动服务..."
-docker-compose up -d
+$COMPOSE_CMD up -d
 echo "  ✅ 服务已启动"
 
 # 检查服务状态
@@ -47,18 +55,17 @@ echo "[5/5] 检查服务状态..."
 sleep 3
 
 # 检查后端
-if curl -s http://localhost:8000/health > /dev/null; then
+if curl -s http://localhost:8000/api/v1/articles?page=1&page_size=1 > /dev/null 2>&1; then
     echo "  ✅ 后端 API: http://localhost:8000"
-    echo "     健康检查: $(curl -s http://localhost:8000/health)"
 else
-    echo "  ⚠️ 后端 API 可能未就绪，请检查日志: docker-compose logs backend"
+    echo "  ⚠️ 后端 API 可能未就绪，请检查日志: $COMPOSE_CMD logs backend"
 fi
 
 # 检查前端
 if curl -s -o /dev/null -w "%{http_code}" http://localhost | grep -q "200\|304"; then
     echo "  ✅ 前端页面: http://localhost"
 else
-    echo "  ⚠️ 前端页面可能未就绪，请检查日志: docker-compose logs frontend"
+    echo "  ⚠️ 前端页面可能未就绪，请检查日志: $COMPOSE_CMD logs frontend"
 fi
 
 echo ""
@@ -71,7 +78,7 @@ echo "  🔧 API 文档: http://localhost:8000/docs"
 echo "  🔍 API: http://localhost:8000/api/v1"
 echo ""
 echo "  常用命令:"
-echo "    查看日志: docker-compose logs -f"
-echo "    停止服务: docker-compose down"
-echo "    重启服务: docker-compose restart"
+echo "    查看日志: $COMPOSE_CMD logs -f"
+echo "    停止服务: $COMPOSE_CMD down"
+echo "    重启服务: $COMPOSE_CMD restart"
 echo ""
