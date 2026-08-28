@@ -35,7 +35,7 @@ services:
       - REDIS_ENABLED=false
       - SECRET_KEY=chuhai-test-secret-key-change-in-production
     volumes:
-      # 挂载现有数据库（包含全部 174 篇文章、86 实体、19 关系等）
+      # 挂载现有数据库（包含全部 174 篇文章、86 实体、43 关系等）
       - ./backend/chuhai_dev.db:/app/data/chuhai.db
       # 开发模式：挂载代码支持热更新
       - ./backend:/app

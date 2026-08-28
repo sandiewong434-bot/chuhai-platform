@@ -4,6 +4,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# 设置生产环境 API 地址（Nginx 会代理 /api/ 到后端）
+ENV VITE_API_URL=/api/v1
+
 # 复制依赖文件
 COPY package*.json ./
 RUN npm ci
