@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
+import ErrorBoundary from './components/ErrorBoundary'
 import Dashboard from './pages/Dashboard'
 import ArticleList from './pages/ArticleList'
 import ArticleDetail from './pages/ArticleDetail'
@@ -13,14 +14,46 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="articles" element={<ArticleList />} />
-        <Route path="articles/:id" element={<ArticleDetail />} />
-        <Route path="ontology" element={<OntologyGraph />} />
-        <Route path="scores" element={<CountryScore />} />
-        <Route path="barriers" element={<TradeBarrier />} />
-        <Route path="enterprises" element={<EnterpriseTrack />} />
-        <Route path="sources" element={<SourceHealth />} />
+        <Route index element={
+          <ErrorBoundary>
+            <Dashboard />
+          </ErrorBoundary>
+        } />
+        <Route path="articles" element={
+          <ErrorBoundary>
+            <ArticleList />
+          </ErrorBoundary>
+        } />
+        <Route path="articles/:id" element={
+          <ErrorBoundary>
+            <ArticleDetail />
+          </ErrorBoundary>
+        } />
+        <Route path="ontology" element={
+          <ErrorBoundary>
+            <OntologyGraph />
+          </ErrorBoundary>
+        } />
+        <Route path="scores" element={
+          <ErrorBoundary>
+            <CountryScore />
+          </ErrorBoundary>
+        } />
+        <Route path="barriers" element={
+          <ErrorBoundary>
+            <TradeBarrier />
+          </ErrorBoundary>
+        } />
+        <Route path="enterprises" element={
+          <ErrorBoundary>
+            <EnterpriseTrack />
+          </ErrorBoundary>
+        } />
+        <Route path="sources" element={
+          <ErrorBoundary>
+            <SourceHealth />
+          </ErrorBoundary>
+        } />
       </Route>
     </Routes>
   )
