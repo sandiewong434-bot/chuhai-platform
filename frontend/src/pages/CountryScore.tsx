@@ -1,5 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import ReactECharts from 'echarts-for-react'
+import * as echarts from 'echarts'
 import {
   RadarChart,
   Radar,
@@ -20,6 +22,9 @@ import {
   ArrowUpDown,
   MapPin,
   Factory,
+  Map as MapIcon,
+  List,
+  BarChart3,
 } from 'lucide-react'
 import { scoreApi } from '@/lib/api'
 
@@ -104,12 +109,13 @@ const COUNTRIES = [
 
 type Tier = '先锋' | '主力' | '潜力' | '待观察'
 type SortKey = 'score' | 'name' | 'tier'
+type ViewMode = 'list' | 'map' | 'detail'
 
-const tierConfig: Record<Tier, { color: string; bg: string; border: string; desc: string }> = {
-  '先锋': { color: 'text-green-700', bg: 'bg-green-50', border: 'border-green-200', desc: '高成熟度+高潜力，优先进入' },
-  '主力': { color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200', desc: '中高增长，重点布局' },
-  '潜力': { color: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200', desc: '高增长空间，战略布局' },
-  '待观察': { color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', desc: '壁垒较高或市场成熟，择机进入' },
+const tierConfig: Record<Tier, { color: string; bg: string; border: string; desc: string; mapColor: string }> = {
+  '先锋': { color: 'text-green-700', bg: 'bg-green-50', border: 'border-green-200', desc: '高成熟度+高潜力，优先进入', mapColor: '#059669' },
+  '主力': { color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200', desc: '中高增长，重点布局', mapColor: '#2563eb' },
+  '潜力': { color: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200', desc: '高增长空间，战略布局', mapColor: '#7c3aed' },
+  '待观察': { color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', desc: '壁垒较高或市场成熟，择机进入', mapColor: '#9ca3af' },
 }
 
 const levelColor = (level: string) => {
@@ -145,12 +151,34 @@ COUNTRIES.forEach((c) => {
   }
 })
 
+// 注册世界地图
+let mapRegistered = false
+
 export default function CountryScore() {
   const [selectedCountry, setSelectedCountry] = useState('TH')
   const [industry] = useState('NEV')
   const [tierFilter, setTierFilter] = useState<Tier | 'all'>('all')
   const [sortBy, setSortBy] = useState<SortKey>('score')
-  const [viewMode, setViewMode] = useState<'list' | 'detail'>('list')
+  const [viewMode, setViewMode] = useState<ViewMode>('map')
+  const [mapReady, setMapReady] = useState(false)
+
+  // 加载并注册世界地图
+  useEffect(() => {
+    if (mapRegistered) {
+      setMapReady(true)
+      return
+    }
+    fetch('/maps/world.json')
+      .then((res) => res.json())
+      .then((geoJson) => {
+        echarts.registerMap('world', geoJson)
+        mapRegistered = true
+        setMapReady(true)
+      })
+      .catch((err) => {
+        console.error('Failed to load world map:', err)
+      })
+  }, [])
 
   const { data: apiScore } = useQuery<ScoreResult>({
     queryKey: ['score', selectedCountry, industry],
@@ -161,10 +189,9 @@ export default function CountryScore() {
       })
       return res.data
     },
-    enabled: false, // 暂时禁用，使用mock数据
+    enabled: false,
   })
 
-  // 使用API数据或mock数据
   const score = apiScore || mockScores[selectedCountry]
 
   const filteredCountries = useMemo(() => {
@@ -186,6 +213,99 @@ export default function CountryScore() {
       主力: COUNTRIES.filter((c) => c.tier === '主力').length,
       潜力: COUNTRIES.filter((c) => c.tier === '潜力').length,
       待观察: COUNTRIES.filter((c) => c.tier === '待观察').length,
+    }
+  }, [])
+
+  // 地图配置
+  const mapOption = useMemo(() => {
+    const mapData = COUNTRIES.map((c) => ({
+      name: c.code,
+      value: mockScores[c.code]?.score_total || 0,
+      tier: c.tier,
+      countryName: c.name,
+      itemStyle: {
+        areaColor: tierConfig[c.tier].mapColor,
+        borderColor: '#fff',
+        borderWidth: 0.5,
+      },
+      emphasis: {
+        itemStyle: {
+          areaColor: '#f59e0b',
+          borderColor: '#fff',
+          borderWidth: 1.5,
+          shadowBlur: 10,
+          shadowColor: 'rgba(0,0,0,0.3)',
+        },
+        label: {
+          show: true,
+          formatter: '{b}',
+          fontSize: 12,
+          fontWeight: 'bold',
+          color: '#1f2937',
+        },
+      },
+    }))
+
+    return {
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        borderColor: '#e5e7eb',
+        borderWidth: 1,
+        textStyle: { color: '#1f2937', fontSize: 13 },
+        formatter: (params: any) => {
+          if (!params.data) return params.name
+          const data = params.data
+          const cfg = tierConfig[data.tier as Tier]
+          return `
+            <div style="font-weight:bold;font-size:14px;margin-bottom:4px">${data.countryName}</div>
+            <div style="color:#6b7280;font-size:12px">梯队：<span style="color:${cfg.mapColor};font-weight:600">${data.tier}</span></div>
+            <div style="color:#6b7280;font-size:12px">综合评分：<span style="color:#1f2937;font-weight:600">${data.value}分</span></div>
+            <div style="color:#6b7280;font-size:12px;margin-top:4px">点击查看详情 →</div>
+          `
+        },
+      },
+      visualMap: {
+        show: false,
+      },
+      geo: {
+        map: 'world',
+        roam: true,
+        zoom: 1.2,
+        center: [20, 20],
+        label: {
+          show: false,
+        },
+        itemStyle: {
+          areaColor: '#f3f4f6',
+          borderColor: '#d1d5db',
+          borderWidth: 0.5,
+        },
+        emphasis: {
+          itemStyle: {
+            areaColor: '#e5e7eb',
+          },
+        },
+      },
+      series: [
+        {
+          type: 'map',
+          map: 'world',
+          geoIndex: 0,
+          data: mapData,
+          select: {
+            disabled: true,
+          },
+        },
+      ],
+    }
+  }, [])
+
+  const onMapClick = useCallback((params: any) => {
+    if (params?.data?.name) {
+      const code = params.data.name as string
+      setSelectedCountry(code)
+      setViewMode('detail')
     }
   }, [])
 
@@ -220,7 +340,7 @@ export default function CountryScore() {
         ))}
       </div>
 
-      {/* 筛选与排序 */}
+      {/* 筛选、排序与视图切换 */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-3 py-2">
           <Filter className="w-4 h-4 text-gray-400" />
@@ -254,23 +374,78 @@ export default function CountryScore() {
 
         <div className="flex items-center gap-2 ml-auto">
           <button
+            onClick={() => setViewMode('map')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
+              viewMode === 'map' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
+            }`}
+          >
+            <MapIcon className="w-4 h-4" />
+            地图视图
+          </button>
+          <button
             onClick={() => setViewMode('list')}
-            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
               viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
             }`}
           >
+            <List className="w-4 h-4" />
             列表视图
           </button>
           <button
             onClick={() => { setSelectedCountry('TH'); setViewMode('detail') }}
-            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
               viewMode === 'detail' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
             }`}
           >
+            <BarChart3 className="w-4 h-4" />
             详情视图
           </button>
         </div>
       </div>
+
+      {/* 地图视图 */}
+      {viewMode === 'map' && (
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <h3 className="font-medium text-gray-900 flex items-center gap-2">
+              <MapIcon className="w-4 h-4 text-gray-500" />
+              全球市场梯队分布
+            </h3>
+            <div className="flex items-center gap-3 text-xs">
+              {(Object.keys(tierConfig) as Tier[]).map((tier) => (
+                <span key={tier} className="flex items-center gap-1">
+                  <span
+                    className="w-3 h-3 rounded-sm inline-block"
+                    style={{ backgroundColor: tierConfig[tier].mapColor }}
+                  />
+                  {tier}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="relative" style={{ height: 520 }}>
+            {mapReady ? (
+              <ReactECharts
+                option={mapOption}
+                style={{ height: '100%', width: '100%' }}
+                onEvents={{
+                  click: onMapClick,
+                }}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                <div className="text-center">
+                  <Globe className="w-10 h-10 mx-auto mb-3 text-gray-300 animate-pulse" />
+                  <p className="text-sm">地图加载中...</p>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 text-xs text-gray-500">
+            提示：鼠标悬停查看国家评分，点击国家区域下钻到详情页。支持鼠标滚轮缩放和拖拽平移。
+          </div>
+        </div>
+      )}
 
       {/* 列表视图 */}
       {viewMode === 'list' && (
@@ -339,6 +514,18 @@ export default function CountryScore() {
       {/* 详情视图 */}
       {viewMode === 'detail' && score && (
         <div className="space-y-6">
+          {/* 面包屑导航 */}
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <button
+              onClick={() => setViewMode('map')}
+              className="hover:text-blue-600 transition-colors"
+            >
+              国别分级
+            </button>
+            <span>/</span>
+            <span className="font-medium text-gray-900">{score.country_name}</span>
+          </div>
+
           {/* 国家切换 */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <label className="text-sm font-medium text-gray-700">选择国家</label>
