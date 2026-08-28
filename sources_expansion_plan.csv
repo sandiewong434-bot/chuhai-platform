@@ -1,0 +1,31 @@
+name,org_type,column_name,list_url,content_format,access_method,unique_id_rule,access_restriction,update_freq,target_db,nev_relevance,authority,compliance,crawl_tier,library,category_layer,category_tag,network_issue,selectors,is_active,status
+美国商务部工业与安全局(BIS),政府/监管机构,实体清单/出口管制,https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern,网页HTML,网页抓取,公告编号,访问正常,每日,D 技术与出口管制库,直接相关,1级 高度可靠,公开发布可自由引用,auto_html,D-技术与出口管制库,,,,{},1,active
+欧盟委员会贸易总司(DG TRADE),政府/监管机构,贸易救济/反倾销,https://policy.trade.ec.europa.eu/accessing-markets/trade-defence_en,网页HTML,网页抓取,案件编号,访问正常,每日,D 技术与出口管制库,直接相关,1级 高度可靠,公开发布可自由引用,auto_html,D-技术与出口管制库,,,,{},1,active
+美国国际贸易委员会(USITC),政府/监管机构,337调查/贸易救济,https://www.usitc.gov/dockets,网页HTML,网页抓取,案件编号,访问正常,每日,D 技术与出口管制库,直接相关,1级 高度可靠,公开发布可自由引用,auto_html,D-技术与出口管制库,,,,{},1,active
+中国商务部贸易救济调查局,政府/监管机构,反倾销/反补贴,https://trb.mofcom.gov.cn/article/zcwj/,网页HTML,网页抓取,公告文号,访问正常,每日,D 技术与出口管制库,直接相关,1级 高度可靠,公开发布可自由引用,auto_html,D-技术与出口管制库,,,,{},1,active
+WTO争端解决机制,国际组织,争端案例,https://www.wto.org/english/tratop_e/dispu_e/find_dispute_cases_e.htm,网页HTML,网页抓取,DS编号,访问正常,每周,D 技术与出口管制库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,D-技术与出口管制库,,,,{},1,active
+欧洲经济区(EEA)法规数据库,国际组织,法规发布,https://eur-lex.europa.eu/browse/directories/legislation.html,网页HTML,网页抓取,法规编号,访问正常,每日,A 政策法规库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,A-政策法规库,,,,{},1,active
+美国联邦公报(Federal Register),政府/监管机构,法规发布,https://www.federalregister.gov/,网页HTML,网页抓取,文档编号,访问正常,每日,A 政策法规库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,A-政策法规库,,,,{},1,active
+中国-东盟自贸区官网,政府/监管机构,政策法规,http://www.cafta.org.cn/,网页HTML,网页抓取,文号,访问正常,每周,C 全球贸易投资流向库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,C-全球贸易投资流向库,,,,{},1,active
+中东商务门户(Arabian Business),媒体/智库,商业新闻,https://www.arabianbusiness.com/,网页HTML,网页抓取,文章ID,访问正常,每日,C 全球贸易投资流向库,间接相关,2级 一般可靠,公开发布可自由引用,auto_html,C-全球贸易投资流向库,,,,{},1,active
+非洲商务杂志(African Business),媒体/智库,商业新闻,https://african.business/,网页HTML,网页抓取,文章ID,访问正常,每日,C 全球贸易投资流向库,间接相关,2级 一般可靠,公开发布可自由引用,auto_html,C-全球贸易投资流向库,,,,{},1,active
+印度投资局(Invest India),政府/监管机构,投资指南/政策,https://www.investindia.gov.in/,网页HTML,网页抓取,页面URL,访问正常,每周,F 双向园区库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,F-双向园区库,,,,{},1,active
+越南计划投资部外国投资局,政府/监管机构,投资统计/政策,https://fia.mpi.gov.vn/,网页HTML,网页抓取,文号,访问正常,每周,F 双向园区库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,F-双向园区库,,,,{},1,active
+泰国投资促进委员会(BOI),政府/监管机构,投资政策/优惠,https://www.boi.go.th/index.php?page=investment_opportunities,网页HTML,网页抓取,公告编号,访问正常,每周,F 双向园区库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,F-双向园区库,,,,{},1,active
+印尼投资协调委员会(BKPM),政府/监管机构,投资政策/数据,https://www.bkpm.go.id/,网页HTML,网页抓取,文号,访问正常,每周,F 双向园区库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,F-双向园区库,,,,{},1,active
+墨西哥经济部(SE),政府/监管机构,贸易/投资政策,https://www.gob.mx/se,网页HTML,网页抓取,文号,访问正常,每周,F 双向园区库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,F-双向园区库,,,,{},1,active
+猎聘网-出海人才,企业,招聘/人才,https://www.liepin.com/,网页HTML,网页抓取,职位ID,访问正常,每日,H 人才与人力资源库,间接相关,2级 一般可靠,公开发布可自由引用,auto_html,H-人才与人力资源库,,,,{},1,active
+领英(LinkedIn)-中国出海,企业,行业洞察/人才,https://www.linkedin.com/,网页HTML,网页抓取,文章ID,访问正常,每日,H 人才与人力资源库,间接相关,2级 一般可靠,公开发布可自由引用,auto_html,H-人才与人力资源库,,,,{},1,active
+新华社-中国品牌出海,媒体/智库,品牌/文化,http://www.xinhuanet.com/,网页HTML,网页抓取,文章ID,访问正常,每日,J 文化与品牌传播库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,J-文化与品牌传播库,,,,{},1,active
+广告门-品牌出海,媒体/智库,品牌案例/营销,https://www.adquan.com/,网页HTML,网页抓取,文章ID,访问正常,每日,J 文化与品牌传播库,间接相关,2级 一般可靠,公开发布可自由引用,auto_html,J-文化与品牌传播库,,,,1,active
+Moody's(穆迪),研究机构,信用评级/风险,https://www.moodys.com/,网页HTML,网页抓取,报告ID,访问限制,每周,K 风险与安全情报库,间接相关,1级 高度可靠,公开发布需授权,manual,K-风险与安全情报库,,,,{},1,active
+Fitch Ratings(惠誉),研究机构,信用评级/风险,https://www.fitchratings.com/,网页HTML,网页抓取,报告ID,访问限制,每周,K 风险与安全情报库,间接相关,1级 高度可靠,公开发布需授权,manual,K-风险与安全情报库,,,,{},1,active
+IT桔子-出海投融资,媒体/智库,融资/投资事件,https://www.itjuzi.com/,网页HTML,网页抓取,事件ID,访问正常,每日,M 案例与投融资事件库,间接相关,2级 一般可靠,公开发布可自由引用,auto_html,M-案例与投融资事件库,,,,{},1,active
+投中网-出海投资,媒体/智库,投资/并购事件,https://www.chinaventure.com.cn/,网页HTML,网页抓取,文章ID,访问正常,每日,M 案例与投融资事件库,间接相关,2级 一般可靠,公开发布可自由引用,auto_html,M-案例与投融资事件库,,,,{},1,active
+36氪-出海,媒体/智库,创业/投资,https://36kr.com/,网页HTML,网页抓取,文章ID,访问正常,每日,M 案例与投融资事件库,间接相关,2级 一般可靠,公开发布可自由引用,auto_html,M-案例与投融资事件库,,,,{},1,active
+中国国际商会,商协会,会员服务/资讯,https://www.ccoic.cn/,网页HTML,网页抓取,文号,访问正常,每日,G 企业与服务机构库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,G-企业与服务机构库,,,,{},1,active
+中国机电产品进出口商会,商协会,行业资讯/数据,http://www.cccme.org.cn/,网页HTML,网页抓取,文号,访问正常,每日,G 企业与服务机构库,间接相关,1级 高度可靠,公开发布可自由引用,auto_html,G-企业与服务机构库,,,,{},1,active
+普华永道(PwC)-中国出海,研究机构,报告/洞察,https://www.pwccn.com/,网页HTML,网页抓取,报告ID,访问正常,每周,N 报告与知识库,间接相关,1级 高度可靠,公开发布可自由引用,manual,N-报告与知识库,,,,{},1,active
+毕马威(KPMG)-中国出海,研究机构,报告/洞察,https://home.kpmg/cn/,网页HTML,网页抓取,报告ID,访问正常,每周,N 报告与知识库,间接相关,1级 高度可靠,公开发布可自由引用,manual,N-报告与知识库,,,,{},1,active
+德勤(Deloitte)-中国出海,研究机构,报告/洞察,https://www2.deloitte.com/cn/,网页HTML,网页抓取,报告ID,访问正常,每周,N 报告与知识库,间接相关,1级 高度可靠,公开发布可自由引用,manual,N-报告与知识库,,,,{},1,active
+安永(EY)-中国出海,研究机构,报告/洞察,https://www.ey.com/,网页HTML,网页抓取,报告ID,访问正常,每周,N 报告与知识库,间接相关,1级 高度可靠,公开发布可自由引用,manual,N-报告与知识库,,,,{},1,active
