@@ -14,6 +14,8 @@ import IndustryChain from './pages/IndustryChain'
 import ExportAnalysis from './pages/ExportAnalysis'
 import GlobalMarket from './pages/GlobalMarket'
 import ProductSelection from './pages/ProductSelection'
+import EntryMode from './pages/EntryMode'
+import TechCooperation from './pages/TechCooperation'
 
 function App() {
   return (
@@ -82,6 +84,16 @@ function App() {
         <Route path="selection" element={
           <ErrorBoundary>
             <ProductSelection />
+          </ErrorBoundary>
+        } />
+        <Route path="entry" element={
+          <ErrorBoundary>
+            <EntryMode />
+          </ErrorBoundary>
+        } />
+        <Route path="cooperation" element={
+          <ErrorBoundary>
+            <TechCooperation />
           </ErrorBoundary>
         } />
       </Route>
