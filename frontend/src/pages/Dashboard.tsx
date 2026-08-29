@@ -77,19 +77,27 @@ function KpiCard({ label, value, note, status = 'up', icon: Icon }: {
     danger: 'text-[var(--danger)]',
     amber: 'text-[var(--amber)]',
   }
+  const dotClass = {
+    up: 'ch-dot-teal',
+    danger: 'ch-dot-danger',
+    amber: 'ch-dot-amber',
+  }
   return (
-    <div className="ch-card p-4">
-      <div className="flex items-center gap-2">
-        <div className="p-1.5 rounded-md bg-[rgba(0,194,255,0.1)]">
-          <Icon className="w-4 h-4 text-[var(--cyan)]" />
+    <div className="ch-card-cut-sm">
+      <div className="ch-card-cut-sm-inner p-4">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-md bg-[rgba(0,194,255,0.1)]">
+            <Icon className="w-4 h-4 text-[var(--cyan)]" />
+          </div>
+          <span className={`ch-dot rounded-full ${dotClass[status]}`} />
+          <span className="text-xs text-[var(--muted-text)]">{label}</span>
         </div>
-        <span className="text-xs text-[var(--muted-text)]">{label}</span>
-      </div>
-      <div className="flex items-baseline gap-2 mt-2">
-        <p className="text-xl font-bold text-white">{value}</p>
-        <span className={`text-xs font-medium ${statusColors[status]}`}>
-          {status === 'up' ? '↑ ' : status === 'danger' ? '↑ ' : '• '}{note}
-        </span>
+        <div className="flex items-baseline gap-2 mt-2">
+          <p className="text-xl font-bold text-white ch-glow-num">{value}</p>
+          <span className={`text-xs font-medium ${statusColors[status]}`}>
+            {status === 'up' ? '↑ ' : status === 'danger' ? '↑ ' : '• '}{note}
+          </span>
+        </div>
       </div>
     </div>
   )
@@ -115,7 +123,7 @@ export default function Dashboard() {
   const comingModules = modules.filter(m => m.status === 'coming')
 
   return (
-    <div className="space-y-8 max-w-[1400px] mx-auto">
+    <div className="relative space-y-8 max-w-[1400px] mx-auto ch-bg-glow ch-grid-fine">
       {/* ── 页面标题 ── */}
       <div className="ch-page-head">
         <span className="eyebrow">GLOBAL DECISION COMMAND</span>
@@ -126,7 +134,7 @@ export default function Dashboard() {
       {/* ═══════════════════════════════════════════════════════ */}
       {/* 战略判断 Ribbon                                   */}
       {/* ═══════════════════════════════════════════════════════ */}
-      <div className="ch-card p-4 flex flex-wrap items-center gap-4 lg:gap-6">
+      <div className="ch-card p-4 flex flex-wrap items-center gap-4 lg:gap-6 bg-gradient-to-r from-[rgba(0,194,255,0.04)] to-transparent">
         <div className="flex-1 min-w-[200px]">
           <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--muted-text)]">本期战略判断</span>
           <p className="text-sm font-semibold text-white mt-1">出海机会从"规模优先"转向"本地化能力优先"</p>
@@ -156,70 +164,75 @@ export default function Dashboard() {
         </div>
 
         {/* 核心可视化 - 态势球 */}
-        <div className="lg:col-span-2 ch-card p-5 relative overflow-hidden">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">GLOBAL SIGNAL SPHERE</span>
-              <h3 className="text-base font-semibold text-white mt-1">全球产业态势球</h3>
-              <p className="text-xs text-[var(--muted-text)] mt-0.5">产业信号与出海航线的聚合视图</p>
-            </div>
-            <div className="flex gap-1">
-              <button
-                onClick={() => setVisualMode('sphere')}
-                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-                  visualMode === 'sphere'
-                    ? 'bg-[rgba(0,194,255,0.2)] text-[var(--cyan)] border border-[var(--cyan)]/30'
-                    : 'text-[var(--muted-text)] hover:text-white'
-                }`}
-              >
-                态势球
-              </button>
-              <button
-                onClick={() => setVisualMode('map')}
-                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-                  visualMode === 'map'
-                    ? 'bg-[rgba(0,194,255,0.2)] text-[var(--cyan)] border border-[var(--cyan)]/30'
-                    : 'text-[var(--muted-text)] hover:text-white'
-                }`}
-              >
-                地图
-              </button>
-            </div>
-          </div>
-          
-          <div className="relative h-[240px] flex items-center justify-center">
-            {visualMode === 'sphere' ? (
-              <>
-                <GlobeCanvas width={320} height={240} />
-                {/* 区域标记 */}
-                <div className="absolute top-4 left-4 text-center">
-                  <b className="text-xs text-white">欧 洲</b>
-                  <span className="block text-[10px] text-[var(--muted-text)]">法规 / 份额</span>
-                  <i className="text-sm font-bold text-[var(--amber)]">76</i>
+        <div className="lg:col-span-2 ch-card-cut p-px relative overflow-hidden">
+          <div className="ch-card-cut-inner p-5">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">GLOBAL SIGNAL SPHERE</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-base font-semibold text-white">全球产业态势球</h3>
                 </div>
-                <div className="absolute top-8 right-8 text-center">
-                  <b className="text-xs text-white">东南亚</b>
-                  <span className="block text-[10px] text-[var(--muted-text)]">需求 / 渠道</span>
-                  <i className="text-sm font-bold text-[var(--teal)]">92</i>
-                </div>
-                <div className="absolute bottom-6 left-1/3 text-center">
-                  <b className="text-xs text-white">拉 丁</b>
-                  <span className="block text-[10px] text-[var(--muted-text)]">价格 / 增量</span>
-                  <i className="text-sm font-bold text-[var(--cyan)]">79</i>
-                </div>
-                {/* 统计 */}
-                <div className="absolute bottom-2 right-4 text-right">
-                  <b className="text-lg font-bold text-white">26</b>
-                  <span className="block text-[10px] text-[var(--muted-text)]">机会市场</span>
-                  <small className="text-[10px] text-[var(--cyan)]">12 条活跃出海航线</small>
-                </div>
-              </>
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-[var(--muted-text)]">
-                <Globe className="w-16 h-16 opacity-20 mb-2" />
-                <span className="text-sm">地图视图开发中</span>
+                <p className="text-xs text-[var(--muted-text)] mt-0.5">产业信号与出海航线的聚合视图</p>
               </div>
-            )}
+              <div className="flex gap-1">
+                <button
+                  onClick={() => setVisualMode('sphere')}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                    visualMode === 'sphere'
+                      ? 'bg-[rgba(0,194,255,0.2)] text-[var(--cyan)] border border-[var(--cyan)]/30'
+                      : 'text-[var(--muted-text)] hover:text-white'
+                  }`}
+                >
+                  态势球
+                </button>
+                <button
+                  onClick={() => setVisualMode('map')}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                    visualMode === 'map'
+                      ? 'bg-[rgba(0,194,255,0.2)] text-[var(--cyan)] border border-[var(--cyan)]/30'
+                      : 'text-[var(--muted-text)] hover:text-white'
+                  }`}
+                >
+                  地图
+                </button>
+              </div>
+            </div>
+            
+            <div className="relative h-[240px] flex items-center justify-center">
+              {visualMode === 'sphere' ? (
+                <>
+                  <GlobeCanvas width={320} height={240} />
+                  {/* 区域标记 */}
+                  <div className="absolute top-4 left-4 text-center">
+                    <b className="text-xs text-white">欧 洲</b>
+                    <span className="block text-[10px] text-[var(--muted-text)]">法规 / 份额</span>
+                    <i className="text-sm font-bold text-[var(--amber)]">76</i>
+                  </div>
+                  <div className="absolute top-8 right-8 text-center">
+                    <b className="text-xs text-white">东南亚</b>
+                    <span className="block text-[10px] text-[var(--muted-text)]">需求 / 渠道</span>
+                    <i className="text-sm font-bold text-[var(--teal)]">92</i>
+                  </div>
+                  <div className="absolute bottom-6 left-1/3 text-center">
+                    <b className="text-xs text-white">拉 丁</b>
+                    <span className="block text-[10px] text-[var(--muted-text)]">价格 / 增量</span>
+                    <i className="text-sm font-bold text-[var(--cyan)]">79</i>
+                  </div>
+                  {/* 统计 */}
+                  <div className="absolute bottom-2 right-4 text-right">
+                    <b className="text-lg font-bold text-white">26</b>
+                    <span className="block text-[10px] text-[var(--muted-text)]">机会市场</span>
+                    <small className="text-[10px] text-[var(--cyan)]">12 条活跃出海航线</small>
+                  </div>
+                </>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-[var(--muted-text)]">
+                  <Globe className="w-16 h-16 opacity-20 mb-2" />
+                  <span className="text-sm">地图视图开发中</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -229,134 +242,149 @@ export default function Dashboard() {
       {/* ═══════════════════════════════════════════════════════ */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 全球产业信号 */}
-        <div className="ch-signal-card">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">LIVE SIGNAL FEED</span>
-              <h3 className="text-base font-semibold text-white mt-1">全球产业信号</h3>
-              <p className="text-xs text-[var(--muted-text)] mt-0.5">跨产业、市场与政策的联动监测</p>
-            </div>
-            <span className="ch-chip active">实时</span>
-          </div>
-          
-          <div className="flex items-center gap-4 mb-4">
-            <div className="relative w-20 h-20">
-              <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(96,178,216,0.12)" strokeWidth="8" />
-                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--teal)" strokeWidth="8"
-                  strokeDasharray={`${84.6 * 2.64} 264`} strokeLinecap="round" />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <b className="text-lg font-bold text-white">84.6</b>
-                <small className="text-[9px] text-[var(--muted-text)]">全球活跃度</small>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-[var(--teal)]">高景气</h4>
-              <p className="text-xs text-[var(--muted-text)]">供给端稳定<br />海外需求继续上行</p>
-            </div>
-          </div>
-          
-          <div className="space-y-1">
-            {signalList.map((s) => (
-              <div key={s.label} className="ch-signal-line">
-                <i className={s.status === 'amber' ? '!bg-[var(--amber)] !shadow-[var(--amber)]' : ''} />
-                <div>
-                  <b className="text-sm text-white">{s.label}</b>
-                  <small className="block text-xs text-[var(--muted-text)]">{s.sub}</small>
+        <div className="ch-card-cut p-px">
+          <div className="ch-card-cut-inner p-5">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">LIVE SIGNAL FEED</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-base font-semibold text-white">全球产业信号</h3>
                 </div>
-                <em className={s.status === 'amber' ? 'amber' : ''}>{s.value}</em>
+                <p className="text-xs text-[var(--muted-text)] mt-0.5">跨产业、市场与政策的联动监测</p>
               </div>
-            ))}
-          </div>
-          
-          <div className="mt-4 p-3 rounded-lg bg-[rgba(0,194,255,0.06)] border border-[rgba(0,194,255,0.1)]">
-            <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">FOCUS SIGNAL</span>
-            <p className="text-sm font-semibold text-white mt-1">泰国本地化供给链进入窗口正在打开</p>
+              <span className="ch-chip active">实时</span>
+            </div>
+            
+            <div className="flex items-center gap-4 mb-4">
+              <div className="relative w-20 h-20">
+                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(96,178,216,0.12)" strokeWidth="8" />
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="var(--teal)" strokeWidth="8"
+                    strokeDasharray={`${84.6 * 2.64} 264`} strokeLinecap="round" />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <b className="text-lg font-bold text-white">84.6</b>
+                  <small className="text-[9px] text-[var(--muted-text)]">全球活跃度</small>
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-[var(--teal)]">高景气</h4>
+                <p className="text-xs text-[var(--muted-text)]">供给端稳定<br />海外需求继续上行</p>
+              </div>
+            </div>
+            
+            <div className="space-y-1">
+              {signalList.map((s) => (
+                <div key={s.label} className="ch-signal-line">
+                  <i className={s.status === 'amber' ? '!bg-[var(--amber)] !shadow-[var(--amber)]' : ''} />
+                  <div>
+                    <b className="text-sm text-white">{s.label}</b>
+                    <small className="block text-xs text-[var(--muted-text)]">{s.sub}</small>
+                  </div>
+                  <em className={s.status === 'amber' ? 'amber' : ''}>{s.value}</em>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-[rgba(0,194,255,0.08)] to-[rgba(60,230,180,0.04)] border border-[rgba(0,194,255,0.12)]">
+              <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">FOCUS SIGNAL</span>
+              <p className="text-sm font-semibold text-white mt-1">泰国本地化供给链进入窗口正在打开</p>
+            </div>
           </div>
         </div>
 
         {/* 企业内功雷达图 */}
-        <div className="ch-card p-5">
-          <div className="mb-4">
-            <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">SELF-ASSESSMENT</span>
-            <h3 className="text-base font-semibold text-white mt-1">企业出海内功诊断</h3>
-            <p className="text-xs text-[var(--muted-text)] mt-0.5">拖动五个能力维度，实时生成企业画像</p>
-          </div>
-          
-          <div className="flex justify-center">
-            <RadarChart values={m6Values} labels={m6Labels} width={220} height={180} />
-          </div>
-          
-          <div className="mt-3 space-y-2">
-            {m6Labels.map((label, i) => (
-              <div key={label} className="flex items-center gap-2">
-                <span className="text-xs text-[var(--muted-text)] w-16">{label}</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={m6Values[i]}
-                  onChange={(e) => {
-                    const newValues = [...m6Values]
-                    newValues[i] = +e.target.value
-                    setM6Values(newValues)
-                  }}
-                  className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
-                  style={{
-                    background: `linear-gradient(to right, var(--cyan) 0%, var(--cyan) ${m6Values[i]}%, rgba(96,178,216,0.2) ${m6Values[i]}%, rgba(96,178,216,0.2) 100%)`,
-                  }}
-                />
-                <span className="text-xs text-white w-8 text-right">{m6Values[i]}</span>
+        <div className="ch-card-cut p-px">
+          <div className="ch-card-cut-inner p-5">
+            <div className="mb-4">
+              <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">SELF-ASSESSMENT</span>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="ch-title-bar" />
+                <h3 className="text-base font-semibold text-white">企业出海内功诊断</h3>
               </div>
-            ))}
-          </div>
-          
-          <div className="mt-3 p-2.5 rounded-lg bg-[rgba(60,230,180,0.08)] border border-[var(--teal)]/15">
-            <p className="text-xs text-[var(--teal)]">{m6Recommendation}</p>
+              <p className="text-xs text-[var(--muted-text)] mt-0.5">拖动五个能力维度，实时生成企业画像</p>
+            </div>
+            
+            <div className="flex justify-center">
+              <RadarChart values={m6Values} labels={m6Labels} width={220} height={180} />
+            </div>
+            
+            <div className="mt-3 space-y-2">
+              {m6Labels.map((label, i) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-xs text-[var(--muted-text)] w-16">{label}</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={m6Values[i]}
+                    onChange={(e) => {
+                      const newValues = [...m6Values]
+                      newValues[i] = +e.target.value
+                      setM6Values(newValues)
+                    }}
+                    className="flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, var(--cyan) 0%, var(--cyan) ${m6Values[i]}%, rgba(96,178,216,0.2) ${m6Values[i]}%, rgba(96,178,216,0.2) 100%)`,
+                    }}
+                  />
+                  <span className="text-xs text-white w-8 text-right">{m6Values[i]}</span>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-3 p-2.5 rounded-lg bg-[rgba(60,230,180,0.08)] border border-[var(--teal)]/15">
+              <p className="text-xs text-[var(--teal)]">{m6Recommendation}</p>
+            </div>
           </div>
         </div>
 
         {/* AI 决策 Copilot */}
-        <div className="ch-card p-5">
-          <div className="mb-4">
-            <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">AI DECISION COPILOT</span>
-            <h3 className="text-base font-semibold text-white mt-1">今日决策建议</h3>
-            <p className="text-xs text-[var(--muted-text)] mt-0.5">基于市场、监管、竞品和供应链推演</p>
-          </div>
-          
-          <div className="p-4 rounded-xl bg-gradient-to-br from-[rgba(0,194,255,0.08)] to-transparent border border-[rgba(0,194,255,0.12)]">
-            <span className="text-[10px] font-semibold tracking-wider text-[var(--cyan)]">优先行动 / P0</span>
-            <h4 className="text-lg font-bold text-white mt-2">加速布局泰国<br />右舵车型渠道</h4>
-            <p className="text-xs text-[var(--muted-text)] mt-2">需求、政策与渠道指标同步越过阈值，建议提前锁定本地合作资源。</p>
-            <div className="flex items-center gap-2 mt-3">
-              <span className="text-xs text-[var(--muted-text)]">建议置信度</span>
-              <b className="text-sm text-[var(--teal)]">92%</b>
-              <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                <div className="h-full rounded-full bg-[var(--teal)]" style={{ width: '92%' }} />
+        <div className="ch-card-cut p-px">
+          <div className="ch-card-cut-inner p-5">
+            <div className="mb-4">
+              <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">AI DECISION COPILOT</span>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="ch-title-bar" />
+                <h3 className="text-base font-semibold text-white">今日决策建议</h3>
               </div>
+              <p className="text-xs text-[var(--muted-text)] mt-0.5">基于市场、监管、竞品和供应链推演</p>
             </div>
-            <button className="ch-btn-primary w-full mt-3 text-center">
-              生成进入行动包 →
-            </button>
-          </div>
-          
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-[rgba(255,77,109,0.06)] border border-[var(--danger)]/10">
-              <AlertTriangle className="w-3.5 h-3.5 text-[var(--danger)]" />
-              <div className="flex-1">
-                <b className="text-xs text-white">关注欧盟电池护照</b>
-                <small className="block text-[10px] text-[var(--muted-text)]">合规窗口剩余 43 天</small>
+            
+            <div className="p-4 rounded-xl bg-gradient-to-br from-[rgba(0,194,255,0.1)] to-transparent border border-[rgba(0,194,255,0.15)]">
+              <span className="text-[10px] font-semibold tracking-wider text-[var(--cyan)]">优先行动 / P0</span>
+              <h4 className="text-lg font-bold text-white mt-2">加速布局泰国<br />右舵车型渠道</h4>
+              <p className="text-xs text-[var(--muted-text)] mt-2">需求、政策与渠道指标同步越过阈值，建议提前锁定本地合作资源。</p>
+              <div className="flex items-center gap-2 mt-3">
+                <span className="text-xs text-[var(--muted-text)]">建议置信度</span>
+                <b className="text-sm text-[var(--teal)]">92%</b>
+                <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                  <div className="h-full rounded-full bg-[var(--teal)]" style={{ width: '92%' }} />
+                </div>
               </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--danger)]/15 text-[var(--danger)] font-medium">高</span>
+              <button className="ch-btn-primary w-full mt-3 text-center">
+                生成进入行动包 →
+              </button>
             </div>
-            <div className="flex items-center gap-2 p-2 rounded-lg bg-[rgba(255,176,32,0.06)] border border-[var(--amber)]/10">
-              <Activity className="w-3.5 h-3.5 text-[var(--amber)]" />
-              <div className="flex-1">
-                <b className="text-xs text-white">跟踪碳酸锂波动</b>
-                <small className="block text-[10px] text-[var(--muted-text)]">建议核查 3 家供应商</small>
+            
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-[rgba(255,77,109,0.06)] border border-[var(--danger)]/10">
+                <AlertTriangle className="w-3.5 h-3.5 text-[var(--danger)]" />
+                <div className="flex-1">
+                  <b className="text-xs text-white">关注欧盟电池护照</b>
+                  <small className="block text-[10px] text-[var(--muted-text)]">合规窗口剩余 43 天</small>
+                </div>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--danger)]/15 text-[var(--danger)] font-medium">高</span>
               </div>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--amber)]/15 text-[var(--amber)] font-medium">中</span>
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-[rgba(255,176,32,0.06)] border border-[var(--amber)]/10">
+                <Activity className="w-3.5 h-3.5 text-[var(--amber)]" />
+                <div className="flex-1">
+                  <b className="text-xs text-white">跟踪碳酸锂波动</b>
+                  <small className="block text-[10px] text-[var(--muted-text)]">建议核查 3 家供应商</small>
+                </div>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--amber)]/15 text-[var(--amber)] font-medium">中</span>
+              </div>
             </div>
           </div>
         </div>
@@ -367,78 +395,104 @@ export default function Dashboard() {
       {/* ═══════════════════════════════════════════════════════ */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 行业景气趋势 */}
-        <div className="lg:col-span-1 ch-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">INDUSTRY MOMENTUM</span>
-              <h3 className="text-base font-semibold text-white mt-1">行业景气趋势</h3>
+        <div className="lg:col-span-1 ch-card-cut p-px">
+          <div className="ch-card-cut-inner p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">INDUSTRY MOMENTUM</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-base font-semibold text-white">行业景气趋势</h3>
+                </div>
+              </div>
+              <span className="ch-chip">近 12 月</span>
             </div>
-            <span className="ch-chip">近 12 月</span>
-          </div>
-          <div className="h-[180px]">
-            <SvgLineChart />
+            <div className="h-[180px]">
+              <SvgLineChart />
+            </div>
           </div>
         </div>
 
         {/* 国别风险概览 */}
-        <div className="ch-card p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <ShieldAlert className="w-4 h-4 text-[var(--danger)]" />
-            <h3 className="text-base font-semibold text-white">国别风险概览</h3>
-          </div>
-          <div className="space-y-3">
-            {countryRisk.map((c) => (
-              <div key={c.country} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full" style={{ background: c.color, boxShadow: `0 0 6px ${c.color}` }} />
-                  <span className="text-sm text-white">{c.country}</span>
+        <div className="ch-card-cut p-px">
+          <div className="ch-card-cut-inner p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="ch-title-bar" />
+              <ShieldAlert className="w-4 h-4 text-[var(--danger)]" />
+              <h3 className="text-base font-semibold text-white">国别风险概览</h3>
+            </div>
+            <div className="space-y-2">
+              {countryRisk.map((c) => (
+                <div
+                  key={c.country}
+                  className={`flex items-center justify-between p-2 rounded ${
+                    c.level === '高' ? 'ch-risk-bar' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-2 h-2 rounded-full ${c.level === '高' ? 'ch-breathe' : ''}`}
+                      style={{ background: c.color, boxShadow: `0 0 6px ${c.color}` }}
+                    />
+                    <span className="text-sm text-white">{c.country}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full font-medium"
+                      style={{ background: c.color + '20', color: c.color, border: `1px solid ${c.color}30` }}
+                    >
+                      {c.level}风险
+                    </span>
+                    {c.cases > 0 && (
+                      <span className="text-xs text-[var(--danger)] font-medium">{c.cases}起案件</span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: c.color + '20', color: c.color, border: `1px solid ${c.color}30` }}>
-                    {c.level}风险
-                  </span>
-                  {c.cases > 0 && (
-                    <span className="text-xs text-[var(--danger)] font-medium">{c.cases}起案件</span>
-                  )}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <Link to="/barriers" className="flex items-center justify-center gap-1 mt-4 text-xs text-[var(--cyan)] hover:text-[var(--cyan)]/80">
+              查看贸易壁垒详情 <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
-          <Link to="/barriers" className="flex items-center justify-center gap-1 mt-4 text-xs text-[var(--cyan)] hover:text-[var(--cyan)]/80">
-            查看贸易壁垒详情 <ArrowRight className="w-3 h-3" />
-          </Link>
         </div>
 
         {/* 最新动态 */}
-        <div className="ch-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-[var(--amber)]" />
-              <h3 className="text-base font-semibold text-white">最新动态</h3>
+        <div className="ch-card-cut p-px">
+          <div className="ch-card-cut-inner p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="ch-title-bar" />
+                <Bell className="w-4 h-4 text-[var(--amber)]" />
+                <h3 className="text-base font-semibold text-white">最新动态</h3>
+              </div>
+              <span className="text-xs text-[var(--muted-text)] flex items-center gap-1.5">
+                <span className="ch-dot-danger rounded-full ch-breathe" />
+                {latestNews.filter(n => n.urgent).length} 条紧急
+              </span>
             </div>
-            <span className="text-xs text-[var(--muted-text)]">{latestNews.filter(n => n.urgent).length} 条紧急</span>
-          </div>
-          <div className="space-y-2">
-            {latestNews.map((news, idx) => (
-              <div key={idx} className={`p-2.5 rounded-lg ${news.urgent ? 'bg-[rgba(255,77,109,0.08)] border border-[var(--danger)]/15' : 'bg-white/5'}`}>
-                <div className="flex items-start gap-2">
-                  {news.type === 'risk' && <AlertTriangle className="w-3.5 h-3.5 text-[var(--danger)] mt-0.5 flex-shrink-0" />}
-                  {news.type === 'data' && <BarChart3 className="w-3.5 h-3.5 text-[var(--cyan)] mt-0.5 flex-shrink-0" />}
-                  {news.type === 'policy' && <Newspaper className="w-3.5 h-3.5 text-[var(--amber)] mt-0.5 flex-shrink-0" />}
-                  {news.type === 'enterprise' && <Building2 className="w-3.5 h-3.5 text-[var(--teal)] mt-0.5 flex-shrink-0" />}
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm ${news.urgent ? 'font-medium text-[var(--danger)]' : 'text-white'}`}>
-                      {news.title}
-                    </p>
-                    <p className="text-xs text-[var(--muted-text)] mt-0.5">{news.time}</p>
+            <div className="space-y-2">
+              {latestNews.map((news, idx) => (
+                <div key={idx} className={`p-2.5 rounded-lg ${news.urgent ? 'bg-[rgba(255,77,109,0.08)] border border-[var(--danger)]/15' : 'bg-white/5'}`}>
+                  <div className="flex items-start gap-2">
+                    {news.type === 'risk' && <AlertTriangle className="w-3.5 h-3.5 text-[var(--danger)] mt-0.5 flex-shrink-0" />}
+                    {news.type === 'data' && <BarChart3 className="w-3.5 h-3.5 text-[var(--cyan)] mt-0.5 flex-shrink-0" />}
+                    {news.type === 'policy' && <Newspaper className="w-3.5 h-3.5 text-[var(--amber)] mt-0.5 flex-shrink-0" />}
+                    {news.type === 'enterprise' && <Building2 className="w-3.5 h-3.5 text-[var(--teal)] mt-0.5 flex-shrink-0" />}
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm ${news.urgent ? 'font-medium text-[var(--danger)]' : 'text-white'}`}>
+                        {news.title}
+                      </p>
+                      <p className="text-xs text-[var(--muted-text)] mt-0.5">{news.time}</p>
+                    </div>
+                    {news.urgent && <span className="ch-dot-danger rounded-full ch-breathe flex-shrink-0 mt-1" />}
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <Link to="/articles" className="flex items-center justify-center gap-1 mt-4 text-xs text-[var(--cyan)] hover:text-[var(--cyan)]/80">
+              查看全部文章 <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
-          <Link to="/articles" className="flex items-center justify-center gap-1 mt-4 text-xs text-[var(--cyan)] hover:text-[var(--cyan)]/80">
-            查看全部文章 <ArrowRight className="w-3 h-3" />
-          </Link>
         </div>
       </div>
 
@@ -454,12 +508,12 @@ export default function Dashboard() {
 
         <div className="flex gap-4 text-xs mb-4">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[var(--teal)]" style={{ boxShadow: '0 0 4px var(--teal)' }} />
+            <span className="ch-dot-teal rounded-full" style={{ boxShadow: '0 0 4px var(--teal)' }} />
             <span className="text-[var(--muted-text)]">已上线</span>
             <b className="text-white">{onlineModules.length}</b>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[var(--cyan)]" style={{ boxShadow: '0 0 4px var(--cyan)' }} />
+            <span className="ch-dot rounded-full" style={{ boxShadow: '0 0 4px var(--cyan)' }} />
             <span className="text-[var(--muted-text)]">基础版</span>
             <b className="text-white">{partialModules.length}</b>
           </span>
@@ -479,23 +533,29 @@ export default function Dashboard() {
                 key={mod.id}
                 to={isComing ? '#' : mod.path}
                 onClick={isComing ? (e) => e.preventDefault() : undefined}
-                className={`ch-card p-4 transition-all group ${
-                  isComing ? 'opacity-50 cursor-not-allowed' : 'hover:border-[var(--cyan)]/30 cursor-pointer'
+                className={`ch-card-cut block transition-all group ${
+                  isComing ? 'opacity-50 cursor-not-allowed' : 'ch-module-card'
                 }`}
               >
-                <div className="flex items-start justify-between">
-                  <div className="p-2 rounded-lg bg-[rgba(0,194,255,0.08)]">
-                    <mod.icon className={`w-5 h-5 ${isComing ? 'text-[var(--muted-text)]' : 'text-[var(--cyan)]'}`} />
+                <div className="ch-card-cut-inner p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="p-2 rounded-lg bg-[rgba(0,194,255,0.08)]">
+                      <mod.icon className={`w-5 h-5 ${isComing ? 'text-[var(--muted-text)]' : 'text-[var(--cyan)]'}`} />
+                    </div>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${cfg.bg} ${cfg.textColor} ${cfg.border}`}>
+                      {cfg.text}
+                    </span>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${cfg.bg} ${cfg.textColor} ${cfg.border}`}>
-                    {cfg.text}
-                  </span>
-                </div>
-                <h4 className="font-semibold text-white mt-3">{mod.title}</h4>
-                <p className="text-xs text-[var(--muted-text)] mt-1 line-clamp-2">{mod.desc}</p>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-[10px] text-[var(--muted-text)]">{mod.id} · {phaseLabel[mod.phase]}</span>
-                  {!isComing && <ChevronRight className="w-4 h-4 text-[var(--muted-text)] group-hover:text-[var(--cyan)] transition-colors" />}
+                  <h4 className="font-semibold text-white mt-3">{mod.title}</h4>
+                  <p className="text-xs text-[var(--muted-text)] mt-1 line-clamp-2">{mod.desc}</p>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-[10px] text-[var(--muted-text)] flex items-center gap-1.5">
+                      <span className="ch-dot rounded-full" />
+                      <span className="text-[var(--cyan)] tracking-wider">{mod.id}</span>
+                      · {phaseLabel[mod.phase]}
+                    </span>
+                    {!isComing && <ChevronRight className="w-4 h-4 text-[var(--muted-text)] group-hover:text-[var(--cyan)] transition-colors" />}
+                  </div>
                 </div>
               </Link>
             )
@@ -523,51 +583,63 @@ export default function Dashboard() {
               <Link
                 key={item.label}
                 to={item.to}
-                className="ch-card p-4 flex items-center gap-3 group hover:border-[var(--cyan)]/30"
+                className="ch-card-cut block group"
               >
-                <item.icon className="w-5 h-5 text-[var(--muted-text)] group-hover:text-[var(--cyan)] transition-colors" />
-                <div>
-                  <p className="font-medium text-white text-sm">{item.label}</p>
-                  <p className="text-xs text-[var(--muted-text)]">{item.desc}</p>
+                <div className="ch-card-cut-inner p-4 flex items-center gap-3">
+                  <item.icon className="w-5 h-5 text-[var(--muted-text)] group-hover:text-[var(--cyan)] transition-colors" />
+                  <div>
+                    <p className="font-medium text-white text-sm">{item.label}</p>
+                    <p className="text-xs text-[var(--muted-text)]">{item.desc}</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[var(--muted-text)] ml-auto group-hover:text-[var(--cyan)] transition-colors" />
                 </div>
-                <ChevronRight className="w-4 h-4 text-[var(--muted-text)] ml-auto group-hover:text-[var(--cyan)] transition-colors" />
               </Link>
             ))}
           </div>
         </div>
 
         {/* 建设进度 */}
-        <div className="ch-card p-5">
-          <h3 className="text-base font-semibold text-white mb-4">建设进度</h3>
-          <div className="space-y-4">
-            {[
-              { phase: 'P0 · 第一期', modules: 'M1产业链 / M3出口 / M7目标市场 / M9风险', progress: 60, color: 'bg-[var(--cyan)]' },
-              { phase: 'P1 · 第二期', modules: 'M2全球市场 / M4对外投资 / M8模式测算 / M10产品', progress: 10, color: 'bg-[var(--amber)]' },
-              { phase: 'P2 · 第三期', modules: 'M5技术授权 / M6内功诊断', progress: 0, color: 'bg-[var(--muted-text)]' },
-            ].map((item) => (
-              <div key={item.phase}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-white">{item.phase}</span>
-                  <span className="text-sm text-[var(--muted-text)]">{item.progress}%</span>
+        <div className="ch-card-cut p-px">
+          <div className="ch-card-cut-inner p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="ch-title-bar" />
+              <h3 className="text-base font-semibold text-white">建设进度</h3>
+            </div>
+            <div className="space-y-4">
+              {[
+                { phase: 'P0 · 第一期', modules: 'M1产业链 / M3出口 / M7目标市场 / M9风险', progress: 60, color: 'bg-[var(--cyan)]' },
+                { phase: 'P1 · 第二期', modules: 'M2全球市场 / M4对外投资 / M8模式测算 / M10产品', progress: 10, color: 'bg-[var(--amber)]' },
+                { phase: 'P2 · 第三期', modules: 'M5技术授权 / M6内功诊断', progress: 0, color: 'bg-[var(--muted-text)]' },
+              ].map((item) => (
+                <div key={item.phase}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-white">{item.phase}</span>
+                    <span className="text-sm text-[var(--muted-text)]">{item.progress}%</span>
+                  </div>
+                  <div className="w-full bg-white/5 rounded-full h-1.5">
+                    <div className={`${item.color} h-1.5 rounded-full transition-all`} style={{ width: `${item.progress}%` }} />
+                  </div>
+                  <p className="text-xs text-[var(--muted-text)] mt-1">{item.modules}</p>
                 </div>
-                <div className="w-full bg-white/5 rounded-full h-1.5">
-                  <div className={`${item.color} h-1.5 rounded-full transition-all`} style={{ width: `${item.progress}%` }} />
-                </div>
-                <p className="text-xs text-[var(--muted-text)] mt-1">{item.modules}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       {/* 数据来源说明 */}
-      <div className="ch-card p-4 flex items-start gap-3 border-[var(--amber)]/20">
-        <AlertCircle className="w-5 h-5 text-[var(--amber)] mt-0.5 flex-shrink-0" />
-        <div>
-          <p className="text-sm font-medium text-[var(--amber)]">数据说明</p>
-          <p className="text-sm text-[var(--muted-text)] mt-1">
-            当前仪表盘展示为演示数据。正式版本将接入实时数据API，实现自动刷新与告警推送。
-          </p>
+      <div className="ch-card-cut p-px border-[var(--amber)]/20">
+        <div className="ch-card-cut-inner p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-[var(--amber)] mt-0.5 flex-shrink-0" />
+          <div>
+            <div className="flex items-center gap-2">
+              <div className="ch-title-bar" />
+              <p className="text-sm font-medium text-[var(--amber)]">数据说明</p>
+            </div>
+            <p className="text-sm text-[var(--muted-text)] mt-1">
+              当前仪表盘展示为演示数据。正式版本将接入实时数据API，实现自动刷新与告警推送。
+            </p>
+          </div>
         </div>
       </div>
     </div>

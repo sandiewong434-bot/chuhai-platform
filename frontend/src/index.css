@@ -53,7 +53,130 @@
 }
 
 @layer components {
-  /* 出海平台卡片系统 */
+  /* 切角卡片系统（参考大屏设计） */
+  .ch-card-cut {
+    position: relative;
+    background: linear-gradient(135deg, rgba(0,194,255,.35), rgba(0,194,255,.04) 55%, rgba(140,108,255,.22));
+    padding: 1px;
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  }
+  .ch-card-cut-inner {
+    height: 100%;
+    box-sizing: border-box;
+    background: linear-gradient(160deg, rgba(9,32,64,.85), rgba(9,32,64,.35));
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  }
+  .ch-card-cut-sm {
+    background: linear-gradient(135deg, rgba(0,194,255,.4), rgba(0,194,255,.04) 55%, rgba(30,143,255,.25));
+    padding: 1px;
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  }
+  .ch-card-cut-sm-inner {
+    height: 100%;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, rgba(9,32,64,.85), rgba(9,32,64,.35));
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  }
+  .ch-card-cut-lg {
+    background: linear-gradient(135deg, rgba(0,194,255,.5), rgba(0,194,255,.06) 45%, rgba(140,108,255,.3));
+    padding: 1px;
+    clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+  }
+  .ch-card-cut-lg-inner {
+    height: 100%;
+    box-sizing: border-box;
+    background: linear-gradient(140deg, rgba(9,32,64,.85), rgba(9,32,64,.4));
+    clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+  }
+  
+  /* 发光数字 */
+  .ch-glow-num {
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 0 0 18px rgba(0,194,255,.5);
+  }
+  .ch-glow-num-sm {
+    text-shadow: 0 0 14px rgba(0,194,255,.45);
+  }
+  
+  /* 标题装饰条 */
+  .ch-title-bar {
+    width: 3px;
+    height: 14px;
+    background: linear-gradient(180deg, #00C2FF, rgba(0,194,255,.15));
+    box-shadow: 0 0 9px rgba(0,194,255,.45);
+    flex-shrink: 0;
+  }
+  
+  /* 风险/预警栏 */
+  .ch-risk-bar {
+    background: linear-gradient(90deg, rgba(40,12,20,.8), rgba(9,32,64,.5));
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  }
+  
+  /* 呼吸动画点 */
+  @keyframes breathe {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255,77,109,.55); }
+    50% { opacity: .65; box-shadow: 0 0 0 7px rgba(255,77,109,0); }
+  }
+  .ch-breathe {
+    animation: breathe 2.4s ease-in-out infinite;
+  }
+  
+  /* 扫描线动画 */
+  @keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(1200px); }
+  }
+  .ch-scan-line {
+    animation: scan 9s linear infinite;
+  }
+  
+  /* 发光装饰点 */
+  .ch-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  .ch-dot-teal { background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+  .ch-dot-danger { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+  .ch-dot-amber { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+  
+  /* 特殊渐变边框 */
+  .ch-gradient-border {
+    background: linear-gradient(135deg, rgba(0,194,255,.45), rgba(0,194,255,.05) 50%, rgba(30,143,255,.3));
+    padding: 1px;
+  }
+  
+  /* 模块卡片 hover 效果 */
+  .ch-module-card {
+    transition: filter 0.18s;
+    cursor: pointer;
+  }
+  .ch-module-card:hover {
+    filter: brightness(1.35) drop-shadow(0 0 14px rgba(0,194,255,.35));
+  }
+  
+  /* 表格行发光 hover */
+  .ch-row-glow:hover {
+    background: linear-gradient(90deg, rgba(0,194,255,.06), transparent 60%);
+  }
+  
+  /* 全局背景光晕层 */
+  .ch-bg-glow {
+    background: radial-gradient(900px 480px at 50% 8%, rgba(0,194,255,.08), transparent 70%);
+  }
+  
+  /* 细网格背景增强 */
+  .ch-grid-fine {
+    background-image: 
+      linear-gradient(rgba(0,194,255,.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,194,255,.045) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* 原有组件类继续保留 */
   .ch-card {
     @apply rounded-xl border transition-all duration-300;
     background: var(--panel);

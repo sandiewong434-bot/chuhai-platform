@@ -170,6 +170,10 @@ export default function OntologyGraph() {
     <div className="space-y-6">
       {/* 页面标题 */}
       <div>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="ch-title-bar" />
+          <span className="text-xs font-medium text-[var(--cyan)] uppercase tracking-wider">Ontology Graph</span>
+        </div>
         <h2 className="text-2xl font-bold text-white">本体图谱</h2>
         <p className="text-[var(--muted-text)] mt-1">企业 · 目的国 · 产品 · 产业链 · 关系网络</p>
       </div>
@@ -183,15 +187,18 @@ export default function OntologyGraph() {
             <button
               key={type}
               onClick={() => setTypeFilter(typeFilter === type ? '' : type)}
-              className={`p-3 rounded-lg border text-left transition-all ${
-                typeFilter === type ? cfg.bg + ' ring-2 ring-offset-0' : 'bg-[#0a1a2b] border-[rgba(96,178,216,0.12)] hover:border-[rgba(96,178,216,0.25)]'
+              className={`ch-card-cut-sm text-left transition-all ${
+                typeFilter === type ? 'ring-2 ring-[rgba(0,194,255,0.2)]' : ''
               }`}
             >
-              <div className="flex items-center gap-2">
-                <Icon className="w-4 h-4" style={{ color: cfg.color }} />
-                <span className="text-xs text-[var(--muted-text)]">{type}</span>
+              <div className="ch-card-cut-sm-inner p-3">
+                <div className="flex items-center gap-2">
+                  <span className="ch-dot" style={{ backgroundColor: cfg.color }} />
+                  <Icon className="w-4 h-4" style={{ color: cfg.color }} />
+                  <span className="text-xs text-[var(--muted-text)]">{type}</span>
+                </div>
+                <p className="text-xl font-bold text-white ch-glow-num mt-1">{count}</p>
               </div>
-              <p className="text-xl font-bold text-white mt-1">{count}</p>
             </button>
           )
         })}
@@ -199,132 +206,142 @@ export default function OntologyGraph() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* 对象列表 */}
-        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] overflow-hidden">
-          <div className="px-4 py-3 border-b border-[rgba(96,178,216,0.12)]">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-text)]" />
-              <input
-                type="text"
-                placeholder="搜索企业/国家/产品..."
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-white placeholder:text-[var(--muted-text)]"
-              />
+        <div className="ch-card-cut overflow-hidden">
+          <div className="ch-card-cut-inner">
+            <div className="px-4 py-3 border-b border-[rgba(96,178,216,0.12)]">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-text)]" />
+                <input
+                  type="text"
+                  placeholder="搜索企业/国家/产品..."
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-white placeholder:text-[var(--muted-text)]"
+                />
+              </div>
             </div>
-          </div>
-          <div className="max-h-[520px] overflow-auto">
-            {searchedObjects.length === 0 ? (
-              <div className="p-4 text-center text-[var(--muted-text)] text-sm">无匹配结果</div>
-            ) : (
-              searchedObjects.map((obj) => (
-                <button
-                  key={obj.obj_id}
-                  onClick={() => setSelectedObj(obj.name)}
-                  className={`w-full text-left px-4 py-2.5 border-b border-[rgba(96,178,216,0.08)] hover:bg-white/5 transition-colors ${
-                    selectedObj === obj.name ? 'bg-[rgba(0,194,255,0.08)]' : ''
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-white">{obj.name}</span>
-                    <TypeBadge type={obj.obj_type} />
-                  </div>
-                  {obj.source_libraries && (
-                    <p className="text-xs text-[var(--muted-text)] mt-0.5">
-                      来源库: {obj.source_libraries}
-                    </p>
-                  )}
-                </button>
-              ))
-            )}
+            <div className="max-h-[520px] overflow-auto">
+              {searchedObjects.length === 0 ? (
+                <div className="p-4 text-center text-[var(--muted-text)] text-sm">无匹配结果</div>
+              ) : (
+                searchedObjects.map((obj) => (
+                  <button
+                    key={obj.obj_id}
+                    onClick={() => setSelectedObj(obj.name)}
+                    className={`w-full text-left px-4 py-2.5 border-b border-[rgba(96,178,216,0.08)] hover:bg-white/5 transition-colors ${
+                      selectedObj === obj.name ? 'bg-[rgba(0,194,255,0.08)]' : ''
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-white">{obj.name}</span>
+                      <TypeBadge type={obj.obj_type} />
+                    </div>
+                    {obj.source_libraries && (
+                      <p className="text-xs text-[var(--muted-text)] mt-0.5">
+                        来源库: {obj.source_libraries}
+                      </p>
+                    )}
+                  </button>
+                ))
+              )}
+            </div>
           </div>
         </div>
 
         {/* 关系图谱 */}
-        <div className="lg:col-span-2 bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Network className="w-5 h-5 text-[var(--muted-text)]" />
-              <h3 className="font-medium text-white">
-                {selectedObj ? `${selectedObj} 的关系网络` : '请选择对象查看关系图谱'}
-              </h3>
+        <div className="lg:col-span-2 ch-card-cut">
+          <div className="ch-card-cut-inner p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="ch-title-bar" />
+                <Network className="w-5 h-5 text-[var(--muted-text)]" />
+                <h3 className="font-medium text-white">
+                  {selectedObj ? `${selectedObj} 的关系网络` : '请选择对象查看关系图谱'}
+                </h3>
+              </div>
+              {graph && graph.nodes.length > 0 && (
+                <div className="flex gap-3">
+                  {Array.from(new Set(graph.nodes.map((n) => n.type))).map((t) => {
+                    const cfg = TYPE_CONFIG[t]
+                    if (!cfg) return null
+                    return (
+                      <div key={t} className="flex items-center gap-1">
+                        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.color }} />
+                        <span className="text-xs text-[var(--muted-text)]">{t}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
-            {graph && graph.nodes.length > 0 && (
-              <div className="flex gap-3">
-                {Array.from(new Set(graph.nodes.map((n) => n.type))).map((t) => {
-                  const cfg = TYPE_CONFIG[t]
-                  if (!cfg) return null
-                  return (
-                    <div key={t} className="flex items-center gap-1">
-                      <span className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.color }} />
-                      <span className="text-xs text-[var(--muted-text)]">{t}</span>
-                    </div>
-                  )
-                })}
+
+            {graph && graph.nodes.length > 0 ? (
+              <div className="space-y-4">
+                {/* 力导向图 */}
+                <div className="ch-card-cut">
+                  <div className="ch-card-cut-inner overflow-hidden bg-white/5">
+                    <ForceGraph
+                      nodes={graph.nodes}
+                      edges={graph.edges}
+                      width={700}
+                      height={350}
+                      centerNode={graph.center}
+                      onNodeClick={(nodeId) => setSelectedObj(nodeId)}
+                    />
+                  </div>
+                </div>
+
+                {/* 关系列表明细 */}
+                <div>
+                  <h4 className="text-sm font-medium text-[var(--muted-text)] mb-2 flex items-center gap-2">
+                    <div className="ch-title-bar" />
+                    <Link2 className="w-3.5 h-3.5" />
+                    关系明细 ({graph.edges.length}条)
+                  </h4>
+                  <div className="space-y-2 max-h-48 overflow-auto">
+                    {graph.edges.map((edge, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 text-sm px-3 py-2 bg-white/5 rounded hover:bg-white/5 transition-colors"
+                      >
+                        <span className="font-medium text-white">{edge.source}</span>
+                        <span className="text-[var(--muted-text)]">→</span>
+                        <span className="px-2 py-0.5 bg-[rgba(0,194,255,0.08)] text-[var(--cyan)] rounded text-xs border border-[rgba(96,178,216,0.12)]">
+                          {edge.type}
+                        </span>
+                        <span className="text-[var(--muted-text)]">→</span>
+                        <span className="font-medium text-white">{edge.target}</span>
+                        {edge.confidence && (
+                          <span className="ml-auto text-xs text-[var(--muted-text)]">
+                            置信度: {edge.confidence}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : selectedObj ? (
+              <div className="text-center py-12 text-[var(--muted-text)]">
+                <Database className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)]" />
+                <p>暂无关系数据</p>
+                <p className="text-xs mt-1">该对象暂未提取到关系</p>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-[var(--muted-text)]">
+                <Users className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)]" />
+                <p>从左侧列表选择一个对象以查看关系图谱</p>
+                <p className="text-xs mt-1">推荐：比亚迪、宁德时代、蔚来</p>
               </div>
             )}
           </div>
-
-          {graph && graph.nodes.length > 0 ? (
-            <div className="space-y-4">
-              {/* 力导向图 */}
-              <div className="border border-[rgba(96,178,216,0.12)] rounded-lg overflow-hidden bg-white/5">
-                <ForceGraph
-                  nodes={graph.nodes}
-                  edges={graph.edges}
-                  width={700}
-                  height={350}
-                  centerNode={graph.center}
-                  onNodeClick={(nodeId) => setSelectedObj(nodeId)}
-                />
-              </div>
-
-              {/* 关系列表明细 */}
-              <div>
-                <h4 className="text-sm font-medium text-[var(--muted-text)] mb-2 flex items-center gap-1">
-                  <Link2 className="w-3.5 h-3.5" />
-                  关系明细 ({graph.edges.length}条)
-                </h4>
-                <div className="space-y-2 max-h-48 overflow-auto">
-                  {graph.edges.map((edge, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 text-sm px-3 py-2 bg-white/5 rounded hover:bg-white/5 transition-colors"
-                    >
-                      <span className="font-medium text-white">{edge.source}</span>
-                      <span className="text-[var(--muted-text)]">→</span>
-                      <span className="px-2 py-0.5 bg-[rgba(0,194,255,0.08)] text-[var(--cyan)] rounded text-xs border border-[rgba(96,178,216,0.12)]">
-                        {edge.type}
-                      </span>
-                      <span className="text-[var(--muted-text)]">→</span>
-                      <span className="font-medium text-white">{edge.target}</span>
-                      {edge.confidence && (
-                        <span className="ml-auto text-xs text-[var(--muted-text)]">
-                          置信度: {edge.confidence}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : selectedObj ? (
-            <div className="text-center py-12 text-[var(--muted-text)]">
-              <Database className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)]" />
-              <p>暂无关系数据</p>
-              <p className="text-xs mt-1">该对象暂未提取到关系</p>
-            </div>
-          ) : (
-            <div className="text-center py-12 text-[var(--muted-text)]">
-              <Users className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)]" />
-              <p>从左侧列表选择一个对象以查看关系图谱</p>
-              <p className="text-xs mt-1">推荐：比亚迪、宁德时代、蔚来</p>
-            </div>
-          )}
         </div>
       </div>
 
-      <div className="bg-white/5 border border-[rgba(96,178,216,0.12)] rounded-lg p-4 text-xs text-[var(--muted-text)]">
-        数据来源：本体抽取引擎（L3产业链库 + L5出海动态库 + L8港口物流库）。关系置信度由LLM语义推理生成。
+      <div className="ch-card-cut">
+        <div className="ch-card-cut-inner p-4 text-xs text-[var(--muted-text)]">
+          数据来源：本体抽取引擎（L3产业链库 + L5出海动态库 + L8港口物流库）。关系置信度由LLM语义推理生成。
+        </div>
       </div>
     </div>
   )

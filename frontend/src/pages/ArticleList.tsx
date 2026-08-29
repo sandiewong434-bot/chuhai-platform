@@ -93,98 +93,111 @@ export default function ArticleList() {
 
   return (
     <div className="space-y-6">
-      {/* 页面标题 */}
-      <div>
-        <h2 className="text-2xl font-bold text-white">文章检索</h2>
-        <p className="text-[var(--muted-text)] mt-1">出海动态 · 行业资讯 · 政策法规 · 全文检索</p>
+      {/* 页面标题 - eyebrow + title bar */}
+      <div className="flex items-start gap-3">
+        <div className="ch-title-bar mt-2" />
+        <div>
+          <p className="text-xs font-medium tracking-widest uppercase text-[var(--cyan)]">文章检索</p>
+          <h2 className="text-2xl font-bold text-white mt-0.5">出海动态 · 行业资讯 · 政策法规 · 全文检索</h2>
+        </div>
       </div>
 
       {/* 统计卡片 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="ch-card p-4">
-          <div className="flex items-center gap-2">
-            <Database className="w-4 h-4 text-[var(--cyan)]" />
-            <span className="text-sm text-[var(--muted-text)]">文章总数</span>
+        <div className="ch-card-cut-sm">
+          <div className="ch-card-cut-sm-inner p-4">
+            <div className="flex items-center gap-2">
+              <Database className="w-4 h-4 text-[var(--cyan)]" />
+              <span className="text-sm text-[var(--muted-text)]">文章总数</span>
+            </div>
+            <p className="text-2xl font-bold text-white mt-1 ch-glow-num">{totalArticles}</p>
           </div>
-          <p className="text-2xl font-bold text-white mt-1">{totalArticles}</p>
         </div>
-        <div className="ch-card p-4">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-[var(--danger)]" />
-            <span className="text-sm text-[var(--muted-text)]">直接相关</span>
+        <div className="ch-card-cut-sm">
+          <div className="ch-card-cut-sm-inner p-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-[var(--danger)]" />
+              <span className="text-sm text-[var(--muted-text)]">直接相关</span>
+            </div>
+            <p className="text-2xl font-bold text-white mt-1 ch-glow-num">{directCount}</p>
           </div>
-          <p className="text-2xl font-bold text-white mt-1">{directCount}</p>
         </div>
-        <div className="ch-card p-4">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-[var(--teal)]" />
-            <span className="text-sm text-[var(--muted-text)]">行业相关</span>
+        <div className="ch-card-cut-sm">
+          <div className="ch-card-cut-sm-inner p-4">
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-[var(--teal)]" />
+              <span className="text-sm text-[var(--muted-text)]">行业相关</span>
+            </div>
+            <p className="text-2xl font-bold text-white mt-1 ch-glow-num">{industryCount}</p>
           </div>
-          <p className="text-2xl font-bold text-white mt-1">{industryCount}</p>
         </div>
-        <div className="ch-card p-4">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-purple-400" />
-            <span className="text-sm text-[var(--muted-text)]">今日更新</span>
+        <div className="ch-card-cut-sm">
+          <div className="ch-card-cut-sm-inner p-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-purple-400" />
+              <span className="text-sm text-[var(--muted-text)]">今日更新</span>
+            </div>
+            <p className="text-2xl font-bold text-white mt-1 ch-glow-num">{todayCount}</p>
           </div>
-          <p className="text-2xl font-bold text-white mt-1">{todayCount}</p>
         </div>
       </div>
 
       {/* 搜索栏 */}
-      <div className="ch-card p-4 space-y-3">
-        <div className="flex gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-text)]" />
-            <input
-              type="text"
-              placeholder="搜索标题、正文或标签..."
-              value={q}
-              onChange={(e) => { setQ(e.target.value); setPage(1) }}
-              className="w-full pl-10 pr-4 py-2 border border-[rgba(96,178,216,0.15)] rounded-md focus:ring-2 focus:ring-[var(--cyan)] focus:border-[var(--cyan)] text-sm bg-[#0a1a2b]"
-            />
+      <div className="ch-card-cut-sm">
+        <div className="ch-card-cut-sm-inner p-4 space-y-3">
+          <div className="flex gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-text)]" />
+              <input
+                type="text"
+                placeholder="搜索标题、正文或标签..."
+                value={q}
+                onChange={(e) => { setQ(e.target.value); setPage(1) }}
+                className="w-full pl-10 pr-4 py-2 border border-[rgba(96,178,216,0.15)] rounded-md focus:ring-2 focus:ring-[var(--cyan)] focus:border-[var(--cyan)] text-sm bg-[#0a1a2b]"
+              />
+            </div>
+            <button
+              onClick={() => { setQ(''); setLayer(''); setRelevance(''); setSourceFilter(''); setPage(1) }}
+              className="px-4 py-2 text-sm border border-[rgba(96,178,216,0.15)] rounded-md hover:bg-white/5 text-[var(--muted-text)] hover:shadow-[0_0_10px_rgba(0,194,255,0.2)] transition-shadow"
+            >
+              重置
+            </button>
           </div>
-          <button
-            onClick={() => { setQ(''); setLayer(''); setRelevance(''); setSourceFilter(''); setPage(1) }}
-            className="px-4 py-2 text-sm border border-[rgba(96,178,216,0.15)] rounded-md hover:bg-white/5 text-[var(--muted-text)]"
-          >
-            重置
-          </button>
-        </div>
 
-        <div className="flex gap-3 flex-wrap">
-          <select
-            value={layer}
-            onChange={(e) => { setLayer(e.target.value); setPage(1) }}
-            className="px-3 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-[var(--muted-text)]"
-          >
-            <option value="">全部层级</option>
-            <option value="enterprise">企业级</option>
-            <option value="industry">行业级</option>
-            <option value="nation">国家级</option>
-            <option value="none">无</option>
-          </select>
+          <div className="flex gap-3 flex-wrap">
+            <select
+              value={layer}
+              onChange={(e) => { setLayer(e.target.value); setPage(1) }}
+              className="px-3 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-[var(--muted-text)]"
+            >
+              <option value="">全部层级</option>
+              <option value="enterprise">企业级</option>
+              <option value="industry">行业级</option>
+              <option value="nation">国家级</option>
+              <option value="none">无</option>
+            </select>
 
-          <select
-            value={relevance}
-            onChange={(e) => { setRelevance(e.target.value); setPage(1) }}
-            className="px-3 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-[var(--muted-text)]"
-          >
-            <option value="">全部相关度</option>
-            <option value="direct">直接相关</option>
-            <option value="industry">行业相关</option>
-            <option value="unrelated">不相关</option>
-          </select>
+            <select
+              value={relevance}
+              onChange={(e) => { setRelevance(e.target.value); setPage(1) }}
+              className="px-3 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-[var(--muted-text)]"
+            >
+              <option value="">全部相关度</option>
+              <option value="direct">直接相关</option>
+              <option value="industry">行业相关</option>
+              <option value="unrelated">不相关</option>
+            </select>
 
-          <select
-            value={sourceFilter}
-            onChange={(e) => { setSourceFilter(e.target.value); setPage(1) }}
-            className="px-3 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-[var(--muted-text)]"
-          >
-            {SOURCE_OPTIONS.map((s) => (
-              <option key={s} value={s === '全部' ? '' : s}>{s}</option>
-            ))}
-          </select>
+            <select
+              value={sourceFilter}
+              onChange={(e) => { setSourceFilter(e.target.value); setPage(1) }}
+              className="px-3 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-[var(--muted-text)]"
+            >
+              {SOURCE_OPTIONS.map((s) => (
+                <option key={s} value={s === '全部' ? '' : s}>{s}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -201,39 +214,41 @@ export default function ArticleList() {
           <>
             <div className="divide-y divide-[rgba(96,178,216,0.12)]">
               {articles.map((article) => (
-                <div key={article.id} className="p-4 hover:bg-white/5 transition-colors">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1">
-                      <FileText className="w-4 h-4 text-[var(--muted-text)]" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <Link
-                        to={`/articles/${article.id}`}
-                        className="text-sm font-medium text-[var(--cyan)] hover:underline line-clamp-1"
-                      >
-                        {article.title}
-                      </Link>
-                      {article.summary && (
-                        <p className="text-xs text-[var(--muted-text)] mt-1 line-clamp-2">{article.summary}</p>
-                      )}
-                      <div className="flex flex-wrap items-center gap-2 mt-2">
-                        <span className="text-xs text-[var(--muted-text)] flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {article.publish_date || '-'}
-                        </span>
-                        <span className="text-xs text-[var(--muted-text)]">来源：{article.source_name}</span>
-                        <LayerBadge layer={article.category_layer} />
-                        <RelevanceBadge relevance={article.relevance} />
-                        {article.category_tag && (
-                          <div className="flex items-center gap-1">
-                            <Tag className="w-3 h-3 text-[var(--muted-text)]" />
-                            {article.category_tag.split(/[,，]/).slice(0, 3).map((tag) => (
-                              <span key={tag} className="px-1.5 py-0.5 bg-white/5 text-[var(--muted-text)] rounded text-xs">
-                                {tag.trim()}
-                              </span>
-                            ))}
-                          </div>
+                <div key={article.id} className="ch-row-glow border-l-2 border-transparent hover:border-l-[var(--cyan)] transition-all">
+                  <div className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        <FileText className="w-4 h-4 text-[var(--muted-text)]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <Link
+                          to={`/articles/${article.id}`}
+                          className="text-sm font-medium text-[var(--cyan)] hover:underline line-clamp-1"
+                        >
+                          {article.title}
+                        </Link>
+                        {article.summary && (
+                          <p className="text-xs text-[var(--muted-text)] mt-1 line-clamp-2">{article.summary}</p>
                         )}
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                          <span className="text-xs text-[var(--muted-text)] flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {article.publish_date || '-'}
+                          </span>
+                          <span className="text-xs text-[var(--muted-text)]">来源：{article.source_name}</span>
+                          <LayerBadge layer={article.category_layer} />
+                          <RelevanceBadge relevance={article.relevance} />
+                          {article.category_tag && (
+                            <div className="flex items-center gap-1">
+                              <Tag className="w-3 h-3 text-[var(--muted-text)]" />
+                              {article.category_tag.split(/[,，]/).slice(0, 3).map((tag) => (
+                                <span key={tag} className="px-1.5 py-0.5 bg-white/5 text-[var(--muted-text)] rounded text-xs hover:shadow-[0_0_8px_rgba(0,194,255,0.3)] transition-shadow">
+                                  {tag.trim()}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -251,14 +266,14 @@ export default function ArticleList() {
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1}
-                    className="p-2 rounded-md border border-[rgba(96,178,216,0.15)] disabled:opacity-40 hover:bg-white/5"
+                    className="p-2 rounded-md border border-[rgba(96,178,216,0.15)] disabled:opacity-40 hover:bg-white/5 hover:shadow-[0_0_12px_rgba(0,194,255,0.25)] hover:border-[rgba(96,178,216,0.4)] transition-all"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page >= totalPages}
-                    className="p-2 rounded-md border border-[rgba(96,178,216,0.15)] disabled:opacity-40 hover:bg-white/5"
+                    className="p-2 rounded-md border border-[rgba(96,178,216,0.15)] disabled:opacity-40 hover:bg-white/5 hover:shadow-[0_0_12px_rgba(0,194,255,0.25)] hover:border-[rgba(96,178,216,0.4)] transition-all"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -278,9 +293,9 @@ export default function ArticleList() {
 
 function LayerBadge({ layer }: { layer: string | null }) {
   const styles: Record<string, string> = {
-    enterprise: 'bg-[rgba(0,194,255,0.08)] text-[var(--cyan)] border-[rgba(0,194,255,0.2)]',
-    industry: 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)] border-[rgba(60,230,180,0.2)]',
-    nation: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    enterprise: 'bg-[rgba(0,194,255,0.08)] text-[var(--cyan)] border-[rgba(0,194,255,0.2)] shadow-[0_0_6px_rgba(0,194,255,0.15)]',
+    industry: 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)] border-[rgba(60,230,180,0.2)] shadow-[0_0_6px_rgba(60,230,180,0.15)]',
+    nation: 'bg-purple-500/10 text-purple-400 border-purple-500/20 shadow-[0_0_6px_rgba(168,85,247,0.15)]',
     none: 'bg-white/5 text-[var(--muted-text)] border-[rgba(96,178,216,0.15)]',
   }
   const labels: Record<string, string> = {
@@ -298,8 +313,8 @@ function LayerBadge({ layer }: { layer: string | null }) {
 
 function RelevanceBadge({ relevance }: { relevance: string | null }) {
   const styles: Record<string, string> = {
-    direct: 'bg-[rgba(255,77,109,0.08)] text-[var(--danger)] border-[rgba(255,77,109,0.2)]',
-    industry: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+    direct: 'bg-[rgba(255,77,109,0.08)] text-[var(--danger)] border-[rgba(255,77,109,0.2)] shadow-[0_0_6px_rgba(255,77,109,0.15)]',
+    industry: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 shadow-[0_0_6px_rgba(234,179,8,0.15)]',
     unrelated: 'bg-white/5 text-[var(--muted-text)] border-[rgba(96,178,216,0.15)]',
   }
   const labels: Record<string, string> = {

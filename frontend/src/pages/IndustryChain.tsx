@@ -202,6 +202,10 @@ export default function IndustryChain() {
     <div className="space-y-6">
       {/* ── 页面标题 ── */}
       <div>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="ch-title-bar" />
+          <span className="text-xs font-medium text-[var(--cyan)] uppercase tracking-wider">Industry Chain</span>
+        </div>
         <h2 className="text-2xl font-bold text-white">产业链全景看板</h2>
         <p className="text-[var(--muted-text)] mt-1">
           锂矿 → 材料 → 电池 → 整车 → 基础设施 全链路监控
@@ -211,20 +215,21 @@ export default function IndustryChain() {
       {/* ── 全链路 KPI ── */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { label: '锂盐产能', value: '45万吨', icon: Factory, color: 'bg-[rgba(0,194,255,0.08)] text-[var(--cyan)]' },
-          { label: '动力电池装机', value: '93.2GWh', icon: Battery, color: 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)]' },
-          { label: 'NEV销量(6月)', value: '104.9万辆', icon: Car, color: 'bg-purple-500/10 text-purple-400' },
-          { label: '充电桩保有量', value: '805万台', icon: Zap, color: 'bg-amber-500/10 text-amber-400' },
-          { label: 'NEV渗透率', value: '40.1%', icon: TrendingUp, color: 'bg-cyan-500/10 text-cyan-400' },
+          { label: '锂盐产能', value: '45万吨', icon: Factory, dot: 'ch-dot' },
+          { label: '动力电池装机', value: '93.2GWh', icon: Battery, dot: 'ch-dot ch-dot-teal' },
+          { label: 'NEV销量(6月)', value: '104.9万辆', icon: Car, dot: 'ch-dot' },
+          { label: '充电桩保有量', value: '805万台', icon: Zap, dot: 'ch-dot ch-dot-amber' },
+          { label: 'NEV渗透率', value: '40.1%', icon: TrendingUp, dot: 'ch-dot' },
         ].map((kpi) => (
-          <div key={kpi.label} className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
-            <div className="flex items-center gap-2">
-              <div className={`p-2 rounded-md ${kpi.color}`}>
-                <kpi.icon className="w-4 h-4" />
+          <div key={kpi.label} className="ch-card-cut-sm">
+            <div className="ch-card-cut-sm-inner p-4">
+              <div className="flex items-center gap-2">
+                <span className={kpi.dot} />
+                <kpi.icon className="w-4 h-4 text-[var(--muted-text)]" />
+                <span className="text-xs text-[var(--muted-text)]">{kpi.label}</span>
               </div>
-              <span className="text-xs text-[var(--muted-text)]">{kpi.label}</span>
+              <p className="text-lg font-bold text-white ch-glow-num mt-2">{kpi.value}</p>
             </div>
-            <p className="text-lg font-bold text-white mt-2">{kpi.value}</p>
           </div>
         ))}
       </div>
@@ -237,7 +242,7 @@ export default function IndustryChain() {
             onClick={() => setActiveTab(tab.key)}
             className={`flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium rounded-t-lg border-b-2 whitespace-nowrap transition-colors ${
               activeTab === tab.key
-                ? 'border-[var(--cyan)] text-[var(--cyan)] bg-[rgba(0,194,255,0.08)]'
+                ? 'border-[var(--cyan)] text-[var(--cyan)] bg-[rgba(0,194,255,0.08)] shadow-[0_0_12px_rgba(0,194,255,0.15)]'
                 : 'border-transparent text-[var(--muted-text)] hover:text-white hover:bg-white/5'
             }`}
           >
@@ -253,33 +258,43 @@ export default function IndustryChain() {
       {activeTab === 'upstream' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">上游资源产能与产量</h3>
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={upstreamData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
-                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#809daf' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
-                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
-                  <Bar dataKey="capacity" name="产能" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="output" name="产量" fill="#10b981" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="ch-card-cut">
+              <div className="ch-card-cut-inner p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-lg font-semibold text-white">上游资源产能与产量</h3>
+                </div>
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={upstreamData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#809daf' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
+                    <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
+                    <Bar dataKey="capacity" name="产能" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="output" name="产量" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
-            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">原材料价格走势（万元/吨）</h3>
-              <ResponsiveContainer width="100%" height={260}>
-                <LineChart data={priceTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#809daf' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
-                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
-                  <Line type="monotone" dataKey="lithium" name="碳酸锂" stroke="#3b82f6" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="cobalt" name="钴" stroke="#8b5cf6" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="nickel" name="镍" stroke="#10b981" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className="ch-card-cut">
+              <div className="ch-card-cut-inner p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-lg font-semibold text-white">原材料价格走势（万元/吨）</h3>
+                </div>
+                <ResponsiveContainer width="100%" height={260}>
+                  <LineChart data={priceTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#809daf' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
+                    <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
+                    <Line type="monotone" dataKey="lithium" name="碳酸锂" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="cobalt" name="钴" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="nickel" name="镍" stroke="#10b981" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
 
@@ -295,41 +310,51 @@ export default function IndustryChain() {
       {activeTab === 'midstream' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">四大材料产能占比</h3>
-              <ResponsiveContainer width="100%" height={260}>
-                <PieChart>
-                  <Pie
-                    data={midstreamData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={4}
-                    dataKey="value"
-                    nameKey="name"
-                    label={({ name, value }: any) => `${name}: ${value}%`}
-                  >
-                    {midstreamData.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="ch-card-cut">
+              <div className="ch-card-cut-inner p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-lg font-semibold text-white">四大材料产能占比</h3>
+                </div>
+                <ResponsiveContainer width="100%" height={260}>
+                  <PieChart>
+                    <Pie
+                      data={midstreamData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={90}
+                      paddingAngle={4}
+                      dataKey="value"
+                      nameKey="name"
+                      label={({ name, value }: any) => `${name}: ${value}%`}
+                    >
+                      {midstreamData.map((entry, i) => (
+                        <Cell key={i} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
-            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">动力电池企业装机量 TOP 榜（GWh）</h3>
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={batteryData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
-                  <XAxis type="number" tick={{ fontSize: 12, fill: '#809daf' }} />
-                  <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 12, fill: '#809daf' }} />
-                  <Tooltip />
-                  <Bar dataKey="capacity" name="装机量(GWh)" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="ch-card-cut">
+              <div className="ch-card-cut-inner p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-lg font-semibold text-white">动力电池企业装机量 TOP 榜（GWh）</h3>
+                </div>
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={batteryData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                    <XAxis type="number" tick={{ fontSize: 12, fill: '#809daf' }} />
+                    <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 12, fill: '#809daf' }} />
+                    <Tooltip />
+                    <Bar dataKey="capacity" name="装机量(GWh)" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
 
@@ -345,97 +370,112 @@ export default function IndustryChain() {
       {activeTab === 'downstream' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">NEV 销量与渗透率走势</h3>
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={vehicleData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#809daf' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
-                  <Tooltip />
-                  <Bar dataKey="nev" name="NEV 销量(万辆)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="ch-card-cut">
+              <div className="ch-card-cut-inner p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-lg font-semibold text-white">NEV 销量与渗透率走势</h3>
+                </div>
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={vehicleData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#809daf' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
+                    <Tooltip />
+                    <Bar dataKey="nev" name="NEV 销量(万辆)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
-            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">补能设施保有量（万台/座）</h3>
-              <div className="space-y-4 mt-4">
-                {chargingData.map((item) => (
-                  <div key={item.type} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                    <span className="text-sm font-medium text-[var(--muted-text)]">{item.type}</span>
-                    <span className="text-lg font-bold text-white">{item.count}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 h-40">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chargingData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={40}
-                      outerRadius={70}
-                      dataKey="count"
-                      nameKey="type"
-                    >
-                      {chargingData.map((_, i) => (
-                        <Cell key={i} fill={['#3b82f6', '#10b981', '#f59e0b'][i]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+            <div className="ch-card-cut">
+              <div className="ch-card-cut-inner p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-lg font-semibold text-white">补能设施保有量（万台/座）</h3>
+                </div>
+                <div className="space-y-4 mt-4">
+                  {chargingData.map((item) => (
+                    <div key={item.type} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                      <span className="text-sm font-medium text-[var(--muted-text)]">{item.type}</span>
+                      <span className="text-lg font-bold text-white ch-glow-num">{item.count}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 h-40">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chargingData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={40}
+                        outerRadius={70}
+                        dataKey="count"
+                        nameKey="type"
+                      >
+                        {chargingData.map((_, i) => (
+                          <Cell key={i} fill={['#3b82f6', '#10b981', '#f59e0b'][i]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
           </div>
 
           {/* 整车企业梯队 */}
-          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-            <h3 className="text-lg font-semibold text-white mb-4">整车企业销量梯队（2026 上半年）</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[rgba(96,178,216,0.12)]">
-                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">排名</th>
-                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">企业</th>
-                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">销量（万辆）</th>
-                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">同比</th>
-                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">梯队</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { rank: 1, name: '比亚迪', sales: 161.3, yoy: '+28.5%', tier: '第一梯队' },
-                    { rank: 2, name: '特斯拉中国', sales: 42.8, yoy: '-3.2%', tier: '第一梯队' },
-                    { rank: 3, name: '吉利新能源', sales: 38.2, yoy: '+65.1%', tier: '第二梯队' },
-                    { rank: 4, name: '长安汽车', sales: 29.9, yoy: '+52.8%', tier: '第二梯队' },
-                    { rank: 5, name: '奇瑞新能源', sales: 25.4, yoy: '+182%', tier: '第二梯队' },
-                    { rank: 6, name: '理想汽车', sales: 18.9, yoy: '+35.8%', tier: '第三梯队' },
-                    { rank: 7, name: '鸿蒙智行', sales: 17.4, yoy: '+520%', tier: '第三梯队' },
-                    { rank: 8, name: '广汽埃安', sales: 16.2, yoy: '-15.3%', tier: '第三梯队' },
-                  ].map((row) => (
-                    <tr key={row.rank} className="border-b border-[rgba(96,178,216,0.08)] hover:bg-white/5">
-                      <td className="py-3 px-4 text-white font-medium">{row.rank}</td>
-                      <td className="py-3 px-4 text-white">{row.name}</td>
-                      <td className="py-3 px-4 text-right text-white font-semibold">{row.sales}</td>
-                      <td className={`py-3 px-4 text-right font-medium ${row.yoy.startsWith('+') ? 'text-[var(--teal)]' : 'text-[var(--danger)]'}`}>
-                        {row.yoy}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          row.tier === '第一梯队' ? 'bg-[rgba(0,194,255,0.12)] text-[var(--cyan)]' :
-                          row.tier === '第二梯队' ? 'bg-[rgba(60,230,180,0.12)] text-[var(--teal)]' :
-                          'bg-white/10 text-[var(--muted-text)]'
-                        }`}>
-                          {row.tier}
-                        </span>
-                      </td>
+          <div className="ch-card-cut">
+            <div className="ch-card-cut-inner p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="ch-title-bar" />
+                <h3 className="text-lg font-semibold text-white">整车企业销量梯队（2026 上半年）</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[rgba(96,178,216,0.12)]">
+                      <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">排名</th>
+                      <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">企业</th>
+                      <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">销量（万辆）</th>
+                      <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">同比</th>
+                      <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">梯队</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {[
+                      { rank: 1, name: '比亚迪', sales: 161.3, yoy: '+28.5%', tier: '第一梯队' },
+                      { rank: 2, name: '特斯拉中国', sales: 42.8, yoy: '-3.2%', tier: '第一梯队' },
+                      { rank: 3, name: '吉利新能源', sales: 38.2, yoy: '+65.1%', tier: '第二梯队' },
+                      { rank: 4, name: '长安汽车', sales: 29.9, yoy: '+52.8%', tier: '第二梯队' },
+                      { rank: 5, name: '奇瑞新能源', sales: 25.4, yoy: '+182%', tier: '第二梯队' },
+                      { rank: 6, name: '理想汽车', sales: 18.9, yoy: '+35.8%', tier: '第三梯队' },
+                      { rank: 7, name: '鸿蒙智行', sales: 17.4, yoy: '+520%', tier: '第三梯队' },
+                      { rank: 8, name: '广汽埃安', sales: 16.2, yoy: '-15.3%', tier: '第三梯队' },
+                    ].map((row) => (
+                      <tr key={row.rank} className="border-b border-[rgba(96,178,216,0.08)] ch-row-glow">
+                        <td className="py-3 px-4 text-white font-medium">{row.rank}</td>
+                        <td className="py-3 px-4 text-white">{row.name}</td>
+                        <td className="py-3 px-4 text-right text-white font-semibold">{row.sales}</td>
+                        <td className={`py-3 px-4 text-right font-medium ${row.yoy.startsWith('+') ? 'text-[var(--teal)]' : 'text-[var(--danger)]'}`}>
+                          {row.yoy}
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            row.tier === '第一梯队' ? 'bg-[rgba(0,194,255,0.12)] text-[var(--cyan)]' :
+                            row.tier === '第二梯队' ? 'bg-[rgba(60,230,180,0.12)] text-[var(--teal)]' :
+                            'bg-white/10 text-[var(--muted-text)]'
+                          }`}>
+                            {row.tier}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 
@@ -450,19 +490,24 @@ export default function IndustryChain() {
       {/* ═══════════════════════════════════════════════════════ */}
       {activeTab === 'sankey' && (
         <div className="space-y-6">
-          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">新能源汽车产业链全景流向图</h3>
-              <div className="flex items-center gap-2 text-xs text-[var(--muted-text)]">
-                <GitBranch className="w-4 h-4" />
-                <span>单位：万吨 / GWh / 万辆（相对比例示意）</span>
+          <div className="ch-card-cut">
+            <div className="ch-card-cut-inner p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-lg font-semibold text-white">新能源汽车产业链全景流向图</h3>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-[var(--muted-text)]">
+                  <GitBranch className="w-4 h-4" />
+                  <span>单位：万吨 / GWh / 万辆（相对比例示意）</span>
+                </div>
               </div>
+              <ReactECharts
+                option={sankeyOption}
+                style={{ height: 600, width: '100%' }}
+                opts={{ renderer: 'canvas' }}
+              />
             </div>
-            <ReactECharts
-              option={sankeyOption}
-              style={{ height: 600, width: '100%' }}
-              opts={{ renderer: 'canvas' }}
-            />
           </div>
 
           {/* 图例说明 */}
@@ -473,11 +518,13 @@ export default function IndustryChain() {
               { label: '电池制造', color: 'bg-green-500', desc: '电芯/模组/PACK' },
               { label: '下游整车', color: 'bg-red-500', desc: 'BEV/PHEV/EREV' },
             ].map(item => (
-              <div key={item.label} className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-3 flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${item.color}`} />
-                <div>
-                  <p className="text-sm font-medium text-white">{item.label}</p>
-                  <p className="text-xs text-[var(--muted-text)]">{item.desc}</p>
+              <div key={item.label} className="ch-card-cut-sm">
+                <div className="ch-card-cut-sm-inner p-3 flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${item.color}`} />
+                  <div>
+                    <p className="text-sm font-medium text-white">{item.label}</p>
+                    <p className="text-xs text-[var(--muted-text)]">{item.desc}</p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -503,7 +550,7 @@ export default function IndustryChain() {
                 onClick={() => setPolicyFilter(level)}
                 className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
                   policyFilter === level
-                    ? 'bg-[var(--cyan)] text-[#06111e]'
+                    ? 'bg-[var(--cyan)] text-[#06111e] shadow-[0_0_12px_rgba(0,194,255,0.25)]'
                     : 'bg-white/5 text-[var(--muted-text)] hover:bg-white/10 hover:text-white'
                 }`}
               >
@@ -536,19 +583,21 @@ export default function IndustryChain() {
 
                     {/* 内容卡片 */}
                     <div className={`ml-10 lg:ml-0 lg:w-[calc(50%-2rem)] ${isLeft ? 'lg:mr-auto lg:pr-8' : 'lg:ml-auto lg:pl-8'}`}>
-                      <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4 hover:shadow-md transition-shadow">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Calendar className="w-4 h-4 text-[var(--muted-text)]" />
-                          <span className="text-sm font-medium text-[var(--muted-text)]">{policy.date}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${levelBadge}`}>
-                            {policy.level}
-                          </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full border ${impactColor}`}>
-                            影响:{policy.impact}
-                          </span>
+                      <div className="ch-card-cut">
+                        <div className="ch-card-cut-inner p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Calendar className="w-4 h-4 text-[var(--muted-text)]" />
+                            <span className="text-sm font-medium text-[var(--muted-text)]">{policy.date}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${levelBadge}`}>
+                              {policy.level}
+                            </span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full border ${impactColor}`}>
+                              影响:{policy.impact}
+                            </span>
+                          </div>
+                          <h4 className="text-base font-semibold text-white mb-1">{policy.title}</h4>
+                          <p className="text-sm text-[var(--muted-text)]">{policy.summary}</p>
                         </div>
-                        <h4 className="text-base font-semibold text-white mb-1">{policy.title}</h4>
-                        <p className="text-sm text-[var(--muted-text)]">{policy.summary}</p>
                       </div>
                     </div>
                   </div>
@@ -569,7 +618,7 @@ export default function IndustryChain() {
 // ── 数据来源说明小组件 ──
 function SourceNote({ children }: { children: string }) {
   return (
-    <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 flex items-start gap-3">
+    <div className="ch-risk-bar rounded-lg p-4 flex items-start gap-3">
       <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
       <div>
         <p className="text-sm font-medium text-amber-400">数据来源说明</p>

@@ -143,6 +143,10 @@ export default function EnterpriseTrack() {
     <div className="space-y-6">
       {/* 页面标题 */}
       <div>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="ch-title-bar" />
+          <span className="text-xs font-medium text-[var(--cyan)] uppercase tracking-wider">Enterprise Tracking</span>
+        </div>
         <h2 className="text-2xl font-bold text-white">企业出海追踪</h2>
         <p className="text-[var(--muted-text)] mt-1">出海动态 · 投资建厂 · 战略合作 · 时间线</p>
       </div>
@@ -150,52 +154,69 @@ export default function EnterpriseTrack() {
       {/* 企业筛选 + 统计 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* 企业选择 */}
-        <div className="lg:col-span-2 bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
-          <h3 className="text-sm font-medium text-[var(--muted-text)] mb-3">选择企业</h3>
-          <div className="flex gap-2 flex-wrap">
-            <button
-              onClick={() => setSelectedEnterprise(null)}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                selectedEnterprise === null
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white/5 text-[var(--muted-text)] hover:bg-white/10'
-              }`}
-            >
-              全部
-            </button>
-            {enterprises.map((e) => (
+        <div className="lg:col-span-2 ch-card-cut">
+          <div className="ch-card-cut-inner p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="ch-title-bar" />
+              <h3 className="text-sm font-medium text-[var(--muted-text)]">选择企业</h3>
+            </div>
+            <div className="flex gap-2 flex-wrap">
               <button
-                key={e.id}
-                onClick={() => setSelectedEnterprise(e.id)}
+                onClick={() => setSelectedEnterprise(null)}
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  selectedEnterprise === e.id
+                  selectedEnterprise === null
                     ? 'bg-blue-600 text-white'
                     : 'bg-white/5 text-[var(--muted-text)] hover:bg-white/10'
                 }`}
               >
-                {e.name}
+                全部
               </button>
-            ))}
+              {enterprises.map((e) => (
+                <button
+                  key={e.id}
+                  onClick={() => setSelectedEnterprise(e.id)}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    selectedEnterprise === e.id
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white/5 text-[var(--muted-text)] hover:bg-white/10'
+                  }`}
+                >
+                  {e.name}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* 快速统计 */}
-        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
-          <h3 className="text-sm font-medium text-[var(--muted-text)] mb-3">出海概览</h3>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-[var(--muted-text)]">追踪企业</span>
-              <span className="text-lg font-bold text-white">{enterprises.length}</span>
+        <div className="space-y-3">
+          <div className="ch-card-cut-sm">
+            <div className="ch-card-cut-sm-inner p-3">
+              <div className="flex items-center gap-2">
+                <span className="ch-dot" />
+                <span className="text-xs text-[var(--muted-text)]">追踪企业</span>
+              </div>
+              <p className="text-xl font-bold text-white ch-glow-num mt-1">{enterprises.length}</p>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-[var(--muted-text)]">动态事件</span>
-              <span className="text-lg font-bold text-white">{events.length}</span>
+          </div>
+          <div className="ch-card-cut-sm">
+            <div className="ch-card-cut-sm-inner p-3">
+              <div className="flex items-center gap-2">
+                <span className="ch-dot ch-dot-teal" />
+                <span className="text-xs text-[var(--muted-text)]">动态事件</span>
+              </div>
+              <p className="text-xl font-bold text-white ch-glow-num mt-1">{events.length}</p>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-[var(--muted-text)]">覆盖国家</span>
-              <span className="text-lg font-bold text-white">
+          </div>
+          <div className="ch-card-cut-sm">
+            <div className="ch-card-cut-sm-inner p-3">
+              <div className="flex items-center gap-2">
+                <span className="ch-dot ch-dot-amber" />
+                <span className="text-xs text-[var(--muted-text)]">覆盖国家</span>
+              </div>
+              <p className="text-xl font-bold text-white ch-glow-num mt-1">
                 {new Set(events.map((e) => e.location.split(/[，,]/)[0])).size}
-              </span>
+              </p>
             </div>
           </div>
         </div>
@@ -232,34 +253,36 @@ export default function EnterpriseTrack() {
 
       {/* 企业信息卡（选中时） */}
       {selectedEnterprise && (
-        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-5">
-          {(() => {
-            const ent = enterprises.find((e) => e.id === selectedEnterprise)
-            if (!ent) return null
-            return (
-              <div className="flex flex-wrap items-center gap-6">
-                <div className="flex items-center gap-3">
-                  <Building2 className="w-6 h-6 text-[var(--cyan)]" />
-                  <div>
-                    <h3 className="font-bold text-white">{ent.name}</h3>
-                    <p className="text-xs text-[var(--muted-text)]">{ent.industry} · 成立于{ent.founded_year}年</p>
+        <div className="ch-card-cut">
+          <div className="ch-card-cut-inner p-5">
+            {(() => {
+              const ent = enterprises.find((e) => e.id === selectedEnterprise)
+              if (!ent) return null
+              return (
+                <div className="flex flex-wrap items-center gap-6">
+                  <div className="flex items-center gap-3">
+                    <Building2 className="w-6 h-6 text-[var(--cyan)]" />
+                    <div>
+                      <h3 className="font-bold text-white">{ent.name}</h3>
+                      <p className="text-xs text-[var(--muted-text)]">{ent.industry} · 成立于{ent.founded_year}年</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
+                    <MapPin className="w-4 h-4" />
+                    总部：{ent.headquarters}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
+                    <Globe className="w-4 h-4" />
+                    出海国家：{ent.overseas_countries}个
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
+                    <Car className="w-4 h-4" />
+                    主力产品：{ent.flagship_products.join(' / ')}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
-                  <MapPin className="w-4 h-4" />
-                  总部：{ent.headquarters}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
-                  <Globe className="w-4 h-4" />
-                  出海国家：{ent.overseas_countries}个
-                </div>
-                <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
-                  <Car className="w-4 h-4" />
-                  主力产品：{ent.flagship_products.join(' / ')}
-                </div>
-              </div>
-            )
-          })()}
+              )
+            })()}
+          </div>
         </div>
       )}
 
@@ -271,55 +294,58 @@ export default function EnterpriseTrack() {
       ) : (
         <div className="space-y-6">
           {Object.entries(groupedEvents).map(([enterpriseName, entEvents]) => (
-            <div key={enterpriseName} className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-              <div className="flex items-center gap-2 mb-6">
-                <Building2 className="w-5 h-5 text-[var(--cyan)]" />
-                <h3 className="text-lg font-semibold text-white">
-                  {enterpriseName} 出海时间线
-                </h3>
-                <span className="text-sm text-[var(--muted-text)]">({entEvents.length}条动态)</span>
-              </div>
+            <div key={enterpriseName} className="ch-card-cut">
+              <div className="ch-card-cut-inner p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="ch-title-bar" />
+                  <Building2 className="w-5 h-5 text-[var(--cyan)]" />
+                  <h3 className="text-lg font-semibold text-white">
+                    {enterpriseName} 出海时间线
+                  </h3>
+                  <span className="text-sm text-[var(--muted-text)]">({entEvents.length}条动态)</span>
+                </div>
 
-              <div className="relative">
-                {/* 时间线竖线 */}
-                <div className="absolute left-4 top-0 bottom-0 w-px bg-[rgba(96,178,216,0.12)]" />
+                <div className="relative">
+                  {/* 时间线竖线 */}
+                  <div className="absolute left-4 top-0 bottom-0 w-px bg-[rgba(96,178,216,0.12)]" />
 
-                <div className="space-y-6">
-                  {entEvents.map((event, index) => {
-                    const cfg = TYPE_CONFIG[event.event_type] || TYPE_CONFIG['出海动态']
-                    const Icon = cfg.icon
-                    return (
-                      <div key={index} className="relative pl-10">
-                        {/* 时间点 */}
-                        <div className={`absolute left-2 top-1.5 w-5 h-5 rounded-full bg-[#0a1a2b] border-2 flex items-center justify-center`}
-                          style={{ borderColor: event.event_type === '投资建厂' ? '#00c2ff' : event.event_type === '出口/销量' ? '#3ce6b4' : '#a855f7' }}
-                        >
-                          <Icon className="w-2.5 h-2.5" style={{ color: event.event_type === '投资建厂' ? '#00c2ff' : event.event_type === '出口/销量' ? '#3ce6b4' : '#a855f7' }} />
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row sm:items-start gap-2">
-                          <div className="flex items-center gap-2 text-sm text-[var(--muted-text)] min-w-[110px]">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {event.date || '日期未知'}
+                  <div className="space-y-6">
+                    {entEvents.map((event, index) => {
+                      const cfg = TYPE_CONFIG[event.event_type] || TYPE_CONFIG['出海动态']
+                      const Icon = cfg.icon
+                      return (
+                        <div key={index} className="relative pl-10">
+                          {/* 时间点 */}
+                          <div className={`absolute left-2 top-1.5 w-5 h-5 rounded-full bg-[#0a1a2b] border-2 flex items-center justify-center`}
+                            style={{ borderColor: event.event_type === '投资建厂' ? '#00c2ff' : event.event_type === '出口/销量' ? '#3ce6b4' : '#a855f7' }}
+                          >
+                            <Icon className="w-2.5 h-2.5" style={{ color: event.event_type === '投资建厂' ? '#00c2ff' : event.event_type === '出口/销量' ? '#3ce6b4' : '#a855f7' }} />
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <span className={`px-2 py-0.5 rounded text-xs font-medium border ${cfg.color}`}>
-                                {event.event_type}
-                              </span>
-                              <span className="flex items-center gap-1 text-sm text-[var(--muted-text)]">
-                                <MapPin className="w-3 h-3" />
-                                {event.location}
-                              </span>
+
+                          <div className="flex flex-col sm:flex-row sm:items-start gap-2">
+                            <div className="flex items-center gap-2 text-sm text-[var(--muted-text)] min-w-[110px]">
+                              <Calendar className="w-3.5 h-3.5" />
+                              {event.date || '日期未知'}
                             </div>
-                            <p className="text-sm font-medium text-white">{event.title}</p>
-                            <p className="text-xs text-[var(--muted-text)] mt-1">{event.description}</p>
-                            <p className="text-xs text-[var(--muted-text)] mt-1">来源：{event.source_name}</p>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                <span className={`px-2 py-0.5 rounded text-xs font-medium border ${cfg.color}`}>
+                                  {event.event_type}
+                                </span>
+                                <span className="flex items-center gap-1 text-sm text-[var(--muted-text)]">
+                                  <MapPin className="w-3 h-3" />
+                                  {event.location}
+                                </span>
+                              </div>
+                              <p className="text-sm font-medium text-white">{event.title}</p>
+                              <p className="text-xs text-[var(--muted-text)] mt-1">{event.description}</p>
+                              <p className="text-xs text-[var(--muted-text)] mt-1">来源：{event.source_name}</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -327,8 +353,10 @@ export default function EnterpriseTrack() {
         </div>
       )}
 
-      <div className="bg-white/5 border border-[rgba(96,178,216,0.12)] rounded-lg p-4 text-xs text-[var(--muted-text)]">
-        数据来源：企业公告、商务部对外投资备案、各国投资促进机构、行业协会。更新频率：每日。
+      <div className="ch-card-cut">
+        <div className="ch-card-cut-inner p-4 text-xs text-[var(--muted-text)]">
+          数据来源：企业公告、商务部对外投资备案、各国投资促进机构、行业协会。更新频率：每日。
+        </div>
       </div>
     </div>
   )

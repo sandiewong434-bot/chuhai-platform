@@ -129,6 +129,16 @@ const levelColor = (level: string) => {
   return map[level] || 'text-[var(--muted-text)] bg-white/5'
 }
 
+const tierDotClass = (tier: Tier) => {
+  const map: Record<Tier, string> = {
+    '先锋': 'ch-dot ch-dot-teal',
+    '主力': 'ch-dot',
+    '潜力': 'ch-dot ch-dot-amber',
+    '待观察': 'ch-dot',
+  }
+  return map[tier]
+}
+
 // 确定性评分生成：基于梯队+国家代码哈希，保证每次加载一致
 function hashNum(str: string, seed: number): number {
   let h = seed
@@ -334,6 +344,10 @@ export default function CountryScore() {
     <div className="space-y-6">
       {/* 页面标题 */}
       <div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="ch-title-bar" />
+          <span className="text-xs font-medium text-[var(--cyan)] tracking-wider uppercase">Market Screening</span>
+        </div>
         <h2 className="text-2xl font-bold text-white">目标市场筛选与国别分级</h2>
         <p className="text-[var(--muted-text)] mt-1">
           先锋 / 主力 / 潜力 / 待观察 四级梯队 · {COUNTRIES.length}个重点国家
@@ -343,27 +357,31 @@ export default function CountryScore() {
       {/* 梯队统计卡片 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {(Object.keys(tierConfig) as Tier[]).map((tier) => (
-          <button
-            key={tier}
-            onClick={() => setTierFilter(tierFilter === tier ? 'all' : tier)}
-            className={`p-4 rounded-lg border text-left transition-all ${
-              tierFilter === tier
-                ? tierConfig[tier].bg + ' ' + tierConfig[tier].border + ' ring-2 ring-offset-1'
-                : 'bg-[#0a1a2b] border-[rgba(96,178,216,0.12)] hover:border-[rgba(96,178,216,0.2)]'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className={`text-sm font-semibold ${tierConfig[tier].color}`}>{tier}市场</span>
-              <span className="text-2xl font-bold text-white">{tierStats[tier]}</span>
-            </div>
-            <p className="text-xs text-[var(--muted-text)] mt-1">{tierConfig[tier].desc}</p>
-          </button>
+          <div key={tier} className="ch-card-cut-sm">
+            <button
+              onClick={() => setTierFilter(tierFilter === tier ? 'all' : tier)}
+              className={`ch-card-cut-sm-inner w-full text-left transition-all ${
+                tierFilter === tier
+                  ? tierConfig[tier].bg + ' ' + tierConfig[tier].border + ' ring-2 ring-offset-1'
+                  : ''
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={tierDotClass(tier)} />
+                  <span className={`text-sm font-semibold ${tierConfig[tier].color}`}>{tier}市场</span>
+                </div>
+                <span className="text-2xl font-bold text-white ch-glow-num">{tierStats[tier]}</span>
+              </div>
+              <p className="text-xs text-[var(--muted-text)] mt-1">{tierConfig[tier].desc}</p>
+            </button>
+          </div>
         ))}
       </div>
 
       {/* 筛选、排序与视图切换 */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2 bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] px-3 py-2">
+        <div className="flex items-center gap-2 bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] px-3 py-2 focus-within:border-[rgba(0,194,255,0.4)] focus-within:shadow-[0_0_12px_rgba(0,194,255,0.12)] transition-all">
           <Filter className="w-4 h-4 text-[var(--muted-text)]" />
           <span className="text-sm text-[var(--muted-text)]">筛选:</span>
           <select
@@ -379,7 +397,7 @@ export default function CountryScore() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] px-3 py-2">
+        <div className="flex items-center gap-2 bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] px-3 py-2 focus-within:border-[rgba(0,194,255,0.4)] focus-within:shadow-[0_0_12px_rgba(0,194,255,0.12)] transition-all">
           <ArrowUpDown className="w-4 h-4 text-[var(--muted-text)]" />
           <span className="text-sm text-[var(--muted-text)]">排序:</span>
           <select
@@ -396,8 +414,8 @@ export default function CountryScore() {
         <div className="flex items-center gap-2 ml-auto">
           <button
             onClick={() => setViewMode('map')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
-              viewMode === 'map' ? 'bg-blue-600 text-white' : 'bg-white/10 text-[var(--muted-text)]'
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-all ${
+              viewMode === 'map' ? 'bg-blue-600 text-white shadow-[0_0_16px_rgba(37,99,235,0.35)]' : 'bg-white/10 text-[var(--muted-text)]'
             }`}
           >
             <MapIcon className="w-4 h-4" />
@@ -405,8 +423,8 @@ export default function CountryScore() {
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
-              viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-white/10 text-[var(--muted-text)]'
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-all ${
+              viewMode === 'list' ? 'bg-blue-600 text-white shadow-[0_0_16px_rgba(37,99,235,0.35)]' : 'bg-white/10 text-[var(--muted-text)]'
             }`}
           >
             <List className="w-4 h-4" />
@@ -414,8 +432,8 @@ export default function CountryScore() {
           </button>
           <button
             onClick={() => { setSelectedCountry('TH'); setViewMode('detail') }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
-              viewMode === 'detail' ? 'bg-blue-600 text-white' : 'bg-white/10 text-[var(--muted-text)]'
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-all ${
+              viewMode === 'detail' ? 'bg-blue-600 text-white shadow-[0_0_16px_rgba(37,99,235,0.35)]' : 'bg-white/10 text-[var(--muted-text)]'
             }`}
           >
             <BarChart3 className="w-4 h-4" />
@@ -426,108 +444,112 @@ export default function CountryScore() {
 
       {/* 地图视图 */}
       {viewMode === 'map' && (
-        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(96,178,216,0.12)]">
-            <h3 className="font-medium text-white flex items-center gap-2">
-              <MapIcon className="w-4 h-4 text-[var(--muted-text)]" />
-              全球市场梯队分布
-            </h3>
-            <div className="flex items-center gap-3 text-xs text-[var(--muted-text)]">
-              {(Object.keys(tierConfig) as Tier[]).map((tier) => (
-                <span key={tier} className="flex items-center gap-1">
-                  <span
-                    className="w-3 h-3 rounded-sm inline-block"
-                    style={{ backgroundColor: tierConfig[tier].mapColor }}
-                  />
-                  {tier}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="relative" style={{ height: 520 }}>
-            {mapReady ? (
-              <ReactECharts
-                option={mapOption}
-                style={{ height: '100%', width: '100%' }}
-                onEvents={{
-                  click: onMapClick,
-                }}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-[var(--muted-text)]">
-                <div className="text-center">
-                  <Globe className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)] animate-pulse" />
-                  <p className="text-sm">地图加载中...</p>
-                </div>
+        <div className="ch-card-cut">
+          <div className="ch-card-cut-inner overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(96,178,216,0.12)]">
+              <h3 className="font-medium text-white flex items-center gap-2">
+                <MapIcon className="w-4 h-4 text-[var(--muted-text)]" />
+                全球市场梯队分布
+              </h3>
+              <div className="flex items-center gap-3 text-xs text-[var(--muted-text)]">
+                {(Object.keys(tierConfig) as Tier[]).map((tier) => (
+                  <span key={tier} className="flex items-center gap-1">
+                    <span
+                      className="w-3 h-3 rounded-sm inline-block"
+                      style={{ backgroundColor: tierConfig[tier].mapColor }}
+                    />
+                    {tier}
+                  </span>
+                ))}
               </div>
-            )}
-          </div>
-          <div className="px-4 py-3 bg-white/5 border-t border-[rgba(96,178,216,0.12)] text-xs text-[var(--muted-text)]">
-            提示：鼠标悬停查看国家评分，点击国家区域下钻到详情页。支持鼠标滚轮缩放和拖拽平移。
+            </div>
+            <div className="relative" style={{ height: 520 }}>
+              {mapReady ? (
+                <ReactECharts
+                  option={mapOption}
+                  style={{ height: '100%', width: '100%' }}
+                  onEvents={{
+                    click: onMapClick,
+                  }}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-[var(--muted-text)]">
+                  <div className="text-center">
+                    <Globe className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)] animate-pulse" />
+                    <p className="text-sm">地图加载中...</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="px-4 py-3 bg-white/5 border-t border-[rgba(96,178,216,0.12)] text-xs text-[var(--muted-text)]">
+              提示：鼠标悬停查看国家评分，点击国家区域下钻到详情页。支持鼠标滚轮缩放和拖拽平移。
+            </div>
           </div>
         </div>
       )}
 
       {/* 列表视图 */}
       {viewMode === 'list' && (
-        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-white/5 border-b border-[rgba(96,178,216,0.12)]">
-                  <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">排名</th>
-                  <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">国家</th>
-                  <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">梯队</th>
-                  <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">区域</th>
-                  <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">综合评分</th>
-                  <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">评级</th>
-                  <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">GDP(万亿)</th>
-                  <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">NEV渗透率</th>
-                  <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCountries.map((c, idx) => {
-                  const s = mockScores[c.code]
-                  const cfg = tierConfig[c.tier]
-                  return (
-                    <tr key={c.code} className="border-b border-[rgba(96,178,216,0.08)] hover:bg-white/5 transition-colors">
-                      <td className="py-3 px-4 text-[var(--muted-text)]">{idx + 1}</td>
-                      <td className="py-3 px-4 font-medium text-white">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-3.5 h-3.5 text-[var(--muted-text)]" />
-                          {c.name}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.color} ${cfg.border} border`}>
-                          {c.tier}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-center text-[var(--muted-text)]">{c.region}</td>
-                      <td className="py-3 px-4 text-right">
-                        <span className="font-bold text-white">{s?.score_total || '-'}</span>
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${levelColor(s?.score_level || '')}`}>
-                          {s?.score_level || '-'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right text-[var(--muted-text)]">${c.gdp}T</td>
-                      <td className="py-3 px-4 text-right text-[var(--muted-text)]">{c.nev_share}</td>
-                      <td className="py-3 px-4 text-center">
-                        <button
-                          onClick={() => { setSelectedCountry(c.code); setViewMode('detail') }}
-                          className="text-[var(--cyan)] hover:text-[var(--cyan)] text-xs font-medium"
-                        >
-                          查看详情
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+        <div className="ch-card-cut">
+          <div className="ch-card-cut-inner overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gradient-to-r from-[rgba(0,194,255,0.06)] to-transparent border-b border-[rgba(96,178,216,0.12)]">
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">排名</th>
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">国家</th>
+                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">梯队</th>
+                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">区域</th>
+                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">综合评分</th>
+                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">评级</th>
+                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">GDP(万亿)</th>
+                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">NEV渗透率</th>
+                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCountries.map((c, idx) => {
+                    const s = mockScores[c.code]
+                    const cfg = tierConfig[c.tier]
+                    return (
+                      <tr key={c.code} className="border-b border-[rgba(96,178,216,0.08)] ch-row-glow">
+                        <td className="py-3 px-4 text-[var(--muted-text)]">{idx + 1}</td>
+                        <td className="py-3 px-4 font-medium text-white">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-3.5 h-3.5 text-[var(--muted-text)]" />
+                            {c.name}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${cfg.bg} ${cfg.color} ${cfg.border} border shadow-[0_0_8px_rgba(0,0,0,0.2)]`}>
+                            {c.tier}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-center text-[var(--muted-text)]">{c.region}</td>
+                        <td className="py-3 px-4 text-right">
+                          <span className="font-bold text-white ch-glow-num">{s?.score_total || '-'}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${levelColor(s?.score_level || '')}`}>
+                            {s?.score_level || '-'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right text-[var(--muted-text)]">${c.gdp}T</td>
+                        <td className="py-3 px-4 text-right text-[var(--muted-text)]">{c.nev_share}</td>
+                        <td className="py-3 px-4 text-center">
+                          <button
+                            onClick={() => { setSelectedCountry(c.code); setViewMode('detail') }}
+                            className="text-[var(--cyan)] hover:text-[var(--cyan)] text-xs font-medium"
+                          >
+                            查看详情
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -548,93 +570,101 @@ export default function CountryScore() {
           </div>
 
           {/* 国家切换 */}
-          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
-            <label className="text-sm font-medium text-[var(--muted-text)]">选择国家</label>
-            <div className="flex flex-wrap gap-2 mt-2 max-h-48 overflow-y-auto">
-              {COUNTRIES.map((c) => (
-                <button
-                  key={c.code}
-                  onClick={() => setSelectedCountry(c.code)}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                    selectedCountry === c.code
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white/10 text-[var(--muted-text)] hover:bg-white/10'
-                  }`}
-                >
-                  {c.name}
-                </button>
-              ))}
+          <div className="ch-card-cut">
+            <div className="ch-card-cut-inner p-4">
+              <label className="text-sm font-medium text-[var(--muted-text)]">选择国家</label>
+              <div className="flex flex-wrap gap-2 mt-2 max-h-48 overflow-y-auto">
+                {COUNTRIES.map((c) => (
+                  <button
+                    key={c.code}
+                    onClick={() => setSelectedCountry(c.code)}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                      selectedCountry === c.code
+                        ? 'bg-blue-600 text-white shadow-[0_0_12px_rgba(37,99,235,0.35)]'
+                        : 'bg-white/10 text-[var(--muted-text)] hover:bg-white/10'
+                    }`}
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* 左侧：总分+梯队标签 */}
             <div className="space-y-4">
-              <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Globe className="w-5 h-5 text-[var(--muted-text)]" />
-                  <h3 className="font-medium text-white">综合评分</h3>
-                </div>
-                <div className="text-center py-4">
-                  <div className="text-5xl font-bold text-white">
-                    {score.score_total}
+              <div className="ch-card-cut">
+                <div className="ch-card-cut-inner p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Globe className="w-5 h-5 text-[var(--muted-text)]" />
+                    <h3 className="font-medium text-white">综合评分</h3>
                   </div>
-                  <div className="mt-2">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${levelColor(score.score_level)}`}>
-                      {score.score_level}
-                    </span>
+                  <div className="text-center py-4">
+                    <div className="text-5xl font-bold text-white ch-glow-num">
+                      {score.score_total}
+                    </div>
+                    <div className="mt-2">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${levelColor(score.score_level)}`}>
+                        {score.score_level}
+                      </span>
+                    </div>
+                    <p className="text-sm text-[var(--muted-text)] mt-2">
+                      {score.country_name} · {score.industry}
+                    </p>
+                    <p className="text-xs text-[var(--muted-text)] mt-1">
+                      评分日期: {score.scored_at}
+                    </p>
                   </div>
-                  <p className="text-sm text-[var(--muted-text)] mt-2">
-                    {score.country_name} · {score.industry}
-                  </p>
-                  <p className="text-xs text-[var(--muted-text)] mt-1">
-                    评分日期: {score.scored_at}
-                  </p>
                 </div>
               </div>
 
               {/* 梯队标签 */}
-              <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-                <h3 className="font-medium text-white mb-3">市场梯队</h3>
-                {(() => {
-                  const c = COUNTRIES.find((x) => x.code === selectedCountry)
-                  const cfg = c ? tierConfig[c.tier] : tierConfig['待观察']
-                  return (
-                    <div className={`p-4 rounded-lg border ${cfg.bg} ${cfg.border}`}>
-                      <div className="flex items-center gap-2">
-                        <Star className={`w-5 h-5 ${cfg.color}`} />
-                        <span className={`font-bold ${cfg.color}`}>{c?.tier || '待观察'}市场</span>
+              <div className="ch-card-cut-sm">
+                <div className="ch-card-cut-sm-inner p-6">
+                  <h3 className="font-medium text-white mb-3">市场梯队</h3>
+                  {(() => {
+                    const c = COUNTRIES.find((x) => x.code === selectedCountry)
+                    const cfg = c ? tierConfig[c.tier] : tierConfig['待观察']
+                    return (
+                      <div className={`p-4 rounded-lg border ${cfg.bg} ${cfg.border}`}>
+                        <div className="flex items-center gap-2">
+                          <Star className={`w-5 h-5 ${cfg.color}`} />
+                          <span className={`font-bold ${cfg.color}`}>{c?.tier || '待观察'}市场</span>
+                        </div>
+                        <p className="text-sm text-[var(--muted-text)] mt-1">{cfg.desc}</p>
                       </div>
-                      <p className="text-sm text-[var(--muted-text)] mt-1">{cfg.desc}</p>
-                    </div>
-                  )
-                })()}
+                    )
+                  })()}
+                </div>
               </div>
 
               {/* 三维度卡片 */}
-              <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-                <h3 className="font-medium text-white mb-3">关键维度速览</h3>
-                <div className="space-y-3">
-                  {[
-                    { label: '营商环境', icon: Building2, score: score.dimensions.d6, color: 'bg-blue-500' },
-                    { label: '产业配套', icon: Factory, score: score.dimensions.d5, color: 'bg-green-500' },
-                    { label: '政治风险', icon: ShieldAlert, score: score.dimensions.d4, color: 'bg-amber-500' },
-                  ].map((dim) => (
-                    <div key={dim.label} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
-                      <div className={`p-2 rounded-md ${dim.score >= 60 ? 'bg-[rgba(60,230,180,0.12)]' : dim.score >= 40 ? 'bg-yellow-500/10' : 'bg-[rgba(255,77,109,0.12)]'}`}>
-                        <dim.icon className={`w-4 h-4 ${dim.score >= 60 ? 'text-[var(--teal)]' : dim.score >= 40 ? 'text-yellow-400' : 'text-[var(--danger)]'}`} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-[var(--muted-text)]">{dim.label}</span>
-                          <span className="text-sm font-bold text-white">{dim.score}分</span>
+              <div className="ch-card-cut-sm">
+                <div className="ch-card-cut-sm-inner p-6">
+                  <h3 className="font-medium text-white mb-3">关键维度速览</h3>
+                  <div className="space-y-3">
+                    {[
+                      { label: '营商环境', icon: Building2, score: score.dimensions.d6, color: 'bg-blue-500' },
+                      { label: '产业配套', icon: Factory, score: score.dimensions.d5, color: 'bg-green-500' },
+                      { label: '政治风险', icon: ShieldAlert, score: score.dimensions.d4, color: 'bg-amber-500' },
+                    ].map((dim) => (
+                      <div key={dim.label} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                        <div className={`p-2 rounded-md ${dim.score >= 60 ? 'bg-[rgba(60,230,180,0.12)]' : dim.score >= 40 ? 'bg-yellow-500/10' : 'bg-[rgba(255,77,109,0.12)]'}`}>
+                          <dim.icon className={`w-4 h-4 ${dim.score >= 60 ? 'text-[var(--teal)]' : dim.score >= 40 ? 'text-yellow-400' : 'text-[var(--danger)]'}`} />
                         </div>
-                        <div className="h-1.5 bg-white/10 rounded-full mt-1.5">
-                          <div className={`h-1.5 rounded-full ${dim.color}`} style={{ width: `${dim.score}%` }} />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-[var(--muted-text)]">{dim.label}</span>
+                            <span className="text-sm font-bold text-white ch-glow-num">{dim.score}分</span>
+                          </div>
+                          <div className="h-1.5 bg-white/10 rounded-full mt-1.5">
+                            <div className={`h-1.5 rounded-full ${dim.color}`} style={{ width: `${dim.score}%` }} />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -642,55 +672,59 @@ export default function CountryScore() {
             {/* 右侧：雷达图 + 条形图 */}
             <div className="lg:col-span-2 space-y-4">
               {/* 雷达图 */}
-              <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-                <h3 className="font-medium text-white mb-2">六维度雷达图</h3>
-                <div className="h-[320px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart
-                      data={DIMENSIONS.map((dim) => ({
-                        subject: dim.name.replace(/与.*/, '…'),
-                        score: score.dimensions[dim.key as keyof typeof score.dimensions] || 0,
-                        fullMark: 100,
-                      }))}
-                    >
-                      <PolarGrid stroke="rgba(96,178,216,0.1)" />
-                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12, fill: '#809daf' }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10, fill: '#809daf' }} />
-                      <Radar
-                        name={score.country_name}
-                        dataKey="score"
-                        stroke="#00c2ff"
-                        fill="#00c2ff"
-                        fillOpacity={0.25}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
+              <div className="ch-card-cut">
+                <div className="ch-card-cut-inner p-6">
+                  <h3 className="font-medium text-white mb-2">六维度雷达图</h3>
+                  <div className="h-[320px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart
+                        data={DIMENSIONS.map((dim) => ({
+                          subject: dim.name.replace(/与.*/, '…'),
+                          score: score.dimensions[dim.key as keyof typeof score.dimensions] || 0,
+                          fullMark: 100,
+                        }))}
+                      >
+                        <PolarGrid stroke="rgba(96,178,216,0.1)" />
+                        <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12, fill: '#809daf' }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10, fill: '#809daf' }} />
+                        <Radar
+                          name={score.country_name}
+                          dataKey="score"
+                          stroke="#00c2ff"
+                          fill="#00c2ff"
+                          fillOpacity={0.25}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
 
               {/* 条形图明细 */}
-              <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-                <h3 className="font-medium text-white mb-4">子项明细</h3>
-                <div className="space-y-3">
-                  {DIMENSIONS.map((dim) => {
-                    const value = score.dimensions[dim.key as keyof typeof score.dimensions] || 0
-                    return (
-                      <div key={dim.key}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm text-[var(--muted-text)]">{dim.name}</span>
-                          <span className="text-sm font-medium text-white">{value}分</span>
+              <div className="ch-card-cut">
+                <div className="ch-card-cut-inner p-6">
+                  <h3 className="font-medium text-white mb-4">子项明细</h3>
+                  <div className="space-y-3">
+                    {DIMENSIONS.map((dim) => {
+                      const value = score.dimensions[dim.key as keyof typeof score.dimensions] || 0
+                      return (
+                        <div key={dim.key}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm text-[var(--muted-text)]">{dim.name}</span>
+                            <span className="text-sm font-medium text-white ch-glow-num">{value}分</span>
+                          </div>
+                          <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${
+                                value >= 80 ? 'bg-green-500' : value >= 60 ? 'bg-blue-500' : value >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: `${value}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all ${
-                              value >= 80 ? 'bg-green-500' : value >= 60 ? 'bg-blue-500' : value >= 40 ? 'bg-yellow-500' : 'bg-red-500'
-                            }`}
-                            style={{ width: `${value}%` }}
-                          />
-                        </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -699,24 +733,26 @@ export default function CountryScore() {
       )}
 
       {/* 评分说明 */}
-      <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
-        <h3 className="font-medium text-white mb-4">评分等级说明</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          {[
-            { level: '强烈推荐', range: '90-100', icon: TrendingUp, color: 'text-[var(--teal)]' },
-            { level: '推荐', range: '75-89', icon: TrendingUp, color: 'text-[var(--cyan)]' },
-            { level: '谨慎推荐', range: '60-74', icon: Minus, color: 'text-yellow-400' },
-            { level: '不推荐', range: '40-59', icon: TrendingDown, color: 'text-orange-400' },
-            { level: '暂不推荐', range: '0-39', icon: TrendingDown, color: 'text-[var(--danger)]' },
-          ].map((item) => (
-            <div key={item.level} className="flex items-center gap-3 p-3 rounded-lg border border-[rgba(96,178,216,0.12)]">
-              <item.icon className={`w-5 h-5 ${item.color}`} />
-              <div>
-                <p className="text-sm font-medium text-white">{item.level}</p>
-                <p className="text-xs text-[var(--muted-text)]">{item.range}分</p>
+      <div className="ch-card-cut">
+        <div className="ch-card-cut-inner p-6">
+          <h3 className="font-medium text-white mb-4">评分等级说明</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {[
+              { level: '强烈推荐', range: '90-100', icon: TrendingUp, color: 'text-[var(--teal)]' },
+              { level: '推荐', range: '75-89', icon: TrendingUp, color: 'text-[var(--cyan)]' },
+              { level: '谨慎推荐', range: '60-74', icon: Minus, color: 'text-yellow-400' },
+              { level: '不推荐', range: '40-59', icon: TrendingDown, color: 'text-orange-400' },
+              { level: '暂不推荐', range: '0-39', icon: TrendingDown, color: 'text-[var(--danger)]' },
+            ].map((item) => (
+              <div key={item.level} className="flex items-center gap-3 p-3 rounded-lg border border-[rgba(96,178,216,0.12)]">
+                <item.icon className={`w-5 h-5 ${item.color}`} />
+                <div>
+                  <p className="text-sm font-medium text-white">{item.level}</p>
+                  <p className="text-xs text-[var(--muted-text)]">{item.range}分</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
