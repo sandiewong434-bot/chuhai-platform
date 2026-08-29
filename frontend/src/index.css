@@ -4,48 +4,40 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    /* 出海平台暗色主题 - 参考 NEV Intelligence 设计系统 */
+    --background: 210 45% 6%;
+    --foreground: 195 80% 95%;
+    --card: 210 50% 8%;
+    --card-foreground: 195 80% 95%;
+    --popover: 210 50% 8%;
+    --popover-foreground: 195 80% 95%;
+    --primary: 195 100% 50%;
+    --primary-foreground: 210 45% 6%;
+    --secondary: 210 40% 14%;
+    --secondary-foreground: 195 60% 90%;
+    --muted: 210 30% 16%;
+    --muted-foreground: 195 20% 55%;
+    --accent: 165 80% 58%;
+    --accent-foreground: 210 45% 6%;
+    --destructive: 350 100% 65%;
+    --destructive-foreground: 210 45% 6%;
+    --border: 195 40% 18%;
+    --input: 210 40% 14%;
+    --ring: 195 100% 50%;
+    --radius: 0.625rem;
+    
+    /* 自定义出海平台色彩变量 */
+    --cyan: #00c2ff;
+    --teal: #3ce6b4;
+    --blue: #4d7cff;
+    --amber: #ffb020;
+    --danger: #ff4d6d;
+    --violet: #a58bff;
+    --ink: #eaf8ff;
+    --muted-text: #809daf;
+    --line: rgba(96, 178, 216, 0.22);
+    --panel: #0a1a2b;
+    --panel2: #0d2438;
   }
 }
 
@@ -54,7 +46,142 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+    @apply bg-[#06111e] text-[var(--ink)];
+    font-family: "Noto Sans SC", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 13px;
+  }
+}
+
+@layer components {
+  /* 出海平台卡片系统 */
+  .ch-card {
+    @apply rounded-xl border transition-all duration-300;
+    background: var(--panel);
+    border-color: rgba(96, 178, 216, 0.12);
+  }
+  .ch-card:hover {
+    border-color: rgba(96, 178, 216, 0.28);
+    box-shadow: 0 0 24px rgba(0, 194, 255, 0.06);
+  }
+  
+  /* KPI 卡片 */
+  .ch-kpi {
+    @apply ch-card p-4;
+  }
+  .ch-kpi strong {
+    @apply text-2xl font-bold text-white block mt-2;
+  }
+  .ch-kpi span {
+    @apply text-xs text-[var(--muted-text)];
+  }
+  .ch-kpi em {
+    @apply text-xs font-medium mt-1 block;
+  }
+  .ch-kpi em.up { color: var(--teal); }
+  .ch-kpi em.danger { color: var(--danger); }
+  .ch-kpi em.amber { color: var(--amber); }
+  
+  /* 页面标题区 */
+  .ch-page-head {
+    @apply mb-6;
+  }
+  .ch-page-head .eyebrow {
+    @apply text-[10px] font-semibold tracking-[2px] uppercase;
+    color: var(--cyan);
+  }
+  .ch-page-head h1 {
+    @apply text-xl font-bold text-white mt-1;
+  }
+  .ch-page-head p {
+    @apply text-sm mt-1;
+    color: var(--muted-text);
+  }
+  
+  /* 按钮系统 */
+  .ch-btn {
+    @apply px-4 py-2 rounded-lg text-sm font-medium transition-all;
+    background: rgba(0, 194, 255, 0.12);
+    color: var(--cyan);
+    border: 1px solid rgba(0, 194, 255, 0.25);
+  }
+  .ch-btn:hover {
+    background: rgba(0, 194, 255, 0.22);
+    border-color: rgba(0, 194, 255, 0.45);
+  }
+  
+  .ch-btn-primary {
+    @apply ch-btn;
+    background: var(--cyan);
+    color: #06111e;
+    border-color: var(--cyan);
+  }
+  .ch-btn-primary:hover {
+    background: #33d1ff;
+    box-shadow: 0 0 20px rgba(0, 194, 255, 0.3);
+  }
+  
+  /* Chip */
+  .ch-chip {
+    @apply px-2.5 py-1 rounded-full text-xs font-medium;
+    background: rgba(0, 194, 255, 0.1);
+    color: var(--cyan);
+    border: 1px solid rgba(0, 194, 255, 0.2);
+  }
+  .ch-chip.active {
+    background: rgba(0, 194, 255, 0.2);
+    border-color: rgba(0, 194, 255, 0.4);
+  }
+  
+  /* 信号卡片 */
+  .ch-signal-card {
+    @apply ch-card p-5;
+  }
+  .ch-signal-line {
+    @apply flex items-center gap-3 py-2.5 border-b border-white/5;
+  }
+  .ch-signal-line:last-child {
+    @apply border-0;
+  }
+  .ch-signal-line i {
+    @apply w-2 h-2 rounded-full flex-shrink-0;
+    background: var(--teal);
+    box-shadow: 0 0 8px var(--teal);
+  }
+  .ch-signal-line em {
+    @apply text-sm font-semibold ml-auto;
+    color: var(--teal);
+  }
+  .ch-signal-line em.amber {
+    color: var(--amber);
+  }
+  
+  /* 网格背景 */
+  .ch-grid-bg {
+    background-image: 
+      linear-gradient(rgba(92, 205, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(92, 205, 255, 0.06) 1px, transparent 1px);
+    background-size: 52px 52px;
+  }
+  
+  /* 轨道线装饰 */
+  .orbit-line {
+    @apply absolute rounded-full border;
+    border-color: rgba(135, 238, 246, 0.08);
+  }
+  
+  /* 滚动条暗色 */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(96, 178, 216, 0.2);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(96, 178, 216, 0.35);
   }
 }
