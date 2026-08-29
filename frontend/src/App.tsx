@@ -8,10 +8,12 @@ import OntologyGraph from './pages/OntologyGraph'
 import CountryScore from './pages/CountryScore'
 import TradeBarrier from './pages/TradeBarrier'
 import EnterpriseTrack from './pages/EnterpriseTrack'
+import EnterpriseDiagnosis from './pages/EnterpriseDiagnosis'
 import SourceHealth from './pages/SourceHealth'
 import IndustryChain from './pages/IndustryChain'
 import ExportAnalysis from './pages/ExportAnalysis'
 import GlobalMarket from './pages/GlobalMarket'
+import ProductSelection from './pages/ProductSelection'
 
 function App() {
   return (
@@ -67,9 +69,19 @@ function App() {
             <EnterpriseTrack />
           </ErrorBoundary>
         } />
+        <Route path="diagnosis" element={
+          <ErrorBoundary>
+            <EnterpriseDiagnosis />
+          </ErrorBoundary>
+        } />
         <Route path="sources" element={
           <ErrorBoundary>
             <SourceHealth />
+          </ErrorBoundary>
+        } />
+        <Route path="selection" element={
+          <ErrorBoundary>
+            <ProductSelection />
           </ErrorBoundary>
         } />
       </Route>

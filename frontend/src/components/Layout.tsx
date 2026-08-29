@@ -1,8 +1,9 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import {
-  LayoutDashboard, FileText, Network, Globe, ShieldAlert,
+  LayoutDashboard, FileText, Network, Globe, ShieldAlert, ShoppingCart,
   Building2, Radio, Menu, X, Factory, Ship, Search, Bell,
   RefreshCw, Wifi, WifiOff, Clock, ChevronRight, Sparkles,
+  Activity,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
@@ -28,6 +29,7 @@ const navGroups = [
       { path: '/scores', label: '国别评估', icon: Globe },
       { path: '/barriers', label: '贸易壁垒', icon: ShieldAlert },
       { path: '/enterprises', label: '企业追踪', icon: Building2 },
+      { path: '/diagnosis', label: '企业诊断', icon: Activity },
     ]
   },
   {
@@ -36,6 +38,13 @@ const navGroups = [
       { path: '/articles', label: '文章检索', icon: FileText },
       { path: '/ontology', label: '本体图谱', icon: Network },
       { path: '/sources', label: '信源监控', icon: Radio },
+    ]
+  },
+  {
+    label: '智能决策',
+    items: [
+      { path: '/diagnosis', label: '企业诊断', icon: Activity },
+      { path: '/selection', label: '选品决策', icon: ShoppingCart },
     ]
   },
 ]
@@ -47,6 +56,7 @@ const breadcrumbMap: Record<string, string> = {
   '/scores': '国别评估',
   '/barriers': '贸易壁垒',
   '/enterprises': '企业追踪',
+  '/diagnosis': '企业诊断',
   '/articles': '文章检索',
   '/ontology': '本体图谱',
   '/sources': '信源监控',
