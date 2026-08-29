@@ -118,7 +118,7 @@ export default function SourceHealth() {
   }
 
   const statusIcon = (source: SourceHealth) => {
-    if (!source.is_active) return <XCircle className="w-5 h-5 text-gray-400" />
+    if (!source.is_active) return <XCircle className="w-5 h-5 text-[var(--muted-text)]" />
     if (source.network_issue) return <AlertCircle className="w-5 h-5 text-red-500" />
     if (source.week_count === 0) return <Clock className="w-5 h-5 text-yellow-500" />
     return <CheckCircle className="w-5 h-5 text-green-500" />
@@ -132,10 +132,10 @@ export default function SourceHealth() {
   }
 
   const statusClass = (source: SourceHealth) => {
-    if (!source.is_active) return 'bg-gray-50 text-gray-500 border-gray-200'
-    if (source.network_issue) return 'bg-red-50 text-red-700 border-red-200'
-    if (source.week_count === 0) return 'bg-yellow-50 text-yellow-700 border-yellow-200'
-    return 'bg-green-50 text-green-700 border-green-200'
+    if (!source.is_active) return 'bg-white/5 text-[var(--muted-text)] border-[rgba(96,178,216,0.12)]'
+    if (source.network_issue) return 'bg-[rgba(255,77,109,0.08)] text-[var(--danger)] border-[rgba(255,77,109,0.2)]'
+    if (source.week_count === 0) return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+    return 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)] border-[rgba(60,230,180,0.2)]'
   }
 
   // 按库分组统计
@@ -158,43 +158,43 @@ export default function SourceHealth() {
     <div className="space-y-6">
       {/* 页面标题 */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">信源监控</h2>
-        <p className="text-gray-500 mt-1">信源健康度 · 运行状态 · 采集统计</p>
+        <h2 className="text-2xl font-bold text-white">信源监控</h2>
+        <p className="text-[var(--muted-text)] mt-1">信源健康度 · 运行状态 · 采集统计</p>
       </div>
 
       {/* 概览卡片 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
           <div className="flex items-center gap-2">
             <Wifi className="w-4 h-4 text-green-500" />
-            <span className="text-sm text-gray-500">活跃信源</span>
+            <span className="text-sm text-[var(--muted-text)]">活跃信源</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{totalCount}</p>
-          <p className="text-xs text-gray-400">/ {sources.length} 总计</p>
+          <p className="text-2xl font-bold text-white mt-1">{totalCount}</p>
+          <p className="text-xs text-[var(--muted-text)]">/ {sources.length} 总计</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-red-500" />
-            <span className="text-sm text-gray-500">异常信源</span>
+            <span className="text-sm text-[var(--muted-text)]">异常信源</span>
           </div>
-          <p className="text-2xl font-bold text-red-600 mt-1">{issueCount}</p>
-          <p className="text-xs text-gray-400">网络或访问故障</p>
+          <p className="text-2xl font-bold text-[var(--danger)] mt-1">{issueCount}</p>
+          <p className="text-xs text-[var(--muted-text)]">网络或访问故障</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-yellow-500" />
-            <span className="text-sm text-gray-500">静默信源</span>
+            <span className="text-sm text-[var(--muted-text)]">静默信源</span>
           </div>
-          <p className="text-2xl font-bold text-yellow-600 mt-1">{silentCount}</p>
-          <p className="text-xs text-gray-400">本周无新数据</p>
+          <p className="text-2xl font-bold text-yellow-400 mt-1">{silentCount}</p>
+          <p className="text-xs text-[var(--muted-text)]">本周无新数据</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
           <div className="flex items-center gap-2">
-            <Database className="w-4 h-4 text-blue-500" />
-            <span className="text-sm text-gray-500">本周采集</span>
+            <Database className="w-4 h-4 text-[var(--cyan)]" />
+            <span className="text-sm text-[var(--muted-text)]">本周采集</span>
           </div>
-          <p className="text-2xl font-bold text-blue-600 mt-1">{totalWeekArticles}</p>
-          <p className="text-xs text-gray-400">文章/条</p>
+          <p className="text-2xl font-bold text-[var(--cyan)] mt-1">{totalWeekArticles}</p>
+          <p className="text-xs text-[var(--muted-text)]">文章/条</p>
         </div>
       </div>
 
@@ -205,13 +205,13 @@ export default function SourceHealth() {
             key={lib}
             onClick={() => setLibraryFilter(libraryFilter === lib ? '' : lib)}
             className={`p-3 rounded-lg border text-left transition-all ${
-              libraryFilter === lib ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100' : 'bg-white border-gray-200 hover:border-gray-300'
+              libraryFilter === lib ? 'bg-[rgba(0,194,255,0.08)] border-[rgba(0,194,255,0.2)] ring-2 ring-[rgba(0,194,255,0.1)]' : 'bg-[#0a1a2b] border-[rgba(96,178,216,0.12)] hover:border-[rgba(96,178,216,0.25)]'
             }`}
           >
-            <p className="text-xs text-gray-500">{LIBRARY_LABELS[lib] || lib}</p>
+            <p className="text-xs text-[var(--muted-text)]">{LIBRARY_LABELS[lib] || lib}</p>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-lg font-bold text-gray-900">{stats.active}</span>
-              <span className="text-xs text-gray-400">/ {stats.total}</span>
+              <span className="text-lg font-bold text-white">{stats.active}</span>
+              <span className="text-xs text-[var(--muted-text)]">/ {stats.total}</span>
             </div>
             {stats.issue > 0 && (
               <p className="text-xs text-red-500 mt-0.5">{stats.issue}个异常</p>
@@ -225,7 +225,7 @@ export default function SourceHealth() {
         <button
           onClick={() => setStatusFilter('')}
           className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-            statusFilter === '' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200'
+            statusFilter === '' ? 'bg-white text-[#06111e] border-white' : 'bg-[#0a1a2b] text-[var(--muted-text)] border-[rgba(96,178,216,0.12)]'
           }`}
         >
           全部状态
@@ -233,7 +233,7 @@ export default function SourceHealth() {
         <button
           onClick={() => setStatusFilter('normal')}
           className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors flex items-center gap-1 ${
-            statusFilter === 'normal' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-white text-gray-600 border-gray-200'
+            statusFilter === 'normal' ? 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)] border-[rgba(60,230,180,0.2)]' : 'bg-[#0a1a2b] text-[var(--muted-text)] border-[rgba(96,178,216,0.12)]'
           }`}
         >
           <CheckCircle className="w-3 h-3" /> 正常
@@ -241,7 +241,7 @@ export default function SourceHealth() {
         <button
           onClick={() => setStatusFilter('issue')}
           className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors flex items-center gap-1 ${
-            statusFilter === 'issue' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-white text-gray-600 border-gray-200'
+            statusFilter === 'issue' ? 'bg-[rgba(255,77,109,0.08)] text-[var(--danger)] border-[rgba(255,77,109,0.2)]' : 'bg-[#0a1a2b] text-[var(--muted-text)] border-[rgba(96,178,216,0.12)]'
           }`}
         >
           <AlertCircle className="w-3 h-3" /> 异常
@@ -249,7 +249,7 @@ export default function SourceHealth() {
         <button
           onClick={() => setStatusFilter('silent')}
           className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors flex items-center gap-1 ${
-            statusFilter === 'silent' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : 'bg-white text-gray-600 border-gray-200'
+            statusFilter === 'silent' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-[#0a1a2b] text-[var(--muted-text)] border-[rgba(96,178,216,0.12)]'
           }`}
         >
           <Clock className="w-3 h-3" /> 无更新
@@ -257,7 +257,7 @@ export default function SourceHealth() {
         <button
           onClick={() => setStatusFilter('inactive')}
           className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors flex items-center gap-1 ${
-            statusFilter === 'inactive' ? 'bg-gray-100 text-gray-600 border-gray-300' : 'bg-white text-gray-600 border-gray-200'
+            statusFilter === 'inactive' ? 'bg-white/5 text-[var(--muted-text)] border-[rgba(96,178,216,0.12)]' : 'bg-[#0a1a2b] text-[var(--muted-text)] border-[rgba(96,178,216,0.12)]'
           }`}
         >
           <XCircle className="w-3 h-3" /> 已停用
@@ -265,7 +265,7 @@ export default function SourceHealth() {
         {libraryFilter && (
           <button
             onClick={() => setLibraryFilter('')}
-            className="px-3 py-1.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200"
+            className="px-3 py-1.5 rounded-full text-xs font-medium bg-[rgba(0,194,255,0.08)] text-[var(--cyan)] border border-[rgba(96,178,216,0.12)]"
           >
             {LIBRARY_LABELS[libraryFilter] || libraryFilter} ×
           </button>
@@ -273,26 +273,26 @@ export default function SourceHealth() {
       </div>
 
       {/* 信源列表 */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">加载中...</div>
+          <div className="p-8 text-center text-[var(--muted-text)]">加载中...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-white/5 border-b border-[rgba(96,178,216,0.12)]">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700">状态</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700">信源名称</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700">所属库</th>
-                  <th className="px-4 py-3 text-center font-medium text-gray-700">层级</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-700">本周采集</th>
-                  <th className="px-4 py-3 text-right font-medium text-gray-700">上次新增</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-700">最后运行</th>
+                  <th className="px-4 py-3 text-left font-medium text-[var(--muted-text)]">状态</th>
+                  <th className="px-4 py-3 text-left font-medium text-[var(--muted-text)]">信源名称</th>
+                  <th className="px-4 py-3 text-left font-medium text-[var(--muted-text)]">所属库</th>
+                  <th className="px-4 py-3 text-center font-medium text-[var(--muted-text)]">层级</th>
+                  <th className="px-4 py-3 text-right font-medium text-[var(--muted-text)]">本周采集</th>
+                  <th className="px-4 py-3 text-right font-medium text-[var(--muted-text)]">上次新增</th>
+                  <th className="px-4 py-3 text-left font-medium text-[var(--muted-text)]">最后运行</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[rgba(96,178,216,0.08)]">
                 {filtered.map((source) => (
-                  <tr key={source.source_id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={source.source_id} className="hover:bg-white/5 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         {statusIcon(source)}
@@ -301,17 +301,17 @@ export default function SourceHealth() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-medium text-gray-900">{source.name}</td>
-                    <td className="px-4 py-3 text-gray-600">
-                      <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">
+                    <td className="px-4 py-3 font-medium text-white">{source.name}</td>
+                    <td className="px-4 py-3 text-[var(--muted-text)]">
+                      <span className="px-2 py-0.5 bg-white/5 rounded text-xs text-[var(--muted-text)]">
                         {LIBRARY_LABELS[source.library || ''] || source.library || '-'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        source.crawl_tier === 'P0' ? 'bg-red-50 text-red-700' :
-                        source.crawl_tier === 'P1' ? 'bg-orange-50 text-orange-700' :
-                        'bg-gray-50 text-gray-600'
+                        source.crawl_tier === 'P0' ? 'bg-[rgba(255,77,109,0.08)] text-[var(--danger)]' :
+                        source.crawl_tier === 'P1' ? 'bg-amber-500/10 text-amber-400' :
+                        'bg-white/5 text-[var(--muted-text)]'
                       }`}>
                         {source.crawl_tier || '-'}
                       </span>
@@ -321,26 +321,26 @@ export default function SourceHealth() {
                         {source.week_count > 0 ? (
                           <>
                             <TrendingUp className="w-3 h-3 text-green-500" />
-                            <span className="font-medium text-gray-900">{source.week_count}</span>
+                            <span className="font-medium text-white">{source.week_count}</span>
                           </>
                         ) : (
                           <>
-                            <TrendingDown className="w-3 h-3 text-gray-300" />
-                            <span className="text-gray-400">0</span>
+                            <TrendingDown className="w-3 h-3 text-[var(--muted-text)]" />
+                            <span className="text-[var(--muted-text)]">0</span>
                           </>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right text-gray-600">
+                    <td className="px-4 py-3 text-right text-[var(--muted-text)]">
                       {source.last_new_count > 0 ? (
-                        <span className="text-green-600 font-medium">+{source.last_new_count}</span>
+                        <span className="text-[var(--teal)] font-medium">+{source.last_new_count}</span>
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-[var(--muted-text)]">-</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-gray-500">
+                    <td className="px-4 py-3 text-[var(--muted-text)]">
                       <div className="flex items-center gap-1">
-                        <RefreshCw className="w-3 h-3" />
+                        <RefreshCw className="w-3 h-3 text-[var(--muted-text)]" />
                         {source.last_run_at
                           ? new Date(source.last_run_at).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
                           : '-'}
@@ -354,11 +354,11 @@ export default function SourceHealth() {
         )}
 
         {filtered.length === 0 && !isLoading && (
-          <div className="p-8 text-center text-gray-400">暂无符合条件的信源</div>
+          <div className="p-8 text-center text-[var(--muted-text)]">暂无符合条件的信源</div>
         )}
       </div>
 
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-xs text-gray-500">
+      <div className="bg-white/5 border border-[rgba(96,178,216,0.12)] rounded-lg p-4 text-xs text-[var(--muted-text)]">
         监控说明：信源每2-6小时自动采集一次。异常信源将在30分钟内触发告警。P0级信源为核心信源，P1为重要信源，P2为辅助信源。
       </div>
     </div>

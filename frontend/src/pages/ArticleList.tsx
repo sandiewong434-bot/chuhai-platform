@@ -95,58 +95,58 @@ export default function ArticleList() {
     <div className="space-y-6">
       {/* 页面标题 */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">文章检索</h2>
-        <p className="text-gray-500 mt-1">出海动态 · 行业资讯 · 政策法规 · 全文检索</p>
+        <h2 className="text-2xl font-bold text-white">文章检索</h2>
+        <p className="text-[var(--muted-text)] mt-1">出海动态 · 行业资讯 · 政策法规 · 全文检索</p>
       </div>
 
       {/* 统计卡片 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="ch-card p-4">
           <div className="flex items-center gap-2">
-            <Database className="w-4 h-4 text-blue-500" />
-            <span className="text-sm text-gray-500">文章总数</span>
+            <Database className="w-4 h-4 text-[var(--cyan)]" />
+            <span className="text-sm text-[var(--muted-text)]">文章总数</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{totalArticles}</p>
+          <p className="text-2xl font-bold text-white mt-1">{totalArticles}</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="ch-card p-4">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-red-500" />
-            <span className="text-sm text-gray-500">直接相关</span>
+            <TrendingUp className="w-4 h-4 text-[var(--danger)]" />
+            <span className="text-sm text-[var(--muted-text)]">直接相关</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{directCount}</p>
+          <p className="text-2xl font-bold text-white mt-1">{directCount}</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="ch-card p-4">
           <div className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-green-500" />
-            <span className="text-sm text-gray-500">行业相关</span>
+            <BookOpen className="w-4 h-4 text-[var(--teal)]" />
+            <span className="text-sm text-[var(--muted-text)]">行业相关</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{industryCount}</p>
+          <p className="text-2xl font-bold text-white mt-1">{industryCount}</p>
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
+        <div className="ch-card p-4">
           <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-purple-500" />
-            <span className="text-sm text-gray-500">今日更新</span>
+            <Calendar className="w-4 h-4 text-purple-400" />
+            <span className="text-sm text-[var(--muted-text)]">今日更新</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{todayCount}</p>
+          <p className="text-2xl font-bold text-white mt-1">{todayCount}</p>
         </div>
       </div>
 
       {/* 搜索栏 */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+      <div className="ch-card p-4 space-y-3">
         <div className="flex gap-3">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-text)]" />
             <input
               type="text"
               placeholder="搜索标题、正文或标签..."
               value={q}
               onChange={(e) => { setQ(e.target.value); setPage(1) }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="w-full pl-10 pr-4 py-2 border border-[rgba(96,178,216,0.15)] rounded-md focus:ring-2 focus:ring-[var(--cyan)] focus:border-[var(--cyan)] text-sm bg-[#0a1a2b]"
             />
           </div>
           <button
             onClick={() => { setQ(''); setLayer(''); setRelevance(''); setSourceFilter(''); setPage(1) }}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+            className="px-4 py-2 text-sm border border-[rgba(96,178,216,0.15)] rounded-md hover:bg-white/5 text-[var(--muted-text)]"
           >
             重置
           </button>
@@ -156,7 +156,7 @@ export default function ArticleList() {
           <select
             value={layer}
             onChange={(e) => { setLayer(e.target.value); setPage(1) }}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+            className="px-3 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-[var(--muted-text)]"
           >
             <option value="">全部层级</option>
             <option value="enterprise">企业级</option>
@@ -168,7 +168,7 @@ export default function ArticleList() {
           <select
             value={relevance}
             onChange={(e) => { setRelevance(e.target.value); setPage(1) }}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+            className="px-3 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-[var(--muted-text)]"
           >
             <option value="">全部相关度</option>
             <option value="direct">直接相关</option>
@@ -179,7 +179,7 @@ export default function ArticleList() {
           <select
             value={sourceFilter}
             onChange={(e) => { setSourceFilter(e.target.value); setPage(1) }}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+            className="px-3 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-[var(--muted-text)]"
           >
             {SOURCE_OPTIONS.map((s) => (
               <option key={s} value={s === '全部' ? '' : s}>{s}</option>
@@ -189,46 +189,46 @@ export default function ArticleList() {
       </div>
 
       {/* 文章列表 */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="ch-card overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">加载中...</div>
+          <div className="p-8 text-center text-[var(--muted-text)]">加载中...</div>
         ) : articles.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">
-            <FileText className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+          <div className="p-8 text-center text-[var(--muted-text)]">
+            <FileText className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)]/50" />
             <p>暂无数据</p>
           </div>
         ) : (
           <>
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-[rgba(96,178,216,0.12)]">
               {articles.map((article) => (
-                <div key={article.id} className="p-4 hover:bg-gray-50 transition-colors">
+                <div key={article.id} className="p-4 hover:bg-white/5 transition-colors">
                   <div className="flex items-start gap-3">
                     <div className="mt-1">
-                      <FileText className="w-4 h-4 text-gray-400" />
+                      <FileText className="w-4 h-4 text-[var(--muted-text)]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <Link
                         to={`/articles/${article.id}`}
-                        className="text-sm font-medium text-blue-700 hover:underline line-clamp-1"
+                        className="text-sm font-medium text-[var(--cyan)] hover:underline line-clamp-1"
                       >
                         {article.title}
                       </Link>
                       {article.summary && (
-                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{article.summary}</p>
+                        <p className="text-xs text-[var(--muted-text)] mt-1 line-clamp-2">{article.summary}</p>
                       )}
                       <div className="flex flex-wrap items-center gap-2 mt-2">
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                        <span className="text-xs text-[var(--muted-text)] flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {article.publish_date || '-'}
                         </span>
-                        <span className="text-xs text-gray-400">来源：{article.source_name}</span>
+                        <span className="text-xs text-[var(--muted-text)]">来源：{article.source_name}</span>
                         <LayerBadge layer={article.category_layer} />
                         <RelevanceBadge relevance={article.relevance} />
                         {article.category_tag && (
                           <div className="flex items-center gap-1">
-                            <Tag className="w-3 h-3 text-gray-400" />
+                            <Tag className="w-3 h-3 text-[var(--muted-text)]" />
                             {article.category_tag.split(/[,，]/).slice(0, 3).map((tag) => (
-                              <span key={tag} className="px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded text-xs">
+                              <span key={tag} className="px-1.5 py-0.5 bg-white/5 text-[var(--muted-text)] rounded text-xs">
                                 {tag.trim()}
                               </span>
                             ))}
@@ -243,22 +243,22 @@ export default function ArticleList() {
 
             {/* 分页 */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
-                <span className="text-sm text-gray-500">
+              <div className="flex items-center justify-between px-4 py-3 border-t border-[rgba(96,178,216,0.12)]">
+                <span className="text-sm text-[var(--muted-text)]">
                   共 {data?.total || 0} 条，第 {page}/{totalPages} 页
                 </span>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1}
-                    className="p-2 rounded-md border border-gray-300 disabled:opacity-40 hover:bg-gray-50"
+                    className="p-2 rounded-md border border-[rgba(96,178,216,0.15)] disabled:opacity-40 hover:bg-white/5"
                   >
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page >= totalPages}
-                    className="p-2 rounded-md border border-gray-300 disabled:opacity-40 hover:bg-gray-50"
+                    className="p-2 rounded-md border border-[rgba(96,178,216,0.15)] disabled:opacity-40 hover:bg-white/5"
                   >
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -269,7 +269,7 @@ export default function ArticleList() {
         )}
       </div>
 
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-xs text-gray-500">
+      <div className="ch-card p-4 text-xs text-[var(--muted-text)]">
         数据来源：L1出海动态库 + L2行业资讯库 + L5政策法规库 + L9贸易壁垒库。每日自动采集更新。
       </div>
     </div>
@@ -278,10 +278,10 @@ export default function ArticleList() {
 
 function LayerBadge({ layer }: { layer: string | null }) {
   const styles: Record<string, string> = {
-    enterprise: 'bg-blue-50 text-blue-700 border-blue-200',
-    industry: 'bg-green-50 text-green-700 border-green-200',
-    nation: 'bg-purple-50 text-purple-700 border-purple-200',
-    none: 'bg-gray-50 text-gray-600 border-gray-200',
+    enterprise: 'bg-[rgba(0,194,255,0.08)] text-[var(--cyan)] border-[rgba(0,194,255,0.2)]',
+    industry: 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)] border-[rgba(60,230,180,0.2)]',
+    nation: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    none: 'bg-white/5 text-[var(--muted-text)] border-[rgba(96,178,216,0.15)]',
   }
   const labels: Record<string, string> = {
     enterprise: '企业',
@@ -298,9 +298,9 @@ function LayerBadge({ layer }: { layer: string | null }) {
 
 function RelevanceBadge({ relevance }: { relevance: string | null }) {
   const styles: Record<string, string> = {
-    direct: 'bg-red-50 text-red-700 border-red-200',
-    industry: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    unrelated: 'bg-gray-50 text-gray-500 border-gray-200',
+    direct: 'bg-[rgba(255,77,109,0.08)] text-[var(--danger)] border-[rgba(255,77,109,0.2)]',
+    industry: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+    unrelated: 'bg-white/5 text-[var(--muted-text)] border-[rgba(96,178,216,0.15)]',
   }
   const labels: Record<string, string> = {
     direct: '直接',

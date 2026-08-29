@@ -32,7 +32,7 @@ export default function ArticleDetail() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">加载中...</div>
+        <div className="text-[var(--muted-text)]">加载中...</div>
       </div>
     )
   }
@@ -40,8 +40,8 @@ export default function ArticleDetail() {
   if (!data) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">文章不存在</p>
-        <Link to="/articles" className="text-blue-600 hover:underline mt-2 inline-block">
+        <p className="text-[var(--muted-text)]">文章不存在</p>
+        <Link to="/articles" className="text-[var(--cyan)] hover:underline mt-2 inline-block">
           返回列表
         </Link>
       </div>
@@ -52,28 +52,28 @@ export default function ArticleDetail() {
     <div className="max-w-4xl mx-auto space-y-4">
       <Link
         to="/articles"
-        className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900"
+        className="inline-flex items-center text-sm text-[var(--muted-text)] hover:text-white"
       >
         <ArrowLeft className="w-4 h-4 mr-1" />
         返回列表
       </Link>
 
-      <article className="bg-white rounded-lg border border-gray-200 p-6 lg:p-8">
-        <h1 className="text-2xl font-bold text-gray-900">{data.title}</h1>
+      <article className="ch-card p-6 lg:p-8">
+        <h1 className="text-2xl font-bold text-white">{data.title}</h1>
 
-        <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-gray-500">
+        <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-[var(--muted-text)]">
           <span className="flex items-center gap-1">
             <Calendar className="w-4 h-4" />
             {data.publish_date || data.crawled_at.split('T')[0]}
           </span>
           <span>来源：{data.source_name}</span>
           {data.category_layer && (
-            <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">
+            <span className="px-2 py-0.5 bg-white/5 rounded text-xs">
               {data.category_layer}
             </span>
           )}
           {data.relevance && (
-            <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">
+            <span className="px-2 py-0.5 bg-white/5 rounded text-xs">
               {data.relevance}
             </span>
           )}
@@ -84,7 +84,7 @@ export default function ArticleDetail() {
             {data.category_tag.split(/[,，]/).map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs"
+                className="px-2 py-0.5 bg-[rgba(0,194,255,0.08)] text-[var(--cyan)] rounded text-xs"
               >
                 {tag.trim()}
               </span>
@@ -92,22 +92,22 @@ export default function ArticleDetail() {
           </div>
         )}
 
-        <div className="mt-6 border-t border-gray-100 pt-6">
+        <div className="mt-6 border-t border-[rgba(96,178,216,0.12)] pt-6">
           {data.content ? (
-            <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
+            <div className="prose prose-sm prose-invert max-w-none whitespace-pre-wrap">
               {data.content}
             </div>
           ) : (
-            <p className="text-gray-400 italic">暂无正文内容</p>
+            <p className="text-[var(--muted-text)] italic">暂无正文内容</p>
           )}
         </div>
 
-        <div className="mt-6 pt-4 border-t border-gray-100">
+        <div className="mt-6 pt-4 border-t border-[rgba(96,178,216,0.12)]">
           <a
             href={data.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center text-sm text-blue-600 hover:underline"
+            className="inline-flex items-center text-sm text-[var(--cyan)] hover:underline"
           >
             <ExternalLink className="w-4 h-4 mr-1" />
             查看原文

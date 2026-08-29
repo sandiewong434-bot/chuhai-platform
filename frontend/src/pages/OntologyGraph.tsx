@@ -21,11 +21,11 @@ interface GraphData {
 }
 
 const TYPE_CONFIG: Record<string, { color: string; bg: string; icon: typeof Factory }> = {
-  '企业': { color: '#2563eb', bg: 'bg-blue-50 text-blue-700', icon: Factory },
-  '目的国': { color: '#16a34a', bg: 'bg-green-50 text-green-700', icon: Globe },
-  '产品': { color: '#9333ea', bg: 'bg-purple-50 text-purple-700', icon: Box },
-  '产业链环节': { color: '#f59e0b', bg: 'bg-yellow-50 text-yellow-700', icon: Link2 },
-  '港口/物流': { color: '#ec4899', bg: 'bg-pink-50 text-pink-700', icon: TrendingUp },
+  '企业': { color: '#00c2ff', bg: 'bg-[rgba(0,194,255,0.08)] text-[var(--cyan)]', icon: Factory },
+  '目的国': { color: '#3ce6b4', bg: 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)]', icon: Globe },
+  '产品': { color: '#a855f7', bg: 'bg-purple-500/10 text-purple-400', icon: Box },
+  '产业链环节': { color: '#facc15', bg: 'bg-yellow-500/10 text-yellow-400', icon: Link2 },
+  '港口/物流': { color: '#f472b6', bg: 'bg-[rgba(255,77,109,0.08)] text-[var(--danger)]', icon: TrendingUp },
 }
 
 // 模拟对象数据
@@ -170,8 +170,8 @@ export default function OntologyGraph() {
     <div className="space-y-6">
       {/* 页面标题 */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">本体图谱</h2>
-        <p className="text-gray-500 mt-1">企业 · 目的国 · 产品 · 产业链 · 关系网络</p>
+        <h2 className="text-2xl font-bold text-white">本体图谱</h2>
+        <p className="text-[var(--muted-text)] mt-1">企业 · 目的国 · 产品 · 产业链 · 关系网络</p>
       </div>
 
       {/* 统计卡片 */}
@@ -184,14 +184,14 @@ export default function OntologyGraph() {
               key={type}
               onClick={() => setTypeFilter(typeFilter === type ? '' : type)}
               className={`p-3 rounded-lg border text-left transition-all ${
-                typeFilter === type ? cfg.bg + ' ring-2 ring-offset-1' : 'bg-white border-gray-200 hover:border-gray-300'
+                typeFilter === type ? cfg.bg + ' ring-2 ring-offset-0' : 'bg-[#0a1a2b] border-[rgba(96,178,216,0.12)] hover:border-[rgba(96,178,216,0.25)]'
               }`}
             >
               <div className="flex items-center gap-2">
                 <Icon className="w-4 h-4" style={{ color: cfg.color }} />
-                <span className="text-xs text-gray-500">{type}</span>
+                <span className="text-xs text-[var(--muted-text)]">{type}</span>
               </div>
-              <p className="text-xl font-bold text-gray-900 mt-1">{count}</p>
+              <p className="text-xl font-bold text-white mt-1">{count}</p>
             </button>
           )
         })}
@@ -199,37 +199,37 @@ export default function OntologyGraph() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* 对象列表 */}
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-200">
+        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] overflow-hidden">
+          <div className="px-4 py-3 border-b border-[rgba(96,178,216,0.12)]">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-text)]" />
               <input
                 type="text"
                 placeholder="搜索企业/国家/产品..."
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm"
+                className="w-full pl-10 pr-4 py-2 border border-[rgba(96,178,216,0.15)] rounded-md text-sm bg-[#0a1a2b] text-white placeholder:text-[var(--muted-text)]"
               />
             </div>
           </div>
           <div className="max-h-[520px] overflow-auto">
             {searchedObjects.length === 0 ? (
-              <div className="p-4 text-center text-gray-400 text-sm">无匹配结果</div>
+              <div className="p-4 text-center text-[var(--muted-text)] text-sm">无匹配结果</div>
             ) : (
               searchedObjects.map((obj) => (
                 <button
                   key={obj.obj_id}
                   onClick={() => setSelectedObj(obj.name)}
-                  className={`w-full text-left px-4 py-2.5 border-b border-gray-50 hover:bg-gray-50 transition-colors ${
-                    selectedObj === obj.name ? 'bg-blue-50' : ''
+                  className={`w-full text-left px-4 py-2.5 border-b border-[rgba(96,178,216,0.08)] hover:bg-white/5 transition-colors ${
+                    selectedObj === obj.name ? 'bg-[rgba(0,194,255,0.08)]' : ''
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">{obj.name}</span>
+                    <span className="text-sm font-medium text-white">{obj.name}</span>
                     <TypeBadge type={obj.obj_type} />
                   </div>
                   {obj.source_libraries && (
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className="text-xs text-[var(--muted-text)] mt-0.5">
                       来源库: {obj.source_libraries}
                     </p>
                   )}
@@ -240,11 +240,11 @@ export default function OntologyGraph() {
         </div>
 
         {/* 关系图谱 */}
-        <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-4">
+        <div className="lg:col-span-2 bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Network className="w-5 h-5 text-gray-500" />
-              <h3 className="font-medium text-gray-900">
+              <Network className="w-5 h-5 text-[var(--muted-text)]" />
+              <h3 className="font-medium text-white">
                 {selectedObj ? `${selectedObj} 的关系网络` : '请选择对象查看关系图谱'}
               </h3>
             </div>
@@ -256,7 +256,7 @@ export default function OntologyGraph() {
                   return (
                     <div key={t} className="flex items-center gap-1">
                       <span className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.color }} />
-                      <span className="text-xs text-gray-500">{t}</span>
+                      <span className="text-xs text-[var(--muted-text)]">{t}</span>
                     </div>
                   )
                 })}
@@ -267,7 +267,7 @@ export default function OntologyGraph() {
           {graph && graph.nodes.length > 0 ? (
             <div className="space-y-4">
               {/* 力导向图 */}
-              <div className="border border-gray-100 rounded-lg overflow-hidden bg-gray-50">
+              <div className="border border-[rgba(96,178,216,0.12)] rounded-lg overflow-hidden bg-white/5">
                 <ForceGraph
                   nodes={graph.nodes}
                   edges={graph.edges}
@@ -280,7 +280,7 @@ export default function OntologyGraph() {
 
               {/* 关系列表明细 */}
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-1">
+                <h4 className="text-sm font-medium text-[var(--muted-text)] mb-2 flex items-center gap-1">
                   <Link2 className="w-3.5 h-3.5" />
                   关系明细 ({graph.edges.length}条)
                 </h4>
@@ -288,17 +288,17 @@ export default function OntologyGraph() {
                   {graph.edges.map((edge, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-2 text-sm px-3 py-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors"
+                      className="flex items-center gap-2 text-sm px-3 py-2 bg-white/5 rounded hover:bg-white/5 transition-colors"
                     >
-                      <span className="font-medium text-gray-900">{edge.source}</span>
-                      <span className="text-gray-400">→</span>
-                      <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs border border-blue-100">
+                      <span className="font-medium text-white">{edge.source}</span>
+                      <span className="text-[var(--muted-text)]">→</span>
+                      <span className="px-2 py-0.5 bg-[rgba(0,194,255,0.08)] text-[var(--cyan)] rounded text-xs border border-[rgba(96,178,216,0.12)]">
                         {edge.type}
                       </span>
-                      <span className="text-gray-400">→</span>
-                      <span className="font-medium text-gray-900">{edge.target}</span>
+                      <span className="text-[var(--muted-text)]">→</span>
+                      <span className="font-medium text-white">{edge.target}</span>
                       {edge.confidence && (
-                        <span className="ml-auto text-xs text-gray-400">
+                        <span className="ml-auto text-xs text-[var(--muted-text)]">
                           置信度: {edge.confidence}
                         </span>
                       )}
@@ -308,14 +308,14 @@ export default function OntologyGraph() {
               </div>
             </div>
           ) : selectedObj ? (
-            <div className="text-center py-12 text-gray-400">
-              <Database className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+            <div className="text-center py-12 text-[var(--muted-text)]">
+              <Database className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)]" />
               <p>暂无关系数据</p>
               <p className="text-xs mt-1">该对象暂未提取到关系</p>
             </div>
           ) : (
-            <div className="text-center py-12 text-gray-400">
-              <Users className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+            <div className="text-center py-12 text-[var(--muted-text)]">
+              <Users className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)]" />
               <p>从左侧列表选择一个对象以查看关系图谱</p>
               <p className="text-xs mt-1">推荐：比亚迪、宁德时代、蔚来</p>
             </div>
@@ -323,7 +323,7 @@ export default function OntologyGraph() {
         </div>
       </div>
 
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-xs text-gray-500">
+      <div className="bg-white/5 border border-[rgba(96,178,216,0.12)] rounded-lg p-4 text-xs text-[var(--muted-text)]">
         数据来源：本体抽取引擎（L3产业链库 + L5出海动态库 + L8港口物流库）。关系置信度由LLM语义推理生成。
       </div>
     </div>
@@ -334,7 +334,7 @@ function TypeBadge({ type }: { type: string }) {
   const cfg = TYPE_CONFIG[type]
   if (!cfg) {
     return (
-      <span className="px-2 py-0.5 rounded text-xs bg-gray-50 text-gray-600">
+      <span className="px-2 py-0.5 rounded text-xs bg-white/5 text-[var(--muted-text)]">
         {type}
       </span>
     )

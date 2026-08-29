@@ -172,7 +172,7 @@ function useSankeyOption() {
         ],
         lineStyle: { color: 'source', curveness: 0.5, opacity: 0.4 },
         label: {
-          color: '#374151',
+          color: '#eaf8ff',
           fontSize: 12,
           fontWeight: 500,
         },
@@ -202,8 +202,8 @@ export default function IndustryChain() {
     <div className="space-y-6">
       {/* ── 页面标题 ── */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">产业链全景看板</h2>
-        <p className="text-gray-500 mt-1">
+        <h2 className="text-2xl font-bold text-white">产业链全景看板</h2>
+        <p className="text-[var(--muted-text)] mt-1">
           锂矿 → 材料 → 电池 → 整车 → 基础设施 全链路监控
         </p>
       </div>
@@ -211,34 +211,34 @@ export default function IndustryChain() {
       {/* ── 全链路 KPI ── */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { label: '锂盐产能', value: '45万吨', icon: Factory, color: 'bg-blue-50 text-blue-700' },
-          { label: '动力电池装机', value: '93.2GWh', icon: Battery, color: 'bg-green-50 text-green-700' },
-          { label: 'NEV销量(6月)', value: '104.9万辆', icon: Car, color: 'bg-purple-50 text-purple-700' },
-          { label: '充电桩保有量', value: '805万台', icon: Zap, color: 'bg-amber-50 text-amber-700' },
-          { label: 'NEV渗透率', value: '40.1%', icon: TrendingUp, color: 'bg-cyan-50 text-cyan-700' },
+          { label: '锂盐产能', value: '45万吨', icon: Factory, color: 'bg-[rgba(0,194,255,0.08)] text-[var(--cyan)]' },
+          { label: '动力电池装机', value: '93.2GWh', icon: Battery, color: 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)]' },
+          { label: 'NEV销量(6月)', value: '104.9万辆', icon: Car, color: 'bg-purple-500/10 text-purple-400' },
+          { label: '充电桩保有量', value: '805万台', icon: Zap, color: 'bg-amber-500/10 text-amber-400' },
+          { label: 'NEV渗透率', value: '40.1%', icon: TrendingUp, color: 'bg-cyan-500/10 text-cyan-400' },
         ].map((kpi) => (
-          <div key={kpi.label} className="bg-white rounded-lg border border-gray-200 p-4">
+          <div key={kpi.label} className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
             <div className="flex items-center gap-2">
               <div className={`p-2 rounded-md ${kpi.color}`}>
                 <kpi.icon className="w-4 h-4" />
               </div>
-              <span className="text-xs text-gray-500">{kpi.label}</span>
+              <span className="text-xs text-[var(--muted-text)]">{kpi.label}</span>
             </div>
-            <p className="text-lg font-bold text-gray-900 mt-2">{kpi.value}</p>
+            <p className="text-lg font-bold text-white mt-2">{kpi.value}</p>
           </div>
         ))}
       </div>
 
       {/* ── Tab 切换 ── */}
-      <div className="flex gap-1 overflow-x-auto pb-2 border-b border-gray-200 scrollbar-hide">
+      <div className="flex gap-1 overflow-x-auto pb-2 border-b border-[rgba(96,178,216,0.12)] scrollbar-hide">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium rounded-t-lg border-b-2 whitespace-nowrap transition-colors ${
               activeTab === tab.key
-                ? 'border-blue-600 text-blue-700 bg-blue-50'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                ? 'border-[var(--cyan)] text-[var(--cyan)] bg-[rgba(0,194,255,0.08)]'
+                : 'border-transparent text-[var(--muted-text)] hover:text-white hover:bg-white/5'
             }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -253,28 +253,28 @@ export default function IndustryChain() {
       {activeTab === 'upstream' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">上游资源产能与产量</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">上游资源产能与产量</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={upstreamData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                   <Bar dataKey="capacity" name="产能" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="output" name="产量" fill="#10b981" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">原材料价格走势（万元/吨）</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">原材料价格走势（万元/吨）</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={priceTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                   <Line type="monotone" dataKey="lithium" name="碳酸锂" stroke="#3b82f6" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="cobalt" name="钴" stroke="#8b5cf6" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="nickel" name="镍" stroke="#10b981" strokeWidth={2} dot={false} />
@@ -295,8 +295,8 @@ export default function IndustryChain() {
       {activeTab === 'midstream' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">四大材料产能占比</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">四大材料产能占比</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
                   <Pie
@@ -319,13 +319,13 @@ export default function IndustryChain() {
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">动力电池企业装机量 TOP 榜（GWh）</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">动力电池企业装机量 TOP 榜（GWh）</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={batteryData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis type="number" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 12, fill: '#6b7280' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis type="number" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 12, fill: '#809daf' }} />
                   <Tooltip />
                   <Bar dataKey="capacity" name="装机量(GWh)" fill="#3b82f6" radius={[0, 4, 4, 0]} />
                 </BarChart>
@@ -345,26 +345,26 @@ export default function IndustryChain() {
       {activeTab === 'downstream' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">NEV 销量与渗透率走势</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">NEV 销量与渗透率走势</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={vehicleData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
                   <Tooltip />
                   <Bar dataKey="nev" name="NEV 销量(万辆)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">补能设施保有量（万台/座）</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">补能设施保有量（万台/座）</h3>
               <div className="space-y-4 mt-4">
                 {chargingData.map((item) => (
-                  <div key={item.type} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-700">{item.type}</span>
-                    <span className="text-lg font-bold text-gray-900">{item.count}</span>
+                  <div key={item.type} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <span className="text-sm font-medium text-[var(--muted-text)]">{item.type}</span>
+                    <span className="text-lg font-bold text-white">{item.count}</span>
                   </div>
                 ))}
               </div>
@@ -392,17 +392,17 @@ export default function IndustryChain() {
           </div>
 
           {/* 整车企业梯队 */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">整车企业销量梯队（2026 上半年）</h3>
+          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">整车企业销量梯队（2026 上半年）</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">排名</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">企业</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">销量（万辆）</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">同比</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">梯队</th>
+                  <tr className="border-b border-[rgba(96,178,216,0.12)]">
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">排名</th>
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">企业</th>
+                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">销量（万辆）</th>
+                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">同比</th>
+                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">梯队</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -416,18 +416,18 @@ export default function IndustryChain() {
                     { rank: 7, name: '鸿蒙智行', sales: 17.4, yoy: '+520%', tier: '第三梯队' },
                     { rank: 8, name: '广汽埃安', sales: 16.2, yoy: '-15.3%', tier: '第三梯队' },
                   ].map((row) => (
-                    <tr key={row.rank} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 text-gray-900 font-medium">{row.rank}</td>
-                      <td className="py-3 px-4 text-gray-900">{row.name}</td>
-                      <td className="py-3 px-4 text-right text-gray-900 font-semibold">{row.sales}</td>
-                      <td className={`py-3 px-4 text-right font-medium ${row.yoy.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+                    <tr key={row.rank} className="border-b border-[rgba(96,178,216,0.08)] hover:bg-white/5">
+                      <td className="py-3 px-4 text-white font-medium">{row.rank}</td>
+                      <td className="py-3 px-4 text-white">{row.name}</td>
+                      <td className="py-3 px-4 text-right text-white font-semibold">{row.sales}</td>
+                      <td className={`py-3 px-4 text-right font-medium ${row.yoy.startsWith('+') ? 'text-[var(--teal)]' : 'text-[var(--danger)]'}`}>
                         {row.yoy}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          row.tier === '第一梯队' ? 'bg-blue-100 text-blue-800' :
-                          row.tier === '第二梯队' ? 'bg-green-100 text-green-800' :
-                          'bg-gray-100 text-gray-800'
+                          row.tier === '第一梯队' ? 'bg-[rgba(0,194,255,0.12)] text-[var(--cyan)]' :
+                          row.tier === '第二梯队' ? 'bg-[rgba(60,230,180,0.12)] text-[var(--teal)]' :
+                          'bg-white/10 text-[var(--muted-text)]'
                         }`}>
                           {row.tier}
                         </span>
@@ -450,10 +450,10 @@ export default function IndustryChain() {
       {/* ═══════════════════════════════════════════════════════ */}
       {activeTab === 'sankey' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">新能源汽车产业链全景流向图</h3>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
+              <h3 className="text-lg font-semibold text-white">新能源汽车产业链全景流向图</h3>
+              <div className="flex items-center gap-2 text-xs text-[var(--muted-text)]">
                 <GitBranch className="w-4 h-4" />
                 <span>单位：万吨 / GWh / 万辆（相对比例示意）</span>
               </div>
@@ -473,11 +473,11 @@ export default function IndustryChain() {
               { label: '电池制造', color: 'bg-green-500', desc: '电芯/模组/PACK' },
               { label: '下游整车', color: 'bg-red-500', desc: 'BEV/PHEV/EREV' },
             ].map(item => (
-              <div key={item.label} className="bg-white rounded-lg border border-gray-200 p-3 flex items-center gap-3">
+              <div key={item.label} className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-3 flex items-center gap-3">
                 <div className={`w-3 h-3 rounded-full ${item.color}`} />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{item.label}</p>
-                  <p className="text-xs text-gray-500">{item.desc}</p>
+                  <p className="text-sm font-medium text-white">{item.label}</p>
+                  <p className="text-xs text-[var(--muted-text)]">{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -496,15 +496,15 @@ export default function IndustryChain() {
         <div className="space-y-6">
           {/* 筛选器 */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">政策级别：</span>
+            <span className="text-sm text-[var(--muted-text)]">政策级别：</span>
             {(['all', '国家级', '部委级', '地方级'] as const).map((level) => (
               <button
                 key={level}
                 onClick={() => setPolicyFilter(level)}
                 className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
                   policyFilter === level
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-[var(--cyan)] text-[#06111e]'
+                    : 'bg-white/5 text-[var(--muted-text)] hover:bg-white/10 hover:text-white'
                 }`}
               >
                 {level === 'all' ? '全部' : level}
@@ -515,31 +515,31 @@ export default function IndustryChain() {
           {/* 时间轴 */}
           <div className="relative">
             {/* 中轴线 */}
-            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 lg:left-1/2 lg:-ml-px" />
+            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-[rgba(96,178,216,0.12)] lg:left-1/2 lg:-ml-px" />
 
             <div className="space-y-8">
               {filteredPolicies.map((policy, idx) => {
                 const isLeft = idx % 2 === 0
                 const impactColor =
-                  policy.impact === '强' ? 'bg-red-50 border-red-200 text-red-700' :
-                  policy.impact === '中' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
-                  'bg-gray-50 border-gray-200 text-gray-600'
+                  policy.impact === '强' ? 'bg-[rgba(255,77,109,0.08)] border-[rgba(255,77,109,0.2)] text-[var(--danger)]' :
+                  policy.impact === '中' ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400' :
+                  'bg-white/5 border-[rgba(96,178,216,0.12)] text-[var(--muted-text)]'
                 const levelBadge =
-                  policy.level === '国家级' ? 'bg-red-100 text-red-700' :
-                  policy.level === '部委级' ? 'bg-blue-100 text-blue-700' :
-                  'bg-green-100 text-green-700'
+                  policy.level === '国家级' ? 'bg-[rgba(255,77,109,0.12)] text-[var(--danger)]' :
+                  policy.level === '部委级' ? 'bg-[rgba(0,194,255,0.12)] text-[var(--cyan)]' :
+                  'bg-[rgba(60,230,180,0.12)] text-[var(--teal)]'
 
                 return (
                   <div key={idx} className="relative flex items-start lg:items-center">
                     {/* 时间节点圆点 */}
-                    <div className="absolute left-4 lg:left-1/2 w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow -ml-[5px] z-10" />
+                    <div className="absolute left-4 lg:left-1/2 w-3 h-3 rounded-full bg-[var(--cyan)] border-2 border-[#0a1a2b] shadow -ml-[5px] z-10" />
 
                     {/* 内容卡片 */}
                     <div className={`ml-10 lg:ml-0 lg:w-[calc(50%-2rem)] ${isLeft ? 'lg:mr-auto lg:pr-8' : 'lg:ml-auto lg:pl-8'}`}>
-                      <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                      <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4 hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-2 mb-2">
-                          <Calendar className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm font-medium text-gray-500">{policy.date}</span>
+                          <Calendar className="w-4 h-4 text-[var(--muted-text)]" />
+                          <span className="text-sm font-medium text-[var(--muted-text)]">{policy.date}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${levelBadge}`}>
                             {policy.level}
                           </span>
@@ -547,8 +547,8 @@ export default function IndustryChain() {
                             影响:{policy.impact}
                           </span>
                         </div>
-                        <h4 className="text-base font-semibold text-gray-900 mb-1">{policy.title}</h4>
-                        <p className="text-sm text-gray-600">{policy.summary}</p>
+                        <h4 className="text-base font-semibold text-white mb-1">{policy.title}</h4>
+                        <p className="text-sm text-[var(--muted-text)]">{policy.summary}</p>
                       </div>
                     </div>
                   </div>
@@ -569,11 +569,11 @@ export default function IndustryChain() {
 // ── 数据来源说明小组件 ──
 function SourceNote({ children }: { children: string }) {
   return (
-    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-      <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+    <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 flex items-start gap-3">
+      <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
       <div>
-        <p className="text-sm font-medium text-amber-800">数据来源说明</p>
-        <p className="text-sm text-amber-700 mt-1">{children}</p>
+        <p className="text-sm font-medium text-amber-400">数据来源说明</p>
+        <p className="text-sm text-amber-300 mt-1">{children}</p>
       </div>
     </div>
   )

@@ -144,10 +144,10 @@ const modeInvestmentData = [
 ]
 
 const modeCompareRows = [
-  { mode: '整车出口(FOB)', desc: '直接出口整车，灵活快速', investment: 5, period: 6, risk: '低', riskColor: 'text-green-600 bg-green-50', pros: '投入低、周期短、灵活', cons: '受关税壁垒影响大' },
-  { mode: 'CKD/SKD散件', desc: '出口零部件，当地组装', investment: 25, period: 12, risk: '中', riskColor: 'text-yellow-600 bg-yellow-50', pros: '规避部分关税、属地化', cons: '需当地建厂/合作' },
-  { mode: '海外建厂', desc: '绿地投资或并购建厂', investment: 80, period: 36, risk: '高', riskColor: 'text-red-600 bg-red-50', pros: '绕过关税、贴近市场', cons: '投入大、周期长、政治风险' },
-  { mode: '合资/技术授权', desc: '技术输出+本地生产', investment: 15, period: 18, risk: '中低', riskColor: 'text-blue-600 bg-blue-50', pros: '轻资产、共享渠道', cons: '利润分成、技术外溢风险' },
+  { mode: '整车出口(FOB)', desc: '直接出口整车，灵活快速', investment: 5, period: 6, risk: '低', riskColor: 'text-[var(--teal)] bg-[rgba(60,230,180,0.08)]', pros: '投入低、周期短、灵活', cons: '受关税壁垒影响大' },
+  { mode: 'CKD/SKD散件', desc: '出口零部件，当地组装', investment: 25, period: 12, risk: '中', riskColor: 'text-yellow-400 bg-yellow-500/10', pros: '规避部分关税、属地化', cons: '需当地建厂/合作' },
+  { mode: '海外建厂', desc: '绿地投资或并购建厂', investment: 80, period: 36, risk: '高', riskColor: 'text-[var(--danger)] bg-[rgba(255,77,109,0.08)]', pros: '绕过关税、贴近市场', cons: '投入大、周期长、政治风险' },
+  { mode: '合资/技术授权', desc: '技术输出+本地生产', investment: 15, period: 18, risk: '中低', riskColor: 'text-[var(--cyan)] bg-[rgba(0,194,255,0.08)]', pros: '轻资产、共享渠道', cons: '利润分成、技术外溢风险' },
 ]
 
 // ═══════════════════════════════════════════════════════════════
@@ -212,8 +212,8 @@ export default function ExportAnalysis() {
     <div className="space-y-6">
       {/* ── 页面标题 ── */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">出口分析</h2>
-        <p className="text-gray-500 mt-1">
+        <h2 className="text-2xl font-bold text-white">出口分析</h2>
+        <p className="text-[var(--muted-text)] mt-1">
           出了多少、卖到哪、谁在出、怎么出、赚不赚 — 七大维度全景分析
         </p>
       </div>
@@ -221,14 +221,14 @@ export default function ExportAnalysis() {
       {/* ── 核心 KPI ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: '上半年出口总量', value: '293.0万辆', sub: '同比 +25.3%', color: 'bg-blue-50 text-blue-700' },
-          { label: 'NEV出口占比', value: '47.5%', sub: 'BEV+PHEV', color: 'bg-green-50 text-green-700' },
-          { label: 'TOP1目的国', value: '俄罗斯', sub: '占比 18.2%', color: 'bg-purple-50 text-purple-700' },
-          { label: 'TOP1出口车企', value: '奇瑞', sub: '出口 28.5万辆', color: 'bg-amber-50 text-amber-700' },
+          { label: '上半年出口总量', value: '293.0万辆', sub: '同比 +25.3%', color: 'bg-[rgba(0,194,255,0.08)] text-[var(--cyan)]' },
+          { label: 'NEV出口占比', value: '47.5%', sub: 'BEV+PHEV', color: 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)]' },
+          { label: 'TOP1目的国', value: '俄罗斯', sub: '占比 18.2%', color: 'bg-purple-500/10 text-purple-400' },
+          { label: 'TOP1出口车企', value: '奇瑞', sub: '出口 28.5万辆', color: 'bg-amber-500/10 text-amber-400' },
         ].map((kpi) => (
-          <div key={kpi.label} className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-xs text-gray-500">{kpi.label}</p>
-            <p className="text-xl font-bold text-gray-900 mt-1">{kpi.value}</p>
+          <div key={kpi.label} className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
+            <p className="text-xs text-[var(--muted-text)]">{kpi.label}</p>
+            <p className="text-xl font-bold text-white mt-1">{kpi.value}</p>
             <p className={`text-xs mt-1 inline-block px-2 py-0.5 rounded ${kpi.color}`}>
               {kpi.sub}
             </p>
@@ -237,15 +237,15 @@ export default function ExportAnalysis() {
       </div>
 
       {/* ── Tab 切换 ── */}
-      <div className="flex gap-1 overflow-x-auto pb-2 border-b border-gray-200 scrollbar-hide">
+      <div className="flex gap-1 overflow-x-auto pb-2 border-b border-[rgba(96,178,216,0.12)] scrollbar-hide">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium rounded-t-lg border-b-2 whitespace-nowrap transition-colors ${
               activeTab === tab.key
-                ? 'border-blue-600 text-blue-700 bg-blue-50'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                ? 'border-[var(--cyan)] text-[var(--cyan)] bg-[rgba(0,194,255,0.08)]'
+                : 'border-transparent text-[var(--muted-text)] hover:text-white hover:bg-white/5'
             }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -260,24 +260,24 @@ export default function ExportAnalysis() {
       {activeTab === 'scale' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">
                 汽车出口总量与 NEV 出口走势（万辆）
               </h3>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={exportScaleData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                   <Bar dataKey="total" name="总出口" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="nev" name="NEV 出口" fill="#10b981" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">
                 2026 上半年月度出口走势（万辆）
               </h3>
               <ResponsiveContainer width="100%" height={260}>
@@ -288,10 +288,10 @@ export default function ExportAnalysis() {
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                   <Area type="monotone" dataKey="export" name="出口量" stroke="#3b82f6" fillOpacity={1} fill="url(#exportColor)" />
                 </AreaChart>
               </ResponsiveContainer>
@@ -306,8 +306,8 @@ export default function ExportAnalysis() {
       {activeTab === 'product' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">出口产品结构（动力类型）</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">出口产品结构（动力类型）</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie
@@ -331,14 +331,14 @@ export default function ExportAnalysis() {
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">分动力类型月度出口走势</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">分动力类型月度出口走势</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <LineChart data={vehicleTypeTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                   <Line type="monotone" dataKey="bev" name="BEV" stroke="#3b82f6" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="phev" name="PHEV" stroke="#10b981" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="hev" name="HEV" stroke="#f59e0b" strokeWidth={2} dot={false} />
@@ -356,21 +356,21 @@ export default function ExportAnalysis() {
       {activeTab === 'region' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">出口目的国 TOP10（万辆）</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">出口目的国 TOP10（万辆）</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={topDestinations} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis type="number" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis dataKey="country" type="category" width={70} tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis type="number" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis dataKey="country" type="category" width={70} tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                   <Bar dataKey="value" name="出口量(万辆)" fill="#3b82f6" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">区域分布占比</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">区域分布占比</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie
@@ -395,18 +395,18 @@ export default function ExportAnalysis() {
           </div>
 
           {/* 目的国详细表格 */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">出口目的国详细数据</h3>
+          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">出口目的国详细数据</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">排名</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">国家/地区</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">出口量(万辆)</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">占比</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">同比</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">主要出口车型</th>
+                  <tr className="border-b border-[rgba(96,178,216,0.12)]">
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">排名</th>
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">国家/地区</th>
+                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">出口量(万辆)</th>
+                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">占比</th>
+                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">同比</th>
+                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">主要出口车型</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -422,13 +422,13 @@ export default function ExportAnalysis() {
                     { rank: 9, country: '菲律宾', value: 2.8, share: '4.0%', yoy: '+65.2%', models: 'SUV、MPV' },
                     { rank: 10, country: '土耳其', value: 2.5, share: '3.6%', yoy: '+48.3%', models: 'SUV' },
                   ].map((row) => (
-                    <tr key={row.rank} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium text-gray-900">{row.rank}</td>
-                      <td className="py-3 px-4 text-gray-900">{row.country}</td>
-                      <td className="py-3 px-4 text-right font-semibold text-gray-900">{row.value}</td>
-                      <td className="py-3 px-4 text-right text-gray-600">{row.share}</td>
-                      <td className="py-3 px-4 text-right text-green-600 font-medium">{row.yoy}</td>
-                      <td className="py-3 px-4 text-center text-gray-600">{row.models}</td>
+                    <tr key={row.rank} className="border-b border-[rgba(96,178,216,0.08)] hover:bg-white/5">
+                      <td className="py-3 px-4 font-medium text-white">{row.rank}</td>
+                      <td className="py-3 px-4 text-white">{row.country}</td>
+                      <td className="py-3 px-4 text-right font-semibold text-white">{row.value}</td>
+                      <td className="py-3 px-4 text-right text-[var(--muted-text)]">{row.share}</td>
+                      <td className="py-3 px-4 text-right text-[var(--teal)] font-medium">{row.yoy}</td>
+                      <td className="py-3 px-4 text-center text-[var(--muted-text)]">{row.models}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -444,21 +444,21 @@ export default function ExportAnalysis() {
       {activeTab === 'brand' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">出口企业排名（万辆）</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">出口企业排名（万辆）</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={brandExport} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis type="number" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis dataKey="brand" type="category" width={90} tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis type="number" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis dataKey="brand" type="category" width={90} tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                   <Bar dataKey="export" name="出口量(万辆)" fill="#3b82f6" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">企业出口份额占比</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">企业出口份额占比</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie
@@ -490,8 +490,8 @@ export default function ExportAnalysis() {
         <div className="space-y-6">
           {/* 模式占比 + 趋势 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">出口模式结构占比</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">出口模式结构占比</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie
@@ -514,14 +514,14 @@ export default function ExportAnalysis() {
               </ResponsiveContainer>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">出口模式趋势变化（%）</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">出口模式趋势变化（%）</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <LineChart data={modeTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                   <Line type="monotone" dataKey="fob" name="整车出口" stroke="#3b82f6" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="ckd" name="CKD/SKD" stroke="#10b981" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="plant" name="海外建厂" stroke="#f59e0b" strokeWidth={2} dot={false} />
@@ -532,35 +532,35 @@ export default function ExportAnalysis() {
           </div>
 
           {/* 模式对比矩阵 */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">出口模式对比矩阵</h3>
+          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">出口模式对比矩阵</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">出口模式</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">核心特征</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">投资额(百万美元)</th>
-                    <th className="text-right py-3 px-4 font-medium text-gray-500">回收周期(月)</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">风险等级</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">优势</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">劣势</th>
+                  <tr className="bg-white/5 border-b border-[rgba(96,178,216,0.12)]">
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">出口模式</th>
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">核心特征</th>
+                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">投资额(百万美元)</th>
+                    <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">回收周期(月)</th>
+                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">风险等级</th>
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">优势</th>
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">劣势</th>
                   </tr>
                 </thead>
                 <tbody>
                   {modeCompareRows.map((item, idx) => (
-                    <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium text-gray-900">{item.mode}</td>
-                      <td className="py-3 px-4 text-gray-600">{item.desc}</td>
-                      <td className="py-3 px-4 text-right font-semibold text-gray-900">${item.investment}M</td>
-                      <td className="py-3 px-4 text-right text-gray-600">{item.period}个月</td>
+                    <tr key={idx} className="border-b border-[rgba(96,178,216,0.08)] hover:bg-white/5">
+                      <td className="py-3 px-4 font-medium text-white">{item.mode}</td>
+                      <td className="py-3 px-4 text-[var(--muted-text)]">{item.desc}</td>
+                      <td className="py-3 px-4 text-right font-semibold text-white">${item.investment}M</td>
+                      <td className="py-3 px-4 text-right text-[var(--muted-text)]">{item.period}个月</td>
                       <td className="py-3 px-4 text-center">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${item.riskColor}`}>
                           {item.risk}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-green-600 text-xs">{item.pros}</td>
-                      <td className="py-3 px-4 text-red-500 text-xs">{item.cons}</td>
+                      <td className="py-3 px-4 text-[var(--teal)] text-xs">{item.pros}</td>
+                      <td className="py-3 px-4 text-[var(--danger)] text-xs">{item.cons}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -569,14 +569,14 @@ export default function ExportAnalysis() {
           </div>
 
           {/* 投资规模对比 */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">各模式初始投资规模对比（百万美元）</h3>
+          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">各模式初始投资规模对比（百万美元）</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={modeInvestmentData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                <XAxis type="number" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                <YAxis dataKey="mode" type="category" width={120} tick={{ fontSize: 12, fill: '#6b7280' }} />
-                <Tooltip formatter={(value: number) => [`$${value}M`, '投资额']} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                <XAxis type="number" tick={{ fontSize: 12, fill: '#809daf' }} />
+                <YAxis dataKey="mode" type="category" width={120} tick={{ fontSize: 12, fill: '#809daf' }} />
+                <Tooltip formatter={(value: number) => [`$${value}M`, '投资额']} contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                 <Bar dataKey="investment" name="投资额(百万美元)" fill="#3b82f6" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -591,8 +591,8 @@ export default function ExportAnalysis() {
         <div className="space-y-6">
           {/* 均价走势 + 国别价格 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">
                 中国出口汽车均价走势（万美元/辆）
               </h3>
               <ResponsiveContainer width="100%" height={260}>
@@ -603,26 +603,26 @@ export default function ExportAnalysis() {
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis domain={[0, 3]} tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <Tooltip formatter={(value: number) => [`$${value}万`, '均价']} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis domain={[0, 3]} tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <Tooltip formatter={(value: number) => [`$${value}万`, '均价']} contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                   <Area type="monotone" dataKey="price" name="出口均价" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#priceColor)" />
                 </AreaChart>
               </ResponsiveContainer>
-              <p className="text-xs text-gray-500 mt-3">
+              <p className="text-xs text-[var(--muted-text)] mt-3">
                 2020-2025 年均价从 $1.18万 提升至 $2.05万，涨幅 +73.7%，体现出口车型结构向高端化升级。
               </p>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">主要目的国单车均价对比（万美元）</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">主要目的国单车均价对比（万美元）</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={countryPriceData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis type="number" domain={[0, 4]} tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis dataKey="country" type="category" width={70} tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <Tooltip formatter={(value: number) => [`$${value}万`, '均价']} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis type="number" domain={[0, 4]} tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis dataKey="country" type="category" width={70} tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <Tooltip formatter={(value: number) => [`$${value}万`, '均价']} contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                   <Bar dataKey="price" name="均价(万美元)" fill="#10b981" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -630,17 +630,17 @@ export default function ExportAnalysis() {
           </div>
 
           {/* 出口金额与数量双轴图 */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">出口金额与数量双轴走势</h3>
+          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">出口金额与数量双轴走势</h3>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
               {[
-                { label: '2025H1 出口额', value: '$580亿', sub: '同比+31.2%', color: 'bg-blue-50 text-blue-700' },
-                { label: '2025H1 出口量', value: '293万辆', sub: '同比+25.3%', color: 'bg-green-50 text-green-700' },
-                { label: '单车均价', value: '$1.98万', sub: '同比+4.7%', color: 'bg-purple-50 text-purple-700' },
+                { label: '2025H1 出口额', value: '$580亿', sub: '同比+31.2%', color: 'bg-[rgba(0,194,255,0.08)] text-[var(--cyan)]' },
+                { label: '2025H1 出口量', value: '293万辆', sub: '同比+25.3%', color: 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)]' },
+                { label: '单车均价', value: '$1.98万', sub: '同比+4.7%', color: 'bg-purple-500/10 text-purple-400' },
               ].map((kpi) => (
-                <div key={kpi.label} className={`rounded-lg border p-3 ${kpi.color.split(' ')[0]} border-gray-200`}>
-                  <p className="text-xs text-gray-500">{kpi.label}</p>
-                  <p className="text-lg font-bold text-gray-900">{kpi.value}</p>
+                <div key={kpi.label} className={`rounded-lg border p-3 bg-[#0a1a2b] border-[rgba(96,178,216,0.12)]`}>
+                  <p className="text-xs text-[var(--muted-text)]">{kpi.label}</p>
+                  <p className="text-lg font-bold text-white">{kpi.value}</p>
                   <p className={`text-xs mt-0.5 inline-block px-1.5 py-0.5 rounded ${kpi.color}`}>{kpi.sub}</p>
                 </div>
               ))}
@@ -648,8 +648,8 @@ export default function ExportAnalysis() {
           </div>
 
           {/* 出口附加值结构 */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">出口附加值结构分析</h3>
+          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">出口附加值结构分析</h3>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
@@ -673,17 +673,17 @@ export default function ExportAnalysis() {
               </ResponsiveContainer>
 
               <div className="space-y-3">
-                <h4 className="font-medium text-gray-900">附加值率对比</h4>
+                <h4 className="font-medium text-white">附加值率对比</h4>
                 {valueAddedData.map((item) => (
                   <div key={item.category} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-700 w-24">{item.category}</span>
-                    <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <span className="text-sm text-[var(--muted-text)] w-24">{item.category}</span>
+                    <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                       <div className="h-full rounded-full bg-blue-500" style={{ width: `${item.addedRate}%` }} />
                     </div>
-                    <span className="text-sm font-medium text-gray-900 w-12 text-right">{item.addedRate}%</span>
+                    <span className="text-sm font-medium text-white w-12 text-right">{item.addedRate}%</span>
                   </div>
                 ))}
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-[var(--muted-text)] mt-2">
                   技术服务与品牌授权附加值率最高（75%-85%），但占比仍低；整车制造附加值率 35%，是主要出口形态。
                 </p>
               </div>
@@ -699,27 +699,27 @@ export default function ExportAnalysis() {
         <div className="space-y-6">
           {/* 竞争力指数趋势 + 附加值结构 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">贸易竞争力指数（TC 指数）趋势</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">贸易竞争力指数（TC 指数）趋势</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={competeIndexData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <YAxis domain={[0, 1]} tick={{ fontSize: 12, fill: '#6b7280' }} />
-                  <Tooltip formatter={(value: number) => [value.toFixed(2), 'TC 指数']} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                  <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <YAxis domain={[0, 1]} tick={{ fontSize: 12, fill: '#809daf' }} />
+                  <Tooltip formatter={(value: number) => [value.toFixed(2), 'TC 指数']} contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
                   <Line type="monotone" dataKey="china" name="中国" stroke="#ef4444" strokeWidth={3} dot={{ r: 4 }} />
                   <Line type="monotone" dataKey="japan" name="日本" stroke="#6b7280" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="germany" name="德国" stroke="#3b82f6" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="korea" name="韩国" stroke="#f59e0b" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
-              <p className="text-xs text-gray-500 mt-3">
+              <p className="text-xs text-[var(--muted-text)] mt-3">
                 TC 指数 = (出口-进口)/(出口+进口)，范围[-1, 1]。中国 NEV 竞争力指数从 2020 年的 0.42 快速提升至 2025 年的 0.72，已超越日韩，接近德国水平。
               </p>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">产业链附加值分布</h3>
+            <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">产业链附加值分布</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
                   <Pie
@@ -744,18 +744,18 @@ export default function ExportAnalysis() {
           </div>
 
           {/* 竞争力对比矩阵 */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">中国 NEV 出口竞争力对标分析</h3>
+          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+            <h3 className="text-lg font-semibold text-white mb-4">中国 NEV 出口竞争力对标分析</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">维度</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">中国</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">日本</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">德国</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500">韩国</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500">中国优劣势</th>
+                  <tr className="bg-white/5 border-b border-[rgba(96,178,216,0.12)]">
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">维度</th>
+                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">中国</th>
+                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">日本</th>
+                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">德国</th>
+                    <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">韩国</th>
+                    <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">中国优劣势</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -767,13 +767,13 @@ export default function ExportAnalysis() {
                     { dim: '渠道覆盖', cn: '★★★★☆', jp: '★★★★★', de: '★★★★★', kr: '★★★☆☆', note: '快速扩张中，海外渠道深度不足' },
                     { dim: '政策支持', cn: '★★★★★', jp: '★★★☆☆', de: '★★★☆☆', kr: '★★★★☆', note: '出口退税+海外建厂补贴力度大' },
                   ].map((row, idx) => (
-                    <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium text-gray-900">{row.dim}</td>
-                      <td className="py-3 px-4 text-center text-red-500 font-medium">{row.cn}</td>
-                      <td className="py-3 px-4 text-center text-gray-600">{row.jp}</td>
-                      <td className="py-3 px-4 text-center text-gray-600">{row.de}</td>
-                      <td className="py-3 px-4 text-center text-gray-600">{row.kr}</td>
-                      <td className="py-3 px-4 text-xs text-gray-500">{row.note}</td>
+                    <tr key={idx} className="border-b border-[rgba(96,178,216,0.08)] hover:bg-white/5">
+                      <td className="py-3 px-4 font-medium text-white">{row.dim}</td>
+                      <td className="py-3 px-4 text-center text-[var(--danger)] font-medium">{row.cn}</td>
+                      <td className="py-3 px-4 text-center text-[var(--muted-text)]">{row.jp}</td>
+                      <td className="py-3 px-4 text-center text-[var(--muted-text)]">{row.de}</td>
+                      <td className="py-3 px-4 text-center text-[var(--muted-text)]">{row.kr}</td>
+                      <td className="py-3 px-4 text-xs text-[var(--muted-text)]">{row.note}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -784,9 +784,9 @@ export default function ExportAnalysis() {
           {/* 核心结论卡片 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {[
-              { title: '核心优势', icon: '★', color: 'bg-green-50 border-green-200', textColor: 'text-green-700', items: ['电池产业链完整自主', '成本控制能力全球领先', '政策支持与出口退税', '三电技术迭代速度快'] },
-              { title: '主要短板', icon: '⚠', color: 'bg-yellow-50 border-yellow-200', textColor: 'text-yellow-700', items: ['品牌溢价低于德系/日系', '欧美高端渠道覆盖不足', '海外售后服务网络薄弱', '芯片/操作系统仍依赖进口'] },
-              { title: '突围方向', icon: '→', color: 'bg-blue-50 border-blue-200', textColor: 'text-blue-700', items: ['技术授权模式提升附加值', '属地化建厂绕过关税壁垒', '差异化定位避开正面竞争', '数字化服务构建用户粘性'] },
+              { title: '核心优势', icon: '★', color: 'bg-[rgba(60,230,180,0.08)] border-[rgba(60,230,180,0.2)]', textColor: 'text-[var(--teal)]', items: ['电池产业链完整自主', '成本控制能力全球领先', '政策支持与出口退税', '三电技术迭代速度快'] },
+              { title: '主要短板', icon: '⚠', color: 'bg-yellow-500/10 border-yellow-500/20', textColor: 'text-yellow-400', items: ['品牌溢价低于德系/日系', '欧美高端渠道覆盖不足', '海外售后服务网络薄弱', '芯片/操作系统仍依赖进口'] },
+              { title: '突围方向', icon: '→', color: 'bg-[rgba(0,194,255,0.08)] border-[rgba(0,194,255,0.2)]', textColor: 'text-[var(--cyan)]', items: ['技术授权模式提升附加值', '属地化建厂绕过关税壁垒', '差异化定位避开正面竞争', '数字化服务构建用户粘性'] },
             ].map((card) => (
               <div key={card.title} className={`rounded-lg border p-5 ${card.color}`}>
                 <h4 className={`font-semibold ${card.textColor} mb-3 flex items-center gap-2`}>
@@ -795,7 +795,7 @@ export default function ExportAnalysis() {
                 </h4>
                 <ul className="space-y-2">
                   {card.items.map((item, i) => (
-                    <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                    <li key={i} className="text-sm text-[var(--muted-text)] flex items-start gap-2">
                       <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${card.textColor.replace('text-', 'bg-')}`} />
                       {item}
                     </li>
@@ -808,11 +808,11 @@ export default function ExportAnalysis() {
       )}
 
       {/* ── 数据来源说明 ── */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+      <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
         <div>
-          <p className="text-sm font-medium text-amber-800">数据来源说明</p>
-          <p className="text-sm text-amber-700 mt-1">
+          <p className="text-sm font-medium text-amber-400">数据来源说明</p>
+          <p className="text-sm text-amber-300 mt-1">
             当前展示为模拟数据，仅供界面框架验证。正式数据将接入
             海关总署月度公报、中汽协出口数据、UN Comtrade、ITC Trade Map 等数据源。
             单价与竞争力指标需接入海关 HS 编码级明细后自动切换至真实数据。

@@ -112,21 +112,21 @@ type SortKey = 'score' | 'name' | 'tier'
 type ViewMode = 'list' | 'map' | 'detail'
 
 const tierConfig: Record<Tier, { color: string; bg: string; border: string; desc: string; mapColor: string }> = {
-  '先锋': { color: 'text-green-700', bg: 'bg-green-50', border: 'border-green-200', desc: '高成熟度+高潜力，优先进入', mapColor: '#059669' },
-  '主力': { color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200', desc: '中高增长，重点布局', mapColor: '#2563eb' },
-  '潜力': { color: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200', desc: '高增长空间，战略布局', mapColor: '#7c3aed' },
-  '待观察': { color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', desc: '壁垒较高或市场成熟，择机进入', mapColor: '#9ca3af' },
+  '先锋': { color: 'text-[var(--teal)]', bg: 'bg-[rgba(60,230,180,0.08)]', border: 'border-[rgba(60,230,180,0.2)]', desc: '高成熟度+高潜力，优先进入', mapColor: '#3ce6b4' },
+  '主力': { color: 'text-[var(--cyan)]', bg: 'bg-[rgba(0,194,255,0.08)]', border: 'border-[rgba(0,194,255,0.2)]', desc: '中高增长，重点布局', mapColor: '#00c2ff' },
+  '潜力': { color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20', desc: '高增长空间，战略布局', mapColor: '#a78bfa' },
+  '待观察': { color: 'text-[var(--muted-text)]', bg: 'bg-white/5', border: 'border-[rgba(96,178,216,0.12)]', desc: '壁垒较高或市场成熟，择机进入', mapColor: '#809daf' },
 }
 
 const levelColor = (level: string) => {
   const map: Record<string, string> = {
-    '强烈推荐': 'text-green-600 bg-green-50',
-    '推荐': 'text-blue-600 bg-blue-50',
-    '谨慎推荐': 'text-yellow-600 bg-yellow-50',
-    '不推荐': 'text-orange-600 bg-orange-50',
-    '暂不推荐': 'text-red-600 bg-red-50',
+    '强烈推荐': 'text-[var(--teal)] bg-[rgba(60,230,180,0.08)]',
+    '推荐': 'text-[var(--cyan)] bg-[rgba(0,194,255,0.08)]',
+    '谨慎推荐': 'text-yellow-400 bg-yellow-500/10',
+    '不推荐': 'text-orange-400 bg-orange-500/10',
+    '暂不推荐': 'text-[var(--danger)] bg-[rgba(255,77,109,0.08)]',
   }
-  return map[level] || 'text-gray-600 bg-gray-50'
+  return map[level] || 'text-[var(--muted-text)] bg-white/5'
 }
 
 // 确定性评分生成：基于梯队+国家代码哈希，保证每次加载一致
@@ -246,7 +246,7 @@ export default function CountryScore() {
       countryName: c.name,
       itemStyle: {
         areaColor: tierConfig[c.tier].mapColor,
-        borderColor: '#fff',
+        borderColor: 'rgba(96,178,216,0.3)',
         borderWidth: 0.5,
       },
       emphasis: {
@@ -262,7 +262,7 @@ export default function CountryScore() {
           formatter: '{b}',
           fontSize: 12,
           fontWeight: 'bold',
-          color: '#1f2937',
+          color: '#eaf8ff',
         },
       },
     }))
@@ -270,19 +270,19 @@ export default function CountryScore() {
     return {
       tooltip: {
         trigger: 'item',
-        backgroundColor: 'rgba(255,255,255,0.95)',
-        borderColor: '#e5e7eb',
+        backgroundColor: 'rgba(10,26,43,0.95)',
+        borderColor: 'rgba(96,178,216,0.15)',
         borderWidth: 1,
-        textStyle: { color: '#1f2937', fontSize: 13 },
+        textStyle: { color: '#eaf8ff', fontSize: 13 },
         formatter: (params: any) => {
           if (!params.data) return params.name
           const data = params.data
           const cfg = tierConfig[data.tier as Tier]
           return `
-            <div style="font-weight:bold;font-size:14px;margin-bottom:4px">${data.countryName}</div>
-            <div style="color:#6b7280;font-size:12px">梯队：<span style="color:${cfg.mapColor};font-weight:600">${data.tier}</span></div>
-            <div style="color:#6b7280;font-size:12px">综合评分：<span style="color:#1f2937;font-weight:600">${data.value}分</span></div>
-            <div style="color:#6b7280;font-size:12px;margin-top:4px">点击查看详情 →</div>
+            <div style="font-weight:bold;font-size:14px;margin-bottom:4px;color:#eaf8ff">${data.countryName}</div>
+            <div style="color:#809daf;font-size:12px">梯队：<span style="color:${cfg.mapColor};font-weight:600">${data.tier}</span></div>
+            <div style="color:#809daf;font-size:12px">综合评分：<span style="color:#eaf8ff;font-weight:600">${data.value}分</span></div>
+            <div style="color:#809daf;font-size:12px;margin-top:4px">点击查看详情 →</div>
           `
         },
       },
@@ -298,13 +298,13 @@ export default function CountryScore() {
           show: false,
         },
         itemStyle: {
-          areaColor: '#f3f4f6',
-          borderColor: '#d1d5db',
+          areaColor: '#0f2235',
+          borderColor: 'rgba(96,178,216,0.15)',
           borderWidth: 0.5,
         },
         emphasis: {
           itemStyle: {
-            areaColor: '#e5e7eb',
+            areaColor: '#1a3045',
           },
         },
       },
@@ -334,8 +334,8 @@ export default function CountryScore() {
     <div className="space-y-6">
       {/* 页面标题 */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">目标市场筛选与国别分级</h2>
-        <p className="text-gray-500 mt-1">
+        <h2 className="text-2xl font-bold text-white">目标市场筛选与国别分级</h2>
+        <p className="text-[var(--muted-text)] mt-1">
           先锋 / 主力 / 潜力 / 待观察 四级梯队 · {COUNTRIES.length}个重点国家
         </p>
       </div>
@@ -349,27 +349,27 @@ export default function CountryScore() {
             className={`p-4 rounded-lg border text-left transition-all ${
               tierFilter === tier
                 ? tierConfig[tier].bg + ' ' + tierConfig[tier].border + ' ring-2 ring-offset-1'
-                : 'bg-white border-gray-200 hover:border-gray-300'
+                : 'bg-[#0a1a2b] border-[rgba(96,178,216,0.12)] hover:border-[rgba(96,178,216,0.2)]'
             }`}
           >
             <div className="flex items-center justify-between">
               <span className={`text-sm font-semibold ${tierConfig[tier].color}`}>{tier}市场</span>
-              <span className="text-2xl font-bold text-gray-900">{tierStats[tier]}</span>
+              <span className="text-2xl font-bold text-white">{tierStats[tier]}</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">{tierConfig[tier].desc}</p>
+            <p className="text-xs text-[var(--muted-text)] mt-1">{tierConfig[tier].desc}</p>
           </button>
         ))}
       </div>
 
       {/* 筛选、排序与视图切换 */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-3 py-2">
-          <Filter className="w-4 h-4 text-gray-400" />
-          <span className="text-sm text-gray-500">筛选:</span>
+        <div className="flex items-center gap-2 bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] px-3 py-2">
+          <Filter className="w-4 h-4 text-[var(--muted-text)]" />
+          <span className="text-sm text-[var(--muted-text)]">筛选:</span>
           <select
             value={tierFilter}
             onChange={(e) => setTierFilter(e.target.value as Tier | 'all')}
-            className="text-sm border-none bg-transparent focus:ring-0 text-gray-700"
+            className="text-sm border-none bg-transparent focus:ring-0 text-[var(--muted-text)]"
           >
             <option value="all">全部梯队</option>
             <option value="先锋">先锋市场</option>
@@ -379,13 +379,13 @@ export default function CountryScore() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-3 py-2">
-          <ArrowUpDown className="w-4 h-4 text-gray-400" />
-          <span className="text-sm text-gray-500">排序:</span>
+        <div className="flex items-center gap-2 bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] px-3 py-2">
+          <ArrowUpDown className="w-4 h-4 text-[var(--muted-text)]" />
+          <span className="text-sm text-[var(--muted-text)]">排序:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortKey)}
-            className="text-sm border-none bg-transparent focus:ring-0 text-gray-700"
+            className="text-sm border-none bg-transparent focus:ring-0 text-[var(--muted-text)]"
           >
             <option value="score">按评分</option>
             <option value="name">按名称</option>
@@ -397,7 +397,7 @@ export default function CountryScore() {
           <button
             onClick={() => setViewMode('map')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
-              viewMode === 'map' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
+              viewMode === 'map' ? 'bg-blue-600 text-white' : 'bg-white/10 text-[var(--muted-text)]'
             }`}
           >
             <MapIcon className="w-4 h-4" />
@@ -406,7 +406,7 @@ export default function CountryScore() {
           <button
             onClick={() => setViewMode('list')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
-              viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
+              viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-white/10 text-[var(--muted-text)]'
             }`}
           >
             <List className="w-4 h-4" />
@@ -415,7 +415,7 @@ export default function CountryScore() {
           <button
             onClick={() => { setSelectedCountry('TH'); setViewMode('detail') }}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors ${
-              viewMode === 'detail' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
+              viewMode === 'detail' ? 'bg-blue-600 text-white' : 'bg-white/10 text-[var(--muted-text)]'
             }`}
           >
             <BarChart3 className="w-4 h-4" />
@@ -426,13 +426,13 @@ export default function CountryScore() {
 
       {/* 地图视图 */}
       {viewMode === 'map' && (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <h3 className="font-medium text-gray-900 flex items-center gap-2">
-              <MapIcon className="w-4 h-4 text-gray-500" />
+        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(96,178,216,0.12)]">
+            <h3 className="font-medium text-white flex items-center gap-2">
+              <MapIcon className="w-4 h-4 text-[var(--muted-text)]" />
               全球市场梯队分布
             </h3>
-            <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-3 text-xs text-[var(--muted-text)]">
               {(Object.keys(tierConfig) as Tier[]).map((tier) => (
                 <span key={tier} className="flex items-center gap-1">
                   <span
@@ -454,15 +454,15 @@ export default function CountryScore() {
                 }}
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-gray-400">
+              <div className="flex items-center justify-center h-full text-[var(--muted-text)]">
                 <div className="text-center">
-                  <Globe className="w-10 h-10 mx-auto mb-3 text-gray-300 animate-pulse" />
+                  <Globe className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)] animate-pulse" />
                   <p className="text-sm">地图加载中...</p>
                 </div>
               </div>
             )}
           </div>
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 text-xs text-gray-500">
+          <div className="px-4 py-3 bg-white/5 border-t border-[rgba(96,178,216,0.12)] text-xs text-[var(--muted-text)]">
             提示：鼠标悬停查看国家评分，点击国家区域下钻到详情页。支持鼠标滚轮缩放和拖拽平移。
           </div>
         </div>
@@ -470,20 +470,20 @@ export default function CountryScore() {
 
       {/* 列表视图 */}
       {viewMode === 'list' && (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">排名</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-500">国家</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500">梯队</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500">区域</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500">综合评分</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500">评级</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500">GDP(万亿)</th>
-                  <th className="text-right py-3 px-4 font-medium text-gray-500">NEV渗透率</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-500">操作</th>
+                <tr className="bg-white/5 border-b border-[rgba(96,178,216,0.12)]">
+                  <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">排名</th>
+                  <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">国家</th>
+                  <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">梯队</th>
+                  <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">区域</th>
+                  <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">综合评分</th>
+                  <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">评级</th>
+                  <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">GDP(万亿)</th>
+                  <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">NEV渗透率</th>
+                  <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">操作</th>
                 </tr>
               </thead>
               <tbody>
@@ -491,11 +491,11 @@ export default function CountryScore() {
                   const s = mockScores[c.code]
                   const cfg = tierConfig[c.tier]
                   return (
-                    <tr key={c.code} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                      <td className="py-3 px-4 text-gray-500">{idx + 1}</td>
-                      <td className="py-3 px-4 font-medium text-gray-900">
+                    <tr key={c.code} className="border-b border-[rgba(96,178,216,0.08)] hover:bg-white/5 transition-colors">
+                      <td className="py-3 px-4 text-[var(--muted-text)]">{idx + 1}</td>
+                      <td className="py-3 px-4 font-medium text-white">
                         <div className="flex items-center gap-2">
-                          <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                          <MapPin className="w-3.5 h-3.5 text-[var(--muted-text)]" />
                           {c.name}
                         </div>
                       </td>
@@ -504,21 +504,21 @@ export default function CountryScore() {
                           {c.tier}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-center text-gray-600">{c.region}</td>
+                      <td className="py-3 px-4 text-center text-[var(--muted-text)]">{c.region}</td>
                       <td className="py-3 px-4 text-right">
-                        <span className="font-bold text-gray-900">{s?.score_total || '-'}</span>
+                        <span className="font-bold text-white">{s?.score_total || '-'}</span>
                       </td>
                       <td className="py-3 px-4 text-center">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${levelColor(s?.score_level || '')}`}>
                           {s?.score_level || '-'}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right text-gray-600">${c.gdp}T</td>
-                      <td className="py-3 px-4 text-right text-gray-600">{c.nev_share}</td>
+                      <td className="py-3 px-4 text-right text-[var(--muted-text)]">${c.gdp}T</td>
+                      <td className="py-3 px-4 text-right text-[var(--muted-text)]">{c.nev_share}</td>
                       <td className="py-3 px-4 text-center">
                         <button
                           onClick={() => { setSelectedCountry(c.code); setViewMode('detail') }}
-                          className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                          className="text-[var(--cyan)] hover:text-[var(--cyan)] text-xs font-medium"
                         >
                           查看详情
                         </button>
@@ -536,20 +536,20 @@ export default function CountryScore() {
       {viewMode === 'detail' && score && (
         <div className="space-y-6">
           {/* 面包屑导航 */}
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
             <button
               onClick={() => setViewMode('map')}
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-[var(--cyan)] transition-colors"
             >
               国别分级
             </button>
             <span>/</span>
-            <span className="font-medium text-gray-900">{score.country_name}</span>
+            <span className="font-medium text-white">{score.country_name}</span>
           </div>
 
           {/* 国家切换 */}
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <label className="text-sm font-medium text-gray-700">选择国家</label>
+          <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-4">
+            <label className="text-sm font-medium text-[var(--muted-text)]">选择国家</label>
             <div className="flex flex-wrap gap-2 mt-2 max-h-48 overflow-y-auto">
               {COUNTRIES.map((c) => (
                 <button
@@ -558,7 +558,7 @@ export default function CountryScore() {
                   className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                     selectedCountry === c.code
                       ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-white/10 text-[var(--muted-text)] hover:bg-white/10'
                   }`}
                 >
                   {c.name}
@@ -570,13 +570,13 @@ export default function CountryScore() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* 左侧：总分+梯队标签 */}
             <div className="space-y-4">
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Globe className="w-5 h-5 text-gray-500" />
-                  <h3 className="font-medium text-gray-900">综合评分</h3>
+                  <Globe className="w-5 h-5 text-[var(--muted-text)]" />
+                  <h3 className="font-medium text-white">综合评分</h3>
                 </div>
                 <div className="text-center py-4">
-                  <div className="text-5xl font-bold text-gray-900">
+                  <div className="text-5xl font-bold text-white">
                     {score.score_total}
                   </div>
                   <div className="mt-2">
@@ -584,18 +584,18 @@ export default function CountryScore() {
                       {score.score_level}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-[var(--muted-text)] mt-2">
                     {score.country_name} · {score.industry}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-[var(--muted-text)] mt-1">
                     评分日期: {score.scored_at}
                   </p>
                 </div>
               </div>
 
               {/* 梯队标签 */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h3 className="font-medium text-gray-900 mb-3">市场梯队</h3>
+              <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+                <h3 className="font-medium text-white mb-3">市场梯队</h3>
                 {(() => {
                   const c = COUNTRIES.find((x) => x.code === selectedCountry)
                   const cfg = c ? tierConfig[c.tier] : tierConfig['待观察']
@@ -605,31 +605,31 @@ export default function CountryScore() {
                         <Star className={`w-5 h-5 ${cfg.color}`} />
                         <span className={`font-bold ${cfg.color}`}>{c?.tier || '待观察'}市场</span>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">{cfg.desc}</p>
+                      <p className="text-sm text-[var(--muted-text)] mt-1">{cfg.desc}</p>
                     </div>
                   )
                 })()}
               </div>
 
               {/* 三维度卡片 */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h3 className="font-medium text-gray-900 mb-3">关键维度速览</h3>
+              <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+                <h3 className="font-medium text-white mb-3">关键维度速览</h3>
                 <div className="space-y-3">
                   {[
                     { label: '营商环境', icon: Building2, score: score.dimensions.d6, color: 'bg-blue-500' },
                     { label: '产业配套', icon: Factory, score: score.dimensions.d5, color: 'bg-green-500' },
                     { label: '政治风险', icon: ShieldAlert, score: score.dimensions.d4, color: 'bg-amber-500' },
                   ].map((dim) => (
-                    <div key={dim.label} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className={`p-2 rounded-md ${dim.score >= 60 ? 'bg-green-100' : dim.score >= 40 ? 'bg-yellow-100' : 'bg-red-100'}`}>
-                        <dim.icon className={`w-4 h-4 ${dim.score >= 60 ? 'text-green-600' : dim.score >= 40 ? 'text-yellow-600' : 'text-red-600'}`} />
+                    <div key={dim.label} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                      <div className={`p-2 rounded-md ${dim.score >= 60 ? 'bg-[rgba(60,230,180,0.12)]' : dim.score >= 40 ? 'bg-yellow-500/10' : 'bg-[rgba(255,77,109,0.12)]'}`}>
+                        <dim.icon className={`w-4 h-4 ${dim.score >= 60 ? 'text-[var(--teal)]' : dim.score >= 40 ? 'text-yellow-400' : 'text-[var(--danger)]'}`} />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium text-gray-700">{dim.label}</span>
-                          <span className="text-sm font-bold text-gray-900">{dim.score}分</span>
+                          <span className="text-sm font-medium text-[var(--muted-text)]">{dim.label}</span>
+                          <span className="text-sm font-bold text-white">{dim.score}分</span>
                         </div>
-                        <div className="h-1.5 bg-gray-200 rounded-full mt-1.5">
+                        <div className="h-1.5 bg-white/10 rounded-full mt-1.5">
                           <div className={`h-1.5 rounded-full ${dim.color}`} style={{ width: `${dim.score}%` }} />
                         </div>
                       </div>
@@ -642,8 +642,8 @@ export default function CountryScore() {
             {/* 右侧：雷达图 + 条形图 */}
             <div className="lg:col-span-2 space-y-4">
               {/* 雷达图 */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h3 className="font-medium text-gray-900 mb-2">六维度雷达图</h3>
+              <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+                <h3 className="font-medium text-white mb-2">六维度雷达图</h3>
                 <div className="h-[320px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart
@@ -653,15 +653,15 @@ export default function CountryScore() {
                         fullMark: 100,
                       }))}
                     >
-                      <PolarGrid />
-                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12 }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10 }} />
+                      <PolarGrid stroke="rgba(96,178,216,0.1)" />
+                      <PolarAngleAxis dataKey="subject" tick={{ fontSize: 12, fill: '#809daf' }} />
+                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10, fill: '#809daf' }} />
                       <Radar
                         name={score.country_name}
                         dataKey="score"
-                        stroke="#2563eb"
-                        fill="#3b82f6"
-                        fillOpacity={0.3}
+                        stroke="#00c2ff"
+                        fill="#00c2ff"
+                        fillOpacity={0.25}
                       />
                     </RadarChart>
                   </ResponsiveContainer>
@@ -669,18 +669,18 @@ export default function CountryScore() {
               </div>
 
               {/* 条形图明细 */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h3 className="font-medium text-gray-900 mb-4">子项明细</h3>
+              <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+                <h3 className="font-medium text-white mb-4">子项明细</h3>
                 <div className="space-y-3">
                   {DIMENSIONS.map((dim) => {
                     const value = score.dimensions[dim.key as keyof typeof score.dimensions] || 0
                     return (
                       <div key={dim.key}>
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm text-gray-700">{dim.name}</span>
-                          <span className="text-sm font-medium text-gray-900">{value}分</span>
+                          <span className="text-sm text-[var(--muted-text)]">{dim.name}</span>
+                          <span className="text-sm font-medium text-white">{value}分</span>
                         </div>
-                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all ${
                               value >= 80 ? 'bg-green-500' : value >= 60 ? 'bg-blue-500' : value >= 40 ? 'bg-yellow-500' : 'bg-red-500'
@@ -699,21 +699,21 @@ export default function CountryScore() {
       )}
 
       {/* 评分说明 */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="font-medium text-gray-900 mb-4">评分等级说明</h3>
+      <div className="bg-[#0a1a2b] rounded-lg border border-[rgba(96,178,216,0.12)] p-6">
+        <h3 className="font-medium text-white mb-4">评分等级说明</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {[
-            { level: '强烈推荐', range: '90-100', icon: TrendingUp, color: 'text-green-600' },
-            { level: '推荐', range: '75-89', icon: TrendingUp, color: 'text-blue-600' },
-            { level: '谨慎推荐', range: '60-74', icon: Minus, color: 'text-yellow-600' },
-            { level: '不推荐', range: '40-59', icon: TrendingDown, color: 'text-orange-600' },
-            { level: '暂不推荐', range: '0-39', icon: TrendingDown, color: 'text-red-600' },
+            { level: '强烈推荐', range: '90-100', icon: TrendingUp, color: 'text-[var(--teal)]' },
+            { level: '推荐', range: '75-89', icon: TrendingUp, color: 'text-[var(--cyan)]' },
+            { level: '谨慎推荐', range: '60-74', icon: Minus, color: 'text-yellow-400' },
+            { level: '不推荐', range: '40-59', icon: TrendingDown, color: 'text-orange-400' },
+            { level: '暂不推荐', range: '0-39', icon: TrendingDown, color: 'text-[var(--danger)]' },
           ].map((item) => (
-            <div key={item.level} className="flex items-center gap-3 p-3 rounded-lg border border-gray-100">
+            <div key={item.level} className="flex items-center gap-3 p-3 rounded-lg border border-[rgba(96,178,216,0.12)]">
               <item.icon className={`w-5 h-5 ${item.color}`} />
               <div>
-                <p className="text-sm font-medium text-gray-900">{item.level}</p>
-                <p className="text-xs text-gray-500">{item.range}分</p>
+                <p className="text-sm font-medium text-white">{item.level}</p>
+                <p className="text-xs text-[var(--muted-text)]">{item.range}分</p>
               </div>
             </div>
           ))}
