@@ -11,6 +11,7 @@ import EnterpriseTrack from './pages/EnterpriseTrack'
 import SourceHealth from './pages/SourceHealth'
 import IndustryChain from './pages/IndustryChain'
 import ExportAnalysis from './pages/ExportAnalysis'
+import GlobalMarket from './pages/GlobalMarket'
 
 function App() {
   return (
@@ -39,6 +40,11 @@ function App() {
         <Route path="export" element={
           <ErrorBoundary>
             <ExportAnalysis />
+          </ErrorBoundary>
+        } />
+        <Route path="market" element={
+          <ErrorBoundary>
+            <GlobalMarket />
           </ErrorBoundary>
         } />
         <Route path="ontology" element={

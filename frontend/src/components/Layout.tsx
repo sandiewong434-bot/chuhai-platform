@@ -19,6 +19,7 @@ const navGroups = [
     items: [
       { path: '/industry', label: '产业链全景', icon: Factory },
       { path: '/export', label: '出口分析', icon: Ship },
+      { path: '/market', label: '全球市场', icon: Globe },
     ]
   },
   {
@@ -49,6 +50,7 @@ const breadcrumbMap: Record<string, string> = {
   '/articles': '文章检索',
   '/ontology': '本体图谱',
   '/sources': '信源监控',
+  '/market': '全球市场',
 }
 
 function useDataStatus() {
