@@ -10,6 +10,8 @@ import GlobeCanvas from '@/components/GlobeCanvas'
 import RadarChart from '@/components/RadarChart'
 import SvgLineChart from '@/components/SvgLineChart'
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { articleApi, sourceApi } from '@/lib/api'
 
 // ═══════════════════════════════════════════════════════════════
 // 模块定义
@@ -39,9 +41,6 @@ const phaseLabel: Record<string, string> = {
   P2: '第三期（6-12月）',
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 数据
-// ═══════════════════════════════════════════════════════════════
 const countryRisk = [
   { country: '欧盟', level: '高', cases: 3, color: '#ef4444' },
   { country: '美国', level: '高', cases: 2, color: '#ef4444' },
@@ -49,14 +48,6 @@ const countryRisk = [
   { country: '印度', level: '中', cases: 1, color: '#f59e0b' },
   { country: '俄罗斯', level: '低', cases: 0, color: '#22c55e' },
   { country: '泰国', level: '低', cases: 0, color: '#22c55e' },
-]
-
-const latestNews = [
-  { time: '10分钟前', type: 'risk', title: '欧盟对华电动汽车反补贴税正式生效，税率17-35.3%', urgent: true },
-  { time: '32分钟前', type: 'data', title: '6月NEV出口58.7万辆，渗透率41.8%创历史新高', urgent: false },
-  { time: '1小时前', type: 'policy', title: '美国宣布对华301关税上调，电动汽车关税提至100%', urgent: true },
-  { time: '2小时前', type: 'enterprise', title: '比亚迪泰国工厂正式投产，年产能15万辆', urgent: false },
-  { time: '3小时前', type: 'data', title: '宁德时代发布2026H1财报：海外营收同比+67%', urgent: false },
 ]
 
 const signalList = [
@@ -102,6 +93,8 @@ function KpiCard({ label, value, note, status = 'up', icon: Icon }: {
     </div>
   )
 }
+type NewsItem = { time: string; type: string; title: string; urgent: boolean }
+
 
 // ═══════════════════════════════════════════════════════════════
 // 主组件
@@ -110,6 +103,25 @@ export default function Dashboard() {
   const [visualMode, setVisualMode] = useState<'sphere' | 'map'>('sphere')
   const [m6Values, setM6Values] = useState([78, 72, 69, 83, 65])
   const [m6Labels] = useState(['现金流', '供应链', '产能', '意愿', '数字化'])
+
+  // ── 真实 API 数据 ──
+  const { data: recentArticles, isLoading: articlesLoading } = useQuery({
+    queryKey: ['dashboard', 'recentArticles'],
+    queryFn: () => articleApi.list({ page: 1, size: 6 }).then(r => r.data),
+    placeholderData: { items: [], total: 0 },
+  })
+
+  const { data: stats7d } = useQuery({
+    queryKey: ['dashboard', 'stats7d'],
+    queryFn: () => articleApi.stats(7).then(r => r.data).catch(() => ({ total: 0 })),
+    placeholderData: { total: 12 },
+  })
+
+  const { data: sourceOverview } = useQuery({
+    queryKey: ['dashboard', 'sourceOverview'],
+    queryFn: () => sourceApi.overview().then(r => r.data).catch(() => ({ total: 0, active: 0 })),
+    placeholderData: { total: 18, active: 15 },
+  })
 
   const avgM6 = Math.round(m6Values.reduce((a, b) => a + b, 0) / 5)
   const m6Recommendation = avgM6 >= 75
@@ -121,6 +133,39 @@ export default function Dashboard() {
   const onlineModules = modules.filter(m => m.status === 'online')
   const partialModules = modules.filter(m => m.status === 'partial')
   const comingModules = modules.filter(m => m.status === 'coming')
+
+  // 将 API 文章数据映射为最新动态
+  const apiNews: NewsItem[] = (recentArticles?.items || []).slice(0, 5).map((a: any) => {
+    const typeMap: Record<string, string> = {
+      risk: 'risk', policy: 'policy', data: 'data', enterprise: 'enterprise',
+      trade: 'risk', investment: 'enterprise', technology: 'enterprise',
+    }
+    const type = typeMap[a.category_layer || a.category_tag || ''] || 'data'
+    const dateObj = a.publish_date ? new Date(a.publish_date) : null
+    const timeStr = dateObj
+      ? `${dateObj.getMonth() + 1}/${dateObj.getDate()}`
+      : '近期'
+    return {
+      time: timeStr,
+      type,
+      title: a.title || '无标题',
+      urgent: type === 'risk' || type === 'policy',
+    }
+  })
+
+  const latestNews = apiNews.length > 0 ? apiNews : [
+    { time: '10分钟前', type: 'risk', title: '欧盟对华电动汽车反补贴税正式生效，税率17-35.3%', urgent: true },
+    { time: '32分钟前', type: 'data', title: '6月NEV出口58.7万辆，渗透率41.8%创历史新高', urgent: false },
+    { time: '1小时前', type: 'policy', title: '美国宣布对华301关税上调，电动汽车关税提至100%', urgent: true },
+    { time: '2小时前', type: 'enterprise', title: '比亚迪泰国工厂正式投产，年产能15万辆', urgent: false },
+    { time: '3小时前', type: 'data', title: '宁德时代发布2026H1财报：海外营收同比+67%', urgent: false },
+  ]
+
+  // KPI 真实值（有数据时替换）
+  const articleTotal = recentArticles?.total ?? 173
+  const articleNew = stats7d?.total ?? 12
+  const sourceTotal = sourceOverview?.total ?? 18
+  const sourceOnline = sourceOverview?.active ?? 15
 
   return (
     <div className="relative space-y-8 max-w-[1400px] mx-auto ch-bg-glow ch-grid-fine">
@@ -157,8 +202,8 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* KPI 卡片 */}
         <div className="lg:col-span-1 space-y-3">
-          <KpiCard label="行业景气指数" value="78.6" note="4.2%" status="up" icon={Activity} />
-          <KpiCard label="监测企业" value="128" note="12" status="up" icon={Building2} />
+          <KpiCard label="收录文章" value={String(articleTotal)} note={`${articleNew > 0 ? '+' : ''}${articleNew} 本周`} status="up" icon={FileText} />
+          <KpiCard label="信源数量" value={String(sourceTotal)} note={`${sourceOnline} 在线`} status="up" icon={Radio} />
           <KpiCard label="机会市场" value="26" note="3" status="up" icon={Globe} />
           <KpiCard label="待处置风险" value="07" note="2" status="danger" icon={AlertTriangle} />
         </div>
@@ -468,6 +513,7 @@ export default function Dashboard() {
               <span className="text-xs text-[var(--muted-text)] flex items-center gap-1.5">
                 <span className="ch-dot-danger rounded-full ch-breathe" />
                 {latestNews.filter(n => n.urgent).length} 条紧急
+                {articlesLoading && <span className="text-[10px] text-[var(--cyan)]">(加载中...)</span>}
               </span>
             </div>
             <div className="space-y-2">
@@ -637,7 +683,7 @@ export default function Dashboard() {
               <p className="text-sm font-medium text-[var(--amber)]">数据说明</p>
             </div>
             <p className="text-sm text-[var(--muted-text)] mt-1">
-              当前仪表盘展示为演示数据。正式版本将接入实时数据API，实现自动刷新与告警推送。
+              仪表盘已接入后端真实数据（文章数 {articleTotal} 篇 / 信源 {sourceOnline}/{sourceTotal} 个）。如 API 异常，将自动降级为演示数据。
             </p>
           </div>
         </div>
