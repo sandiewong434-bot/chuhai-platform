@@ -98,10 +98,17 @@ export default function TradeBarrier() {
 
   const filtered = data?.items || []
 
-  const highRisks = riskEvents.filter((e) => e.level === 'high')
-  const mediumRisks = riskEvents.filter((e) => e.level === 'medium')
-  const lowRisks = riskEvents.filter((e) => e.level === 'low')
-  const nevRisks = riskEvents.filter((e) => e.nev)
+  // 从 API 数据推断风险等级
+  const getRiskLevel = (type: string) => {
+    if (type.includes('反倾销') || type.includes('反补贴') || type.includes('301')) return 'high'
+    if (type.includes('关税')) return 'medium'
+    return 'low'
+  }
+
+  const highRisks = filtered.filter((e) => getRiskLevel(e.type) === 'high')
+  const mediumRisks = filtered.filter((e) => getRiskLevel(e.type) === 'medium')
+  const lowRisks = filtered.filter((e) => getRiskLevel(e.type) === 'low')
+  const nevRisks = filtered.filter((e) => e.nev_related)
 
   const tabs: { key: RiskTab; label: string }[] = [
     { key: 'overview', label: '实时风险总览' },
@@ -173,12 +180,42 @@ export default function TradeBarrier() {
             <div className="ch-card-cut-inner p-6">
               <h3 className="text-lg font-semibold text-white mb-4">国别风险热力</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {countryRiskHeat.map((c) => {
+                {/* 动态计算国别风险热力 */}
+              {(() => {
+                // 从 API 数据聚合国别风险
+                const countryMap: Record<string, { score: number; events: number; level: RiskLevel }> = {}
+                const sourceList = filtered.length > 0 ? filtered : riskEvents
+                sourceList.forEach((e: any) => {
+                  const country = e.country || '未知'
+                  const level = 'type' in e ? getRiskLevel(e.type) : e.level
+                  if (!countryMap[country]) {
+                    countryMap[country] = { score: 0, events: 0, level: 'low' as RiskLevel }
+                  }
+                  countryMap[country].events++
+                  const scoreAdd = level === 'high' ? 25 : level === 'medium' ? 15 : 5
+                  countryMap[country].score += scoreAdd
+                  // 取最高等级
+                  if (level === 'high' || countryMap[country].level === 'low') {
+                    countryMap[country].level = level
+                  } else if (level === 'medium' && countryMap[country].level !== 'high') {
+                    countryMap[country].level = level
+                  }
+                })
+                // 合并预设数据
+                countryRiskHeat.forEach((c) => {
+                  if (!countryMap[c.country]) {
+                    countryMap[c.country] = { score: c.score, events: c.events, level: c.level as RiskLevel }
+                  }
+                })
+                return Object.entries(countryMap)
+                  .sort((a, b) => b[1].score - a[1].score)
+                  .slice(0, 12)
+              })().map(([country, c]) => {
                   const cfg = c.level === 'high' ? levelConfig.high : c.level === 'medium' ? levelConfig.medium : levelConfig.low
                   return (
-                    <div key={c.country} className={`p-3 rounded-lg border ${cfg.bg} ${cfg.border} ${cfg.glow} transition-all hover:shadow-md`}>
+                    <div key={country} className={`p-3 rounded-lg border ${cfg.bg} ${cfg.border} ${cfg.glow} transition-all hover:shadow-md`}>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-white">{c.country}</span>
+                        <span className="text-sm font-medium text-white">{country}</span>
                         <span className={`text-xs font-bold ${cfg.color} ch-glow-num`}>{c.score}</span>
                       </div>
                       <div className="flex items-center justify-between mt-1">
@@ -203,15 +240,16 @@ export default function TradeBarrier() {
             <div className="ch-card-cut-inner p-6">
               <h3 className="text-lg font-semibold text-white mb-4">最新风险事件</h3>
               <div className="space-y-3">
-                {riskEvents.slice(0, 6).map((event) => {
-                  const cfg = levelConfig[event.level]
+                {(filtered.length > 0 ? filtered.slice(0, 6) : riskEvents.slice(0, 6)).map((event) => {
+                  const eventLevel = 'type' in event ? getRiskLevel(event.type) : event.level
+                  const cfg = levelConfig[eventLevel as RiskLevel]
                   return (
                     <div key={event.id} className={`flex items-start gap-3 p-3 rounded-lg border ${cfg.bg} ${cfg.border} ${cfg.glow}`}>
                       <cfg.icon className={`w-5 h-5 mt-0.5 ${cfg.color}`} />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-medium text-white text-sm">{event.title}</span>
-                          {event.nev && (
+                          {('nev_related' in event ? event.nev_related : event.nev) && (
                             <span className="px-1.5 py-0.5 bg-[rgba(255,77,109,0.08)] text-[var(--danger)] rounded text-xs font-medium">
                               NEV
                             </span>
