@@ -296,10 +296,10 @@ export default function OntologyGraph() {
                   <h4 className="text-sm font-medium text-[var(--muted-text)] mb-2 flex items-center gap-2">
                     <div className="ch-title-bar" />
                     <Link2 className="w-3.5 h-3.5" />
-                    关系明细 ({graph.edges.length}条)
+                    关系明细 ({graph.edges?.length ?? 0}条)
                   </h4>
                   <div className="space-y-2 max-h-48 overflow-auto">
-                    {graph.edges.map((edge, i) => (
+                    {graph.edges?.map((edge, i) => (
                       <div
                         key={i}
                         className="flex items-center gap-2 text-sm px-3 py-2 bg-white/5 rounded hover:bg-white/5 transition-colors"

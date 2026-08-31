@@ -241,7 +241,7 @@ export default function ArticleList() {
                           {article.category_tag && (
                             <div className="flex items-center gap-1">
                               <Tag className="w-3 h-3 text-[var(--muted-text)]" />
-                              {article.category_tag.split(/[,，]/).slice(0, 3).map((tag) => (
+                              {(article.category_tag || '').split(/[,，]/).slice(0, 3).map((tag) => (
                                 <span key={tag} className="px-1.5 py-0.5 bg-white/5 text-[var(--muted-text)] rounded text-xs hover:shadow-[0_0_8px_rgba(0,194,255,0.3)] transition-shadow">
                                   {tag.trim()}
                                 </span>

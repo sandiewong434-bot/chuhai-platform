@@ -675,9 +675,9 @@ export default function CountryScore() {
                   <h3 className="font-medium text-white mb-3">关键维度速览</h3>
                   <div className="space-y-3">
                     {[
-                      { label: '营商环境', icon: Building2, score: score.dimensions.d6, color: 'bg-blue-500' },
-                      { label: '产业配套', icon: Factory, score: score.dimensions.d5, color: 'bg-green-500' },
-                      { label: '政治风险', icon: ShieldAlert, score: score.dimensions.d4, color: 'bg-amber-500' },
+                      { label: '营商环境', icon: Building2, score: score.dimensions?.d6 ?? 0, color: 'bg-blue-500' },
+                      { label: '产业配套', icon: Factory, score: score.dimensions?.d5 ?? 0, color: 'bg-green-500' },
+                      { label: '政治风险', icon: ShieldAlert, score: score.dimensions?.d4 ?? 0, color: 'bg-amber-500' },
                     ].map((dim) => (
                       <div key={dim.label} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
                         <div className={`p-2 rounded-md ${dim.score >= 60 ? 'bg-[rgba(60,230,180,0.12)]' : dim.score >= 40 ? 'bg-yellow-500/10' : 'bg-[rgba(255,77,109,0.12)]'}`}>
@@ -710,7 +710,7 @@ export default function CountryScore() {
                       <RadarChart
                         data={DIMENSIONS.map((dim) => ({
                           subject: dim.name.replace(/与.*/, '…'),
-                          score: score.dimensions[dim.key as keyof typeof score.dimensions] || 0,
+                          score: score.dimensions?.[dim.key as keyof typeof score.dimensions] ?? 0,
                           fullMark: 100,
                         }))}
                       >
@@ -736,7 +736,7 @@ export default function CountryScore() {
                   <h3 className="font-medium text-white mb-4">子项明细</h3>
                   <div className="space-y-3">
                     {DIMENSIONS.map((dim) => {
-                      const value = score.dimensions[dim.key as keyof typeof score.dimensions] || 0
+                      const value = score.dimensions?.[dim.key as keyof typeof score.dimensions] ?? 0
                       return (
                         <div key={dim.key}>
                           <div className="flex items-center justify-between mb-1">

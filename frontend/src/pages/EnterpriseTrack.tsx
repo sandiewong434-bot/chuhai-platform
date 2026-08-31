@@ -215,7 +215,7 @@ export default function EnterpriseTrack() {
                 <span className="text-xs text-[var(--muted-text)]">覆盖国家</span>
               </div>
               <p className="text-xl font-bold text-white ch-glow-num mt-1">
-                {new Set(events.map((e) => e.location.split(/[，,]/)[0])).size}
+                {new Set(events.map((e) => e.location?.split(/[，,]/)[0] ?? '未知')).size}
               </p>
             </div>
           </div>
@@ -277,7 +277,7 @@ export default function EnterpriseTrack() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
                     <Car className="w-4 h-4" />
-                    主力产品：{ent.flagship_products.join(' / ')}
+                    主力产品：{ent.flagship_products?.join(' / ') || '未知'}
                   </div>
                 </div>
               )
