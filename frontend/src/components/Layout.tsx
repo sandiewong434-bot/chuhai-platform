@@ -6,7 +6,9 @@ import {
   Activity, Landmark, FlaskConical,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
+import { sourceApi } from '@/lib/api'
 
 const navGroups = [
   {
@@ -67,12 +69,31 @@ const breadcrumbMap: Record<string, string> = {
 }
 
 function useDataStatus() {
+  const queryClient = useQueryClient()
   const [lastUpdate, setLastUpdate] = useState(new Date())
-  const [sourceHealth] = useState({ total: 87, online: 82, offline: 5 })
   const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const { data: overview } = useQuery({
+    queryKey: ['sourceOverview'],
+    queryFn: async () => {
+      const res = await sourceApi.overview()
+      return res.data
+    },
+    refetchInterval: 60000,
+    staleTime: 30000,
+  })
+
+  const sourceHealth = overview
+    ? {
+        total: overview.total ?? 87,
+        online: overview.online ?? 82,
+        offline: overview.offline ?? 5,
+      }
+    : { total: 87, online: 82, offline: 5 }
 
   const refresh = () => {
     setIsRefreshing(true)
+    queryClient.invalidateQueries({ queryKey: ['sourceOverview'] })
     setTimeout(() => {
       setLastUpdate(new Date())
       setIsRefreshing(false)
