@@ -32,15 +32,15 @@ export default class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-[300px] flex items-center justify-center p-6">
+        <div className="min-h-[300px] flex items-center justify-center p-6" style={{ background: '#06111e' }}>
           <div className="text-center max-w-md">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-50 mb-4">
-              <AlertTriangle className="w-6 h-6 text-red-500" />
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4" style={{ background: 'rgba(255,77,109,0.12)', border: '1px solid rgba(255,77,109,0.2)' }}>
+              <AlertTriangle className="w-6 h-6 text-[var(--danger)]" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-white mb-2">
               页面加载出错
             </h3>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-[var(--muted-text)] mb-4">
               {this.state.error?.message || '发生了未知错误，请稍后重试'}
             </p>
             <button
@@ -48,7 +48,8 @@ export default class ErrorBoundary extends Component<Props, State> {
                 this.setState({ hasError: false })
                 window.location.reload()
               }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-white text-sm rounded-md transition-colors"
+              style={{ background: 'rgba(0,194,255,0.12)', border: '1px solid rgba(0,194,255,0.2)' }}
             >
               <RefreshCw className="w-4 h-4" />
               刷新页面

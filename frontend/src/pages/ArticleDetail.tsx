@@ -72,7 +72,7 @@ export default function ArticleDetail() {
           <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-[var(--muted-text)]">
             <span className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
-              {data.publish_date || data.crawled_at.split('T')[0]}
+              {data.publish_date || (data.crawled_at ? data.crawled_at.split('T')[0] : '日期未知')}
             </span>
             <span>来源：{data.source_name}</span>
             {data.category_layer && (

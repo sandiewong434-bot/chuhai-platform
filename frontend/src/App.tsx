@@ -91,7 +91,7 @@ function App() {
             <EntryMode />
           </ErrorBoundary>
         } />
-        <Route path="cooperation" element={
+        <Route path="tech" element={
           <ErrorBoundary>
             <TechCooperation />
           </ErrorBoundary>

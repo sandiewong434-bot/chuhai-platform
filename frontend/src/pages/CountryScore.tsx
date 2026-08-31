@@ -360,7 +360,7 @@ export default function CountryScore() {
         },
       ],
     }
-  }, [])
+  }, [allScores])
 
   const onMapClick = useCallback((params: any) => {
     if (params?.data?.name) {
