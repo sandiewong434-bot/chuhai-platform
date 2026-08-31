@@ -225,18 +225,48 @@ export default function CountryScore() {
 
   const score = apiScore || mockScores[selectedCountry]
 
+  // 获取所有国家评分（用于列表排序和地图着色）
+  const { data: allScoresData } = useQuery<{ items?: Array<{ code: string; score_total: number; score_level: string }> }>({
+    queryKey: ['score-countries'],
+    queryFn: async () => {
+      try {
+        const res = await scoreApi.countries()
+        return res.data
+      } catch {
+        return undefined
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const allScores = useMemo(() => {
+    const map: Record<string, { score_total: number; score_level: string }> = {}
+    if (allScoresData?.items) {
+      allScoresData.items.forEach((item) => {
+        map[item.code] = { score_total: item.score_total, score_level: item.score_level }
+      })
+    }
+    // 用 mockScores 补充缺失的数据
+    Object.entries(mockScores).forEach(([code, s]) => {
+      if (!map[code]) {
+        map[code] = { score_total: s.score_total, score_level: s.score_level }
+      }
+    })
+    return map
+  }, [allScoresData])
+
   const filteredCountries = useMemo(() => {
     let list = COUNTRIES
     if (tierFilter !== 'all') {
       list = list.filter((c) => c.tier === tierFilter)
     }
     if (sortBy === 'score') {
-      list = [...list].sort((a, b) => (mockScores[b.code]?.score_total || 0) - (mockScores[a.code]?.score_total || 0))
+      list = [...list].sort((a, b) => (allScores[b.code]?.score_total || 0) - (allScores[a.code]?.score_total || 0))
     } else if (sortBy === 'name') {
       list = [...list].sort((a, b) => a.name.localeCompare(b.name))
     }
     return list
-  }, [tierFilter, sortBy])
+  }, [tierFilter, sortBy, allScores])
 
   const tierStats = useMemo(() => {
     return {
@@ -251,7 +281,7 @@ export default function CountryScore() {
   const mapOption = useMemo(() => {
     const mapData = COUNTRIES.map((c) => ({
       name: c.code,
-      value: mockScores[c.code]?.score_total || 0,
+      value: allScores[c.code]?.score_total || mockScores[c.code]?.score_total || 0,
       tier: c.tier,
       countryName: c.name,
       itemStyle: {
@@ -509,7 +539,7 @@ export default function CountryScore() {
                 </thead>
                 <tbody>
                   {filteredCountries.map((c, idx) => {
-                    const s = mockScores[c.code]
+                    const s = allScores[c.code] || mockScores[c.code]
                     const cfg = tierConfig[c.tier]
                     return (
                       <tr key={c.code} className="border-b border-[rgba(96,178,216,0.08)] ch-row-glow">

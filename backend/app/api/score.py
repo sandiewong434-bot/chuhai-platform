@@ -98,25 +98,64 @@ def score_country(req: ScoreRequest, db: Session = Depends(get_db)):
 
 @router.get("/countries")
 def list_countries(db: Session = Depends(get_db)):
-    """获取所有已评分的国家列表"""
-    scores = db.query(CountryScore).all()
-    countries = {}
-    for s in scores:
-        countries[s.country_code] = s.country_name
-    
+    """获取所有已评分的国家列表（含最新评分）"""
+    from sqlalchemy import func
+
+    # 获取每个国家的最新评分
+    subq = (
+        db.query(
+            CountryScore.country_code,
+            func.max(CountryScore.scored_at).label("max_scored_at")
+        )
+        .group_by(CountryScore.country_code)
+        .subquery()
+    )
+
+    latest_scores = (
+        db.query(CountryScore)
+        .join(subq,
+            (CountryScore.country_code == subq.c.country_code) &
+            (CountryScore.scored_at == subq.c.max_scored_at)
+        )
+        .all()
+    )
+
+    result = {}
+    for s in latest_scores:
+        result[s.country_code] = {
+            "code": s.country_code,
+            "name": s.country_name,
+            "score_total": float(s.score_total),
+            "score_level": s.score_level,
+            "dimensions": s.dimension_scores or {},
+            "scored_at": str(s.scored_at),
+        }
+
     # 补充演示数据中的国家
     demo = {
-        "TH": "泰国", "ID": "印度尼西亚", "HU": "匈牙利",
-        "VN": "越南", "MX": "墨西哥", "BR": "巴西",
-        "TR": "土耳其", "EG": "埃及",
+        "TH": {"name": "泰国", "total": 72, "d": {"d1": 75, "d2": 85, "d3": 55, "d4": 70, "d5": 80, "d6": 65}},
+        "ID": {"name": "印度尼西亚", "total": 68, "d": {"d1": 70, "d2": 80, "d3": 50, "d4": 60, "d5": 75, "d6": 70}},
+        "HU": {"name": "匈牙利", "total": 78, "d": {"d1": 80, "d2": 65, "d3": 45, "d4": 85, "d5": 85, "d6": 90}},
+        "VN": {"name": "越南", "total": 70, "d": {"d1": 78, "d2": 88, "d3": 52, "d4": 65, "d5": 72, "d6": 68}},
+        "MX": {"name": "墨西哥", "total": 62, "d": {"d1": 65, "d2": 60, "d3": 35, "d4": 55, "d5": 70, "d6": 75}},
+        "BR": {"name": "巴西", "total": 65, "d": {"d1": 68, "d2": 72, "d3": 40, "d4": 60, "d5": 78, "d6": 70}},
+        "TR": {"name": "土耳其", "total": 58, "d": {"d1": 60, "d2": 55, "d3": 30, "d4": 50, "d5": 65, "d6": 68}},
+        "EG": {"name": "埃及", "total": 55, "d": {"d1": 55, "d2": 70, "d3": 45, "d4": 45, "d5": 50, "d6": 58}},
     }
-    for code, name in demo.items():
-        if code not in countries:
-            countries[code] = name
+    for code, data in demo.items():
+        if code not in result:
+            result[code] = {
+                "code": code,
+                "name": data["name"],
+                "score_total": data["total"],
+                "score_level": calculate_level(data["total"]),
+                "dimensions": data["d"],
+                "scored_at": str(date.today()),
+            }
 
     return {
-        "total": len(countries),
-        "items": [{"code": k, "name": v} for k, v in countries.items()],
+        "total": len(result),
+        "items": list(result.values()),
     }
 
 
