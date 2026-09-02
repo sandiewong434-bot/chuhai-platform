@@ -59,6 +59,9 @@ def get_db():
 
 def init_db():
     """初始化数据库（创建所有表）"""
-    from app.models import Article, ObjectEntity, Relation, SourceLog, CountryScore, SourceConfig
+    from app.models import (
+        Article, ObjectEntity, Relation, SourceLog, CountryScore, SourceConfig,
+        IndicatorSeries, IndicatorPoint, DataCollectionLog,
+    )
     Base.metadata.create_all(bind=engine)
     print(f"[DB] 数据库表已初始化: {database_url[:30]}...")

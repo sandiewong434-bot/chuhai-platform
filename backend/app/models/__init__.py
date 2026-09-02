@@ -126,3 +126,59 @@ class SourceConfig(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class IndicatorSeries(Base):
+    """指标序列定义表（图表级）"""
+
+    __tablename__ = "indicator_series"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    series_key: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    chart_id: Mapped[str] = mapped_column(String(50), nullable=False)
+    chart_name: Mapped[str] = mapped_column(String(200), nullable=False)
+    category: Mapped[str] = mapped_column(String(50), nullable=False)
+    source_name: Mapped[str] = mapped_column(String(200), nullable=False)
+    source_url: Mapped[str | None] = mapped_column(Text)
+    freq: Mapped[str] = mapped_column(String(20), default="monthly")
+    unit: Mapped[str | None] = mapped_column(String(50))
+    dimensions: Mapped[dict | None] = mapped_column(JSON)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    last_sync_at: Mapped[datetime | None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class IndicatorPoint(Base):
+    """指标时点数据表（时序值）"""
+
+    __tablename__ = "indicator_points"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    series_key: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    period_date: Mapped[datetime] = mapped_column(Date, nullable=False, index=True)
+    period_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    value: Mapped[float | None] = mapped_column(Numeric(20, 4))
+    value_yoy: Mapped[float | None] = mapped_column(Numeric(10, 4))
+    value_mom: Mapped[float | None] = mapped_column(Numeric(10, 4))
+    dimension_json: Mapped[dict | None] = mapped_column(JSON)
+    source_raw: Mapped[str | None] = mapped_column(Text)
+    confidence: Mapped[str] = mapped_column(String(20), default="high")
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+
+
+class DataCollectionLog(Base):
+    """数据采集任务日志"""
+
+    __tablename__ = "data_collection_logs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    task_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    chart_id: Mapped[str | None] = mapped_column(String(50))
+    status: Mapped[str] = mapped_column(String(20), nullable=False)
+    records_inserted: Mapped[int] = mapped_column(Integer, default=0)
+    records_updated: Mapped[int] = mapped_column(Integer, default=0)
+    message: Mapped[str | None] = mapped_column(Text)
+    started_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
