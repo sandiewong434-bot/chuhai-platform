@@ -76,4 +76,16 @@ export const enterpriseApi = {
   enterprises: () => api.get('/enterprises/list'),
 }
 
+// 指标/图表数据 API
+export const indicatorApi = {
+  listSeries: (params?: { category?: string; chart_id?: string }) =>
+    api.get('/indicators/series', { params }),
+  getPoints: (series_key: string, params?: Record<string, unknown>) =>
+    api.get(`/indicators/series/${series_key}/points`, { params }),
+  getChart: (chart_id: string, params?: Record<string, unknown>) =>
+    api.get(`/indicators/chart/${chart_id}`, { params }),
+  getLatest: (params?: { series_keys?: string; days?: number }) =>
+    api.get('/indicators/latest', { params }),
+}
+
 export default api

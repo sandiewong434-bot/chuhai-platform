@@ -11,6 +11,7 @@ from app.api import (
     articles_router,
     barriers_router,
     enterprises_router,
+    indicators_router,
     ontology_router,
     score_router,
     search_router,
@@ -32,7 +33,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="出海综合服务平台后端 API — 信源采集、本体图谱、国别评分、全文搜索",
+    description="出海综合服务平台后端 API — 信源采集、本体图谱、国别评分、全文搜索、指标数据",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
@@ -62,6 +63,7 @@ async def global_exception_handler(request, exc):
 app.include_router(articles_router, prefix="/api/v1")
 app.include_router(barriers_router, prefix="/api/v1")
 app.include_router(enterprises_router, prefix="/api/v1")
+app.include_router(indicators_router, prefix="/api/v1")
 app.include_router(ontology_router, prefix="/api/v1")
 app.include_router(search_router, prefix="/api/v1")
 app.include_router(sources_router, prefix="/api/v1")

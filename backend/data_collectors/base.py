@@ -231,29 +231,3 @@ class BaseCollector(ABC):
                 "confidence": "low",
             })
         return points
-        """
-        生成模拟时序数据（用于付费源无 API Key 时的降级展示）
-        数据带 _mock=true 标记，前端可提示"演示数据"
-        """
-        import random
-        points = []
-        base_value = random.uniform(50, 500)
-        for i in range(months, 0, -1):
-            dt = datetime.utcnow().replace(day=1) - __import__('dateutil.relativedelta', fromlist=['relativedelta']).relativedelta(months=i)
-            # 如果没有 dateutil，手动计算
-            month = datetime.utcnow().month - i
-            year = datetime.utcnow().year
-            while month <= 0:
-                month += 12
-                year -= 1
-            dt = datetime(year, month, 1).date()
-            base_value *= random.uniform(0.92, 1.08)
-            points.append({
-                "period_date": dt.strftime("%Y-%m-%d"),
-                "period_type": "month",
-                "value": round(base_value, 2),
-                "value_yoy": round(random.uniform(-20, 40), 2),
-                "dimension_json": {"_mock": True},
-                "confidence": "low",
-            })
-        return points

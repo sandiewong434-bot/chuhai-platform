@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell,
@@ -8,6 +8,7 @@ import {
   Factory, Battery, Car, Zap, TrendingUp, AlertCircle,
   GitBranch, ScrollText, Calendar,
 } from 'lucide-react'
+import { indicatorApi } from '@/lib/api'
 
 // ═══════════════════════════════════════════════════════════════
 // 类型
@@ -23,16 +24,9 @@ const TABS: { key: TabKey; label: string; icon: typeof Factory }[] = [
 ]
 
 // ═══════════════════════════════════════════════════════════════
-// 模拟数据
+// 模拟数据（其他未接入真实数据的部分）
 // ═══════════════════════════════════════════════════════════════
 
-// ① 上游
-const upstreamData = [
-  { name: '锂盐(万吨)', capacity: 45, output: 38 },
-  { name: '钴(万吨)', capacity: 18, output: 15 },
-  { name: '镍(万吨)', capacity: 280, output: 250 },
-  { name: '石墨(万吨)', capacity: 120, output: 105 },
-]
 const priceTrendData = [
   { month: '1月', lithium: 45, cobalt: 32, nickel: 18 },
   { month: '2月', lithium: 42, cobalt: 30, nickel: 19 },
@@ -42,7 +36,6 @@ const priceTrendData = [
   { month: '6月', lithium: 41, cobalt: 29, nickel: 19 },
 ]
 
-// ② 中游
 const midstreamData = [
   { name: '正极材料', value: 35, color: '#3b82f6' },
   { name: '负极材料', value: 25, color: '#10b981' },
@@ -59,7 +52,6 @@ const batteryData = [
   { name: '其他', capacity: 8.9, share: 9 },
 ]
 
-// ③ 下游
 const vehicleData = [
   { month: '1月', nev: 72.9, total: 243 },
   { month: '2月', nev: 47.7, total: 158 },
@@ -74,7 +66,6 @@ const chargingData = [
   { type: '换电站', count: 3.2 },
 ]
 
-// ④ 政策时间轴
 interface PolicyItem {
   date: string
   title: string
@@ -110,64 +101,53 @@ function useSankeyOption() {
         emphasis: { focus: 'adjacency' },
         nodeAlign: 'left',
         data: [
-          // 上游
           { name: '锂矿', itemStyle: { color: '#3b82f6' } },
           { name: '钴矿', itemStyle: { color: '#6366f1' } },
           { name: '镍矿', itemStyle: { color: '#8b5cf6' } },
           { name: '石墨', itemStyle: { color: '#64748b' } },
           { name: '稀土', itemStyle: { color: '#a855f7' } },
-          // 中上游
           { name: '锂盐', itemStyle: { color: '#2563eb' } },
           { name: '钴材料', itemStyle: { color: '#4f46e5' } },
           { name: '镍材料', itemStyle: { color: '#7c3aed' } },
           { name: '负极材料', itemStyle: { color: '#475569' } },
-          // 中游
           { name: '正极材料', itemStyle: { color: '#0ea5e9' } },
           { name: '隔膜', itemStyle: { color: '#06b6d4' } },
           { name: '电解液', itemStyle: { color: '#14b8a6' } },
           { name: '电芯', itemStyle: { color: '#10b981' } },
           { name: '模组', itemStyle: { color: '#22c55e' } },
           { name: 'PACK', itemStyle: { color: '#34d399' } },
-          // 下游
           { name: 'BEV整车', itemStyle: { color: '#ef4444' } },
           { name: 'PHEV整车', itemStyle: { color: '#f97316' } },
           { name: 'EREV整车', itemStyle: { color: '#eab308' } },
-          // 终端
           { name: '国内销售', itemStyle: { color: '#84cc16' } },
           { name: '海外出口', itemStyle: { color: '#22d3ee' } },
           { name: '电池回收', itemStyle: { color: '#a3a3a3' } },
         ],
         links: [
-          // 上游 → 中上游
           { source: '锂矿', target: '锂盐', value: 45 },
           { source: '钴矿', target: '钴材料', value: 18 },
           { source: '镍矿', target: '镍材料', value: 280 },
           { source: '石墨', target: '负极材料', value: 120 },
-          // 中上游 → 中游
           { source: '锂盐', target: '正极材料', value: 35 },
           { source: '锂盐', target: '电解液', value: 10 },
           { source: '钴材料', target: '正极材料', value: 15 },
           { source: '镍材料', target: '正极材料', value: 200 },
           { source: '负极材料', target: '电芯', value: 110 },
           { source: '稀土', target: '电芯', value: 25 },
-          // 中游 → 中游
           { source: '正极材料', target: '电芯', value: 250 },
           { source: '隔膜', target: '电芯', value: 80 },
           { source: '电解液', target: '电芯', value: 90 },
           { source: '电芯', target: '模组', value: 500 },
           { source: '模组', target: 'PACK', value: 480 },
-          // 中游 → 下游
           { source: 'PACK', target: 'BEV整车', value: 320 },
           { source: 'PACK', target: 'PHEV整车', value: 120 },
           { source: 'PACK', target: 'EREV整车', value: 40 },
-          // 下游 → 终端
           { source: 'BEV整车', target: '国内销售', value: 220 },
           { source: 'BEV整车', target: '海外出口', value: 100 },
           { source: 'PHEV整车', target: '国内销售', value: 100 },
           { source: 'PHEV整车', target: '海外出口', value: 20 },
           { source: 'EREV整车', target: '国内销售', value: 38 },
           { source: 'EREV整车', target: '海外出口', value: 2 },
-          // 回收
           { source: 'PACK', target: '电池回收', value: 20 },
         ],
         lineStyle: { color: 'source', curveness: 0.5, opacity: 0.4 },
@@ -197,6 +177,39 @@ export default function IndustryChain() {
   const filteredPolicies = policyFilter === 'all'
     ? policyTimeline
     : policyTimeline.filter(p => p.level === policyFilter)
+
+  // ── 上游 C001 API 数据 ──
+  const [lithiumData, setLithiumData] = useState<{month: string; capacity: number | null; output: number | null}[]>([])
+  const [lithiumLoading, setLithiumLoading] = useState(false)
+
+  useEffect(() => {
+    if (activeTab !== 'upstream') return
+    setLithiumLoading(true)
+    indicatorApi.getPoints('lithium_capacity_production', { limit: 36 })
+      .then(res => {
+        const items = res.data.items || []
+        // 按月份聚合：产能、产量
+        const monthMap: Record<string, { capacity?: number; output?: number }> = {}
+        items.forEach((item: any) => {
+          const m = item.period_date?.slice(0, 7) // "2024-09"
+          if (!m) return
+          if (!monthMap[m]) monthMap[m] = {}
+          const metric = item.dimension_json?.metric
+          if (metric === '产能') monthMap[m].capacity = item.value
+          if (metric === '产量') monthMap[m].output = item.value
+        })
+        const arr = Object.entries(monthMap)
+          .map(([month, v]) => ({ month, capacity: v.capacity ?? null, output: v.output ?? null }))
+          .filter(v => v.capacity != null || v.output != null)
+          .sort((a, b) => a.month.localeCompare(b.month))
+          .slice(-12)
+        setLithiumData(arr)
+      })
+      .catch(err => {
+        console.error('C001 API error:', err)
+      })
+      .finally(() => setLithiumLoading(false))
+  }, [activeTab])
 
   return (
     <div className="space-y-6">
@@ -258,25 +271,34 @@ export default function IndustryChain() {
       {activeTab === 'upstream' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* ── 左图：C001 锂盐产能与产量（API 真实数据）── */}
             <div className="ch-card-cut">
               <div className="ch-card-cut-inner p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="ch-title-bar" />
-                  <h3 className="text-lg font-semibold text-white">上游资源产能与产量</h3>
+                  <h3 className="text-lg font-semibold text-white">锂盐产能与产量（API实时）</h3>
+                  {lithiumLoading && <span className="text-xs text-[var(--cyan)]">加载中...</span>}
                 </div>
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={upstreamData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
-                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#809daf' }} />
-                    <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
-                    <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
-                    <Bar dataKey="capacity" name="产能" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="output" name="产量" fill="#10b981" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                {lithiumData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={lithiumData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                      <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#809daf' }} />
+                      <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
+                      <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
+                      <Bar dataKey="capacity" name="产能(万吨/月)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="output" name="产量(万吨)" fill="#10b981" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[260px] flex items-center justify-center text-[var(--muted-text)]">
+                    暂无数据
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* ── 右图：原材料价格走势（模拟数据）── */}
             <div className="ch-card-cut">
               <div className="ch-card-cut-inner p-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -299,7 +321,7 @@ export default function IndustryChain() {
           </div>
 
           <SourceNote>
-            当前展示为模拟数据。正式数据将接入 USGS、Benchmark Minerals、SMM上海有色网、鑫椤资讯、安泰科 等数据源。
+            左侧「锂盐产能与产量」已接入 C001 采集器真实数据（SMM/百川盈孚行业基准）。右侧价格走势为模拟数据，待 C002 采集器接入后替换为真实数据源。
           </SourceNote>
         </div>
       )}
