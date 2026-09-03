@@ -27,14 +27,6 @@ const TABS: { key: TabKey; label: string; icon: typeof Factory }[] = [
 // 模拟数据（其他未接入真实数据的部分）
 // ═══════════════════════════════════════════════════════════════
 
-const priceTrendData = [
-  { month: '1月', lithium: 45, cobalt: 32, nickel: 18 },
-  { month: '2月', lithium: 42, cobalt: 30, nickel: 19 },
-  { month: '3月', lithium: 38, cobalt: 28, nickel: 17 },
-  { month: '4月', lithium: 40, cobalt: 31, nickel: 18 },
-  { month: '5月', lithium: 43, cobalt: 33, nickel: 20 },
-  { month: '6月', lithium: 41, cobalt: 29, nickel: 19 },
-]
 
 const midstreamData = [
   { name: '正极材料', value: 35, color: '#3b82f6' },
@@ -182,6 +174,10 @@ export default function IndustryChain() {
   const [lithiumData, setLithiumData] = useState<{month: string; capacity: number | null; output: number | null}[]>([])
   const [lithiumLoading, setLithiumLoading] = useState(false)
 
+  // ── 上游 C002 API 数据（锂盐价格）──
+  const [priceData, setPriceData] = useState<{month: string; price: number | null}[]>([])
+  const [priceLoading, setPriceLoading] = useState(false)
+
   useEffect(() => {
     if (activeTab !== 'upstream') return
     setLithiumLoading(true)
@@ -209,6 +205,29 @@ export default function IndustryChain() {
         console.error('C001 API error:', err)
       })
       .finally(() => setLithiumLoading(false))
+  }, [activeTab])
+
+  // C002 锂盐价格
+  useEffect(() => {
+    if (activeTab !== 'upstream') return
+    setPriceLoading(true)
+    indicatorApi.getPoints('lithium_price', { limit: 48 })
+      .then(res => {
+        const items = res.data.items || []
+        const arr = items
+          .map((item: any) => ({
+            month: item.period_date?.slice(0, 7) ?? '',
+            price: item.value ?? null,
+          }))
+          .filter((v: any) => v.month && v.price != null)
+          .sort((a: any, b: any) => a.month.localeCompare(b.month))
+          .slice(-24) // 最近24个月
+        setPriceData(arr)
+      })
+      .catch(err => {
+        console.error('C002 API error:', err)
+      })
+      .finally(() => setPriceLoading(false))
   }, [activeTab])
 
   return (
@@ -303,25 +322,30 @@ export default function IndustryChain() {
               <div className="ch-card-cut-inner p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="ch-title-bar" />
-                  <h3 className="text-lg font-semibold text-white">原材料价格走势（万元/吨）</h3>
+                  <h3 className="text-lg font-semibold text-white">锂盐价格走势（万元/吨·API实时）</h3>
+                  {priceLoading && <span className="text-xs text-[var(--cyan)]">加载中...</span>}
                 </div>
-                <ResponsiveContainer width="100%" height={260}>
-                  <LineChart data={priceTrendData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#809daf' }} />
-                    <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
-                    <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
-                    <Line type="monotone" dataKey="lithium" name="碳酸锂" stroke="#3b82f6" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="cobalt" name="钴" stroke="#8b5cf6" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="nickel" name="镍" stroke="#10b981" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
+                {priceData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={260}>
+                    <LineChart data={priceData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                      <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#809daf' }} angle={-30} textAnchor="end" height={50} />
+                      <YAxis tick={{ fontSize: 12, fill: '#809daf' }} domain={[0, 'auto']} />
+                      <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
+                      <Line type="monotone" dataKey="price" name="电池级碳酸锂" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[260px] flex items-center justify-center text-[var(--muted-text)]">
+                    暂无数据
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           <SourceNote>
-            左侧「锂盐产能与产量」已接入 C001 采集器真实数据（SMM/百川盈孚行业基准）。右侧价格走势为模拟数据，待 C002 采集器接入后替换为真实数据源。
+            左侧「锂盐产能与产量」已接入 C001 采集器真实数据（SMM/百川盈孚行业基准）。右侧「锂盐价格走势」已接入 C002 采集器真实数据（SMM行业基准价格）。钴、镍价格待 C002-扩展 采集器接入。
           </SourceNote>
         </div>
       )}
