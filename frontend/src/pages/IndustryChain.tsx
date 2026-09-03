@@ -52,11 +52,7 @@ const vehicleData = [
   { month: '5月', nev: 95.5, total: 242 },
   { month: '6月', nev: 104.9, total: 262 },
 ]
-const chargingData = [
-  { type: '公共桩', count: 285 },
-  { type: '私人桩', count: 520 },
-  { type: '换电站', count: 3.2 },
-]
+// C004 充电桩数据已从 API 动态获取
 
 interface PolicyItem {
   date: string
@@ -182,6 +178,10 @@ export default function IndustryChain() {
   const [salesRankData, setSalesRankData] = useState<{rank: number; name: string; sales: number; share: number}[]>([])
   const [salesRankLoading, setSalesRankLoading] = useState(false)
 
+  // ── 下游 C004 API 数据（充电桩保有量）──
+  const [chargingData, setChargingData] = useState<{type: string; count: number; unit: string}[]>([])
+  const [chargingLoading, setChargingLoading] = useState(false)
+
   useEffect(() => {
     if (activeTab !== 'upstream') return
     setLithiumLoading(true)
@@ -272,6 +272,35 @@ export default function IndustryChain() {
         console.error('C003 API error:', err)
       })
       .finally(() => setSalesRankLoading(false))
+  }, [activeTab])
+
+  // C004 充电桩保有量
+  useEffect(() => {
+    if (activeTab !== 'downstream') return
+    setChargingLoading(true)
+    indicatorApi.getPoints('charging_pile_stock', { limit: 36 })
+      .then(res => {
+        const items = res.data.items || []
+        const latestMonth = items
+          .map((item: any) => item.period_date?.slice(0, 7))
+          .filter(Boolean)
+          .sort()
+          .slice(-1)[0] || ''
+        const latestItems = items.filter((item: any) =>
+          item.period_date?.slice(0, 7) === latestMonth &&
+          item.dimension_json?.pile_type !== '合计'
+        )
+        const mapped = latestItems.map((item: any) => ({
+          type: item.dimension_json?.pile_type || '未知',
+          count: item.value ?? 0,
+          unit: item.dimension_json?.unit || '万台',
+        }))
+        setChargingData(mapped)
+      })
+      .catch(err => {
+        console.error('C004 API error:', err)
+      })
+      .finally(() => setChargingLoading(false))
   }, [activeTab])
 
   return (
@@ -485,10 +514,11 @@ export default function IndustryChain() {
                   <h3 className="text-lg font-semibold text-white">补能设施保有量（万台/座）</h3>
                 </div>
                 <div className="space-y-4 mt-4">
+                  {chargingLoading && <span className="text-xs text-[var(--cyan)]">加载中...</span>}
                   {chargingData.map((item) => (
                     <div key={item.type} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                       <span className="text-sm font-medium text-[var(--muted-text)]">{item.type}</span>
-                      <span className="text-lg font-bold text-white ch-glow-num">{item.count}</span>
+                      <span className="text-lg font-bold text-white ch-glow-num">{item.count}<span className="text-xs ml-1 text-[var(--muted-text)]">{item.unit}</span></span>
                     </div>
                   ))}
                 </div>
@@ -566,7 +596,7 @@ export default function IndustryChain() {
           </div>
 
           <SourceNote>
-            车企销量排名已接入 C003 采集器真实数据（中汽协行业基准）。NEV销量走势与补能设施数据为模拟数据，待 C004/C005 采集器接入后替换。
+            车企销量排名已接入 C003 采集器真实数据（中汽协行业基准）。补能设施保有量已接入 C004 采集器真实数据（中国充电联盟行业基准）。NEV销量走势待 C005 采集器接入后替换。
           </SourceNote>
         </div>
       )}
