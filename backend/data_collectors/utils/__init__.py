@@ -2,7 +2,7 @@
 """
 公共采集工具
 ============
-- HTTP 请求增强 (带重试、UA轮换)
+- HTTP 请求增强 (带重试、UA轮换、session预热、反爬头)
 - HTML 解析辅助
 - 企业名归一化
 - 日期解析
@@ -27,53 +27,154 @@ USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
 ]
 
 DEFAULT_HEADERS = {
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8,en-US;q=0.7",
     "Accept-Encoding": "gzip, deflate, br",
     "Connection": "keep-alive",
+    "Cache-Control": "max-age=0",
+    "Sec-Ch-Ua": '"Not(A:Brand";v="99", "Google Chrome";v="128", "Chromium";v="128"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"macOS"',
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Upgrade-Insecure-Requests": "1",
+    "DNT": "1",
+}
+
+# 常见站点的 Referer 映射
+SITE_REFERERS = {
+    "stats.gov.cn": "https://data.stats.gov.cn/",
+    "smm.cn": "https://www.smm.cn/",
+    "100ppi.com": "https://www.100ppi.com/",
+    "cbea.com": "https://www.cbea.com/",
 }
 
 
-def http_get(url: str, headers: dict | None = None, timeout: int = 30, max_retries: int = 3, **kwargs) -> httpx.Response:
-    """带重试的 GET 请求"""
-    h = {"User-Agent": random.choice(USER_AGENTS), **DEFAULT_HEADERS}
-    if headers:
-        h.update(headers)
+def _build_headers(url: str, extra: dict | None = None) -> dict:
+    """构建带反爬特征的请求头，自动推断 Referer"""
+    ua = random.choice(USER_AGENTS)
+    h = {
+        "User-Agent": ua,
+        **DEFAULT_HEADERS,
+    }
+    # 自动推断 Referer
+    for domain, referer in SITE_REFERERS.items():
+        if domain in url:
+            h["Referer"] = referer
+            h["Sec-Fetch-Site"] = "same-origin" if referer in url else "cross-site"
+            break
+    if extra:
+        h.update(extra)
+    return h
+
+
+def _warmup_session(client: httpx.Client, url: str) -> None:
+    """Session 预热：模拟真实浏览路径获取 cookie"""
+    parsed = httpx.URL(url)
+    origin = f"{parsed.scheme}://{parsed.host}/"
+    domain = parsed.host
+
+    # 步骤1: 访问首页
+    try:
+        client.get(origin, headers=_build_headers(origin), timeout=10)
+    except Exception:
+        pass
+
+    # 步骤2: 针对国家统计局，访问数据查询页面
+    if "stats.gov.cn" in domain:
+        try:
+            client.get(
+                "https://data.stats.gov.cn/easyquery.htm?cn=A01",
+                headers=_build_headers("https://data.stats.gov.cn/easyquery.htm?cn=A01"),
+                timeout=10,
+            )
+        except Exception:
+            pass
+        try:
+            client.get(
+                "https://data.stats.gov.cn/easyquery.htm?cn=C01",
+                headers=_build_headers("https://data.stats.gov.cn/easyquery.htm?cn=C01"),
+                timeout=10,
+            )
+        except Exception:
+            pass
+
+
+def http_get(url: str, headers: dict | None = None, timeout: int = 30, max_retries: int = 3, use_session: bool = False, **kwargs) -> httpx.Response:
+    """带重试的 GET 请求，增强反爬能力
+    
+    use_session=True: 先预热同源首页获取 cookie，再发实际请求（解决 stats.gov.cn 等强反爬站点）
+    """
+    h = _build_headers(url, headers)
+    last_err = None
     for attempt in range(max_retries):
         try:
             with httpx.Client(timeout=timeout, follow_redirects=True) as client:
+                if use_session:
+                    _warmup_session(client, url)
                 resp = client.get(url, headers=h, **kwargs)
-                resp.raise_for_status()
-                return resp
+            # 对于 403/503/429，尝试换 UA 重试
+            if resp.status_code in (403, 503, 429) and attempt < max_retries - 1:
+                h["User-Agent"] = random.choice(USER_AGENTS)
+                wait = 2 ** attempt + random.uniform(1, 3)
+                print(f"[WARN] GET 收到 {resp.status_code}，换 UA 后 {wait:.1f}s 重试 ({attempt+1}/{max_retries})")
+                time.sleep(wait)
+                continue
+            resp.raise_for_status()
+            return resp
         except Exception as e:
+            last_err = e
             wait = 2 ** attempt + random.uniform(0, 2)
             print(f"[WARN] GET 失败 ({attempt+1}/{max_retries}): {e}, {wait:.1f}s 后重试")
             time.sleep(wait)
-    raise Exception(f"请求失败: {url}")
+    raise Exception(f"请求失败: {url} | 最后错误: {last_err}")
 
 
-def http_post(url: str, data: dict | None = None, json_data: dict | None = None, headers: dict | None = None, timeout: int = 30, max_retries: int = 3) -> httpx.Response:
-    """带重试的 POST 请求"""
-    h = {"User-Agent": random.choice(USER_AGENTS), **DEFAULT_HEADERS}
-    if headers:
-        h.update(headers)
+def http_post(url: str, data: dict | None = None, json_data: dict | None = None, headers: dict | None = None, timeout: int = 30, max_retries: int = 3, use_session: bool = False) -> httpx.Response:
+    """带重试的 POST 请求，增强反爬能力
+    
+    use_session=True: 先预热同源首页获取 cookie，再发实际请求
+    """
+    h = _build_headers(url, headers)
+    # POST 请求需要调整 Sec-Fetch 头
+    h["Sec-Fetch-Dest"] = "empty"
+    h["Sec-Fetch-Mode"] = "cors"
+    h["Sec-Fetch-Site"] = "same-origin"
+    # 针对 AJAX 请求添加 X-Requested-With
+    h["X-Requested-With"] = "XMLHttpRequest"
+    last_err = None
     for attempt in range(max_retries):
         try:
             with httpx.Client(timeout=timeout, follow_redirects=True) as client:
+                if use_session:
+                    _warmup_session(client, url)
                 if json_data:
+                    h.setdefault("Content-Type", "application/json")
                     resp = client.post(url, headers=h, json=json_data)
                 else:
                     resp = client.post(url, headers=h, data=data)
-                resp.raise_for_status()
-                return resp
+            # 对于 403/503/429，换 UA 重试
+            if resp.status_code in (403, 503, 429) and attempt < max_retries - 1:
+                h["User-Agent"] = random.choice(USER_AGENTS)
+                wait = 2 ** attempt + random.uniform(1, 3)
+                print(f"[WARN] POST 收到 {resp.status_code}，换 UA 后 {wait:.1}s 重试 ({attempt+1}/{max_retries})")
+                time.sleep(wait)
+                continue
+            resp.raise_for_status()
+            return resp
         except Exception as e:
+            last_err = e
             wait = 2 ** attempt + random.uniform(0, 2)
             print(f"[WARN] POST 失败 ({attempt+1}/{max_retries}): {e}, {wait:.1f}s 后重试")
             time.sleep(wait)
-    raise Exception(f"POST 失败: {url}")
+    raise Exception(f"POST 失败: {url} | 最后错误: {last_err}")
 
 
 # ========== HTML / JSON 解析 ==========

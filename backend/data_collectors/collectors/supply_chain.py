@@ -154,6 +154,111 @@ class C001_LithiumCapacity(BaseCollector):
         return [], "API Key 已配置，待接入"
 
     def _fetch_stats_gov(self) -> tuple[list[dict], str]:
+        """国家统计局 - 工业产品产量数据（使用 session 模式绕过反爬）"""
+        try:
+            # 先预热获取 cookie，再调用 API
+            tree_url = "https://data.stats.gov.cn/easyquery.htm?m=getTree"
+            resp = http_post(tree_url, data={"dbcode": "hgyd", "wdcode": "zb"}, timeout=15, max_retries=3, use_session=True)
+            data = resp.json()
+            # 查找碳酸锂相关指标
+            lithium_code = None
+            for item in data:
+                name = item.get("name", "")
+                if any(k in name for k in ["碳酸锂", "锂盐", "氢氧化锂", "氯化锂"]):
+                    lithium_code = item.get("id")
+                    print(f"[C001] 国家统计局找到指标: {name} (ID: {lithium_code})")
+                    break
+            if lithium_code:
+                # 查询具体数据
+                query_url = "https://data.stats.gov.cn/easyquery.htm?m=QueryData"
+                params = {
+                    "dbcode": "hgyd",
+                    "rowcode": "zb",
+                    "colcode": "sj",
+                    "wds": "[]",
+                    "dfwds": json.dumps([{"wdcode": "zb", "valuecode": lithium_code}]),
+                }
+                resp = http_post(query_url, data=params, timeout=15, max_retries=3, use_session=True)
+                raw = resp.text
+                # 尝试解析返回数据
+                try:
+                    result = json.loads(raw)
+                    datanodes = result.get("returndata", {}).get("datanodes", [])
+                    points = []
+                    for node in datanodes:
+                        val = node.get("data", {}).get("data")
+                        period = node.get("wds", [{}])[0].get("valuecode", "")
+                        if val is not None and period:
+                            points.append({
+                                "period_date": f"{period}-01",
+                                "period_type": "month",
+                                "value": round(float(val), 2),
+                                "dimension_json": {
+                                    "product": "碳酸锂",
+                                    "metric": "产量",
+                                    "unit": "万吨",
+                                    "source": "国家统计局",
+                                },
+                                "confidence": "high",
+                            })
+                    return points, f"国家统计局: 采集 {len(points)} 条数据"
+                except Exception as e:
+                    return [], f"国家统计局: 找到指标 {lithium_code}，解析失败: {e}"
+            return [], "国家统计局: 未找到碳酸锂相关指标"
+        except Exception as e:
+            return [], f"国家统计局查询失败: {e}"
+
+    def _fetch_smm_public_page(self) -> tuple[list[dict], str]:
+        """SMM 公开数据库页面抓取（反爬已增强）"""
+        try:
+            # SMM 公开数据库页面
+            url = "https://www.smm.cn/mpdb"
+            resp = http_get(url, timeout=15, max_retries=3)
+            # SMM 页面包含结构化数据，尝试从页面提取
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(resp.text, "html.parser")
+            # 查找数据表格
+            tables = soup.find_all("table")
+            all_points = []
+            for table in tables[:3]:  # 只看前3个表格
+                rows = table.find_all("tr")
+                for row in rows[1:]:  # 跳过表头
+                    cells = row.find_all(["td", "th"])
+                    if len(cells) >= 3:
+                        # 尝试提取时间和数值
+                        texts = [c.get_text(strip=True) for c in cells]
+                        # 简单的启发式解析：找数字列
+                        for i, t in enumerate(texts):
+                            if "碳酸锂" in t or "锂" in t:
+                                # 发现锂相关行
+                                pass
+            # SMM 公开页面数据较粗糙，主要作为补充验证
+            return [], f"SMM公开页已访问 (HTTP {resp.status_code})，页面含 {len(tables)} 个表格"
+        except Exception as e:
+            return [], f"SMM公开页抓取失败: {e}"
+
+    def _fetch_100ppi(self) -> tuple[list[dict], str]:
+        """生意社公开数据（反爬已增强）"""
+        try:
+            # 生意社新能源板块列表
+            url = "https://www.100ppi.com/news/list-328-1.html"
+            resp = http_get(url, timeout=15, max_retries=3)
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(resp.text, "html.parser")
+            # 查找新闻列表中的锂相关文章
+            links = soup.find_all("a", href=True)
+            lithium_articles = []
+            for a in links:
+                text = a.get_text(strip=True)
+                if any(k in text for k in ["碳酸锂", "氢氧化锂", "锂盐", "锂价", "锂产量"]):
+                    href = a["href"]
+                    if not href.startswith("http"):
+                        href = "https://www.100ppi.com" + href
+                    lithium_articles.append({"title": text, "url": href})
+            # 生意社主要是价格数据，产量数据需从文章提取
+            return [], f"生意社: 发现 {len(lithium_articles)} 篇锂相关文章"
+        except Exception as e:
+            return [], f"生意社查询失败: {e}"
         """国家统计局 - 工业产品产量数据"""
         try:
             # 国家统计局数据查询接口
