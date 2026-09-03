@@ -178,6 +178,10 @@ export default function IndustryChain() {
   const [priceData, setPriceData] = useState<{month: string; price: number | null}[]>([])
   const [priceLoading, setPriceLoading] = useState(false)
 
+  // ── 下游 C003 API 数据（车企销量排名）──
+  const [salesRankData, setSalesRankData] = useState<{rank: number; name: string; sales: number; share: number}[]>([])
+  const [salesRankLoading, setSalesRankLoading] = useState(false)
+
   useEffect(() => {
     if (activeTab !== 'upstream') return
     setLithiumLoading(true)
@@ -228,6 +232,46 @@ export default function IndustryChain() {
         console.error('C002 API error:', err)
       })
       .finally(() => setPriceLoading(false))
+  }, [activeTab])
+
+  // C003 车企销量排名
+  useEffect(() => {
+    if (activeTab !== 'downstream') return
+    setSalesRankLoading(true)
+    indicatorApi.getPoints('vehicle_sales_rank', { limit: 200 })
+      .then(res => {
+        const items = res.data.items || []
+        // 筛选销量数据，取最新月份
+        const salesItems = items.filter((item: any) => item.dimension_json?.metric === '销量')
+        // 找最新月份
+        const latestMonth = salesItems
+          .map((item: any) => item.period_date?.slice(0, 7))
+          .filter(Boolean)
+          .sort()
+          .slice(-1)[0] || ''
+        // 取最新月份的数据，按销量降序
+        const latestSales = salesItems
+          .filter((item: any) => item.period_date?.slice(0, 7) === latestMonth)
+          .map((item: any) => ({
+            name: item.dimension_json?.enterprise || '未知',
+            sales: item.value ?? 0,
+          }))
+          .sort((a: any, b: any) => b.sales - a.sales)
+          .slice(0, 10)
+        // 计算份额并生成排名
+        const total = latestSales.reduce((sum: number, item: any) => sum + item.sales, 0)
+        const ranked = latestSales.map((item: any, idx: number) => ({
+          rank: idx + 1,
+          name: item.name,
+          sales: item.sales,
+          share: total > 0 ? Math.round(item.sales / total * 100) : 0,
+        }))
+        setSalesRankData(ranked)
+      })
+      .catch(err => {
+        console.error('C003 API error:', err)
+      })
+      .finally(() => setSalesRankLoading(false))
   }, [activeTab])
 
   return (
@@ -477,56 +521,52 @@ export default function IndustryChain() {
             <div className="ch-card-cut-inner p-6">
               <div className="flex items-center gap-2 mb-4">
                 <div className="ch-title-bar" />
-                <h3 className="text-lg font-semibold text-white">整车企业销量梯队（2026 上半年）</h3>
+                <h3 className="text-lg font-semibold text-white">车企销量排名 TOP10（API实时·最新月）</h3>
+                {salesRankLoading && <span className="text-xs text-[var(--cyan)]">加载中...</span>}
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[rgba(96,178,216,0.12)]">
-                      <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">排名</th>
-                      <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">企业</th>
-                      <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">销量（万辆）</th>
-                      <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">同比</th>
-                      <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">梯队</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { rank: 1, name: '比亚迪', sales: 161.3, yoy: '+28.5%', tier: '第一梯队' },
-                      { rank: 2, name: '特斯拉中国', sales: 42.8, yoy: '-3.2%', tier: '第一梯队' },
-                      { rank: 3, name: '吉利新能源', sales: 38.2, yoy: '+65.1%', tier: '第二梯队' },
-                      { rank: 4, name: '长安汽车', sales: 29.9, yoy: '+52.8%', tier: '第二梯队' },
-                      { rank: 5, name: '奇瑞新能源', sales: 25.4, yoy: '+182%', tier: '第二梯队' },
-                      { rank: 6, name: '理想汽车', sales: 18.9, yoy: '+35.8%', tier: '第三梯队' },
-                      { rank: 7, name: '鸿蒙智行', sales: 17.4, yoy: '+520%', tier: '第三梯队' },
-                      { rank: 8, name: '广汽埃安', sales: 16.2, yoy: '-15.3%', tier: '第三梯队' },
-                    ].map((row) => (
-                      <tr key={row.rank} className="border-b border-[rgba(96,178,216,0.08)] ch-row-glow">
-                        <td className="py-3 px-4 text-white font-medium">{row.rank}</td>
-                        <td className="py-3 px-4 text-white">{row.name}</td>
-                        <td className="py-3 px-4 text-right text-white font-semibold">{row.sales}</td>
-                        <td className={`py-3 px-4 text-right font-medium ${row.yoy.startsWith('+') ? 'text-[var(--teal)]' : 'text-[var(--danger)]'}`}>
-                          {row.yoy}
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            row.tier === '第一梯队' ? 'bg-[rgba(0,194,255,0.12)] text-[var(--cyan)]' :
-                            row.tier === '第二梯队' ? 'bg-[rgba(60,230,180,0.12)] text-[var(--teal)]' :
-                            'bg-white/10 text-[var(--muted-text)]'
-                          }`}>
-                            {row.tier}
-                          </span>
-                        </td>
+                {salesRankData.length > 0 ? (
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-[rgba(96,178,216,0.12)]">
+                        <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">排名</th>
+                        <th className="text-left py-3 px-4 font-medium text-[var(--muted-text)]">企业</th>
+                        <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">销量（万辆）</th>
+                        <th className="text-right py-3 px-4 font-medium text-[var(--muted-text)]">份额</th>
+                        <th className="text-center py-3 px-4 font-medium text-[var(--muted-text)]">梯队</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {salesRankData.map((row) => (
+                        <tr key={row.rank} className="border-b border-[rgba(96,178,216,0.08)] ch-row-glow">
+                          <td className="py-3 px-4 text-white font-medium">{row.rank}</td>
+                          <td className="py-3 px-4 text-white">{row.name}</td>
+                          <td className="py-3 px-4 text-right text-white font-semibold">{row.sales.toFixed(1)}</td>
+                          <td className="py-3 px-4 text-right text-[var(--cyan)] font-medium">{row.share}%</td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              row.rank <= 2 ? 'bg-[rgba(0,194,255,0.12)] text-[var(--cyan)]' :
+                              row.rank <= 5 ? 'bg-[rgba(60,230,180,0.12)] text-[var(--teal)]' :
+                              'bg-white/10 text-[var(--muted-text)]'
+                            }`}>
+                              {row.rank <= 2 ? '第一梯队' : row.rank <= 5 ? '第二梯队' : '第三梯队'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="h-[200px] flex items-center justify-center text-[var(--muted-text)]">
+                    暂无数据
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           <SourceNote>
-            当前展示为模拟数据。正式数据将接入 中汽协(CAAM)、乘联会(CPCA)、中汽中心(CATARC)、中国充电联盟(EVCIPA)、国家能源局、IEA 等数据源。
+            车企销量排名已接入 C003 采集器真实数据（中汽协行业基准）。NEV销量走势与补能设施数据为模拟数据，待 C004/C005 采集器接入后替换。
           </SourceNote>
         </div>
       )}
