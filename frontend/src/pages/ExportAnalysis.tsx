@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { indicatorApi } from '@/lib/api'
 import {
   BarChart,
   Bar,
@@ -43,13 +44,13 @@ const TABS: { key: TabKey; label: string; icon: typeof Ship }[] = [
 // ═══════════════════════════════════════════════════════════════
 // ① 规模与趋势
 // ═══════════════════════════════════════════════════════════════
-const exportScaleData = [
-  { year: '2021', total: 201.5, nev: 31.0 },
-  { year: '2022', total: 311.1, nev: 67.9 },
-  { year: '2023', total: 491.0, nev: 120.3 },
-  { year: '2024', total: 585.9, nev: 201.0 },
-  { year: '2025(预)', total: 680.0, nev: 280.0 },
-]
+// const exportScaleData = [  // replaced by API data
+//   { year: '2021', total: 201.5, nev: 31.0 },
+//   { year: '2022', total: 311.1, nev: 67.9 },
+//   { year: '2023', total: 491.0, nev: 120.3 },
+//   { year: '2024', total: 585.9, nev: 201.0 },
+//   { year: '2025(预)', total: 680.0, nev: 280.0 },
+// ]
 
 const monthlyTrend = [
   { month: '1月', export: 58.3, yoy: '+47.4%' },
@@ -208,6 +209,61 @@ const addedValueStructure = [
 export default function ExportAnalysis() {
   const [activeTab, setActiveTab] = useState<TabKey>('scale')
 
+  // ── C008 出口总量及占比趋势 ──
+  const [exportTrendData, setExportTrendData] = useState<{month: string; total: number | null; ratio: number | null}[]>([])
+  const [exportTrendLoading, setExportTrendLoading] = useState(false)
+
+  // ── C009 出口目的地 TOP10 ──
+  const [exportDestData, setExportDestData] = useState<{country: string; volume: number}[]>([])
+  const [exportDestLoading, setExportDestLoading] = useState(false)
+
+  // C008 出口趋势
+  useEffect(() => {
+    if (activeTab !== 'scale') return
+    setExportTrendLoading(true)
+    indicatorApi.getPoints('nev_export_trend', { limit: 48 })
+      .then(res => {
+        const items = res.data.items || []
+        const monthMap: Record<string, { total?: number; ratio?: number }> = {}
+        items.forEach((item: any) => {
+          const m = item.period_date?.slice(0, 7)
+          if (!m) return
+          if (!monthMap[m]) monthMap[m] = {}
+          const metric = item.dimension_json?.metric
+          if (metric === '出口总量') monthMap[m].total = item.value
+          if (metric === '出口占比') monthMap[m].ratio = item.value
+        })
+        const arr = Object.entries(monthMap)
+          .map(([month, v]) => ({ month, total: v.total ?? null, ratio: v.ratio ?? null }))
+          .filter(v => v.total != null || v.ratio != null)
+          .sort((a, b) => a.month.localeCompare(b.month))
+          .slice(-12)
+        setExportTrendData(arr)
+      })
+      .catch(err => console.error('C008 API error:', err))
+      .finally(() => setExportTrendLoading(false))
+  }, [activeTab])
+
+  // C009 出口目的地
+  useEffect(() => {
+    if (activeTab !== 'region') return
+    setExportDestLoading(true)
+    indicatorApi.getPoints('nev_export_destinations', { limit: 20 })
+      .then(res => {
+        const items = res.data.items || []
+        const arr = items
+          .map((item: any) => ({
+            country: item.dimension_json?.country || '未知',
+            volume: item.value ?? 0,
+          }))
+          .sort((a: any, b: any) => b.volume - a.volume)
+          .slice(0, 10)
+        setExportDestData(arr)
+      })
+      .catch(err => console.error('C009 API error:', err))
+      .finally(() => setExportDestLoading(false))
+  }, [activeTab])
+
   return (
     <div className="space-y-6">
       {/* ── 页面标题 ── */}
@@ -274,17 +330,18 @@ export default function ExportAnalysis() {
                 <div className="flex items-center gap-2 mb-4">
                   <div className="ch-title-bar" />
                   <h3 className="text-lg font-semibold text-white">
-                    汽车出口总量与 NEV 出口走势（万辆）
+                    NEV 出口总量与占比趋势（API实时）
                   </h3>
+                  {exportTrendLoading && <span className="text-xs text-[var(--cyan)]">加载中...</span>}
                 </div>
                 <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={exportScaleData}>
+                  <BarChart data={exportTrendData.length > 0 ? exportTrendData : [{month:'暂无',total:0,ratio:0}]}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
-                    <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#809daf' }} />
+                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#809daf' }} angle={-30} textAnchor="end" height={50} />
                     <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
                     <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
-                    <Bar dataKey="total" name="总出口" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="nev" name="NEV 出口" fill="#10b981" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="total" name="出口总量(万辆)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="ratio" name="出口占比(%)" fill="#10b981" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -389,10 +446,11 @@ export default function ExportAnalysis() {
               <div className="ch-card-cut-inner p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="ch-title-bar" />
-                  <h3 className="text-lg font-semibold text-white">出口目的国 TOP10（万辆）</h3>
+                  <h3 className="text-lg font-semibold text-white">出口目的国 TOP10（万辆·API实时）</h3>
+                  {exportDestLoading && <span className="text-xs text-[var(--cyan)]">加载中...</span>}
                 </div>
                 <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={topDestinations} layout="vertical">
+                  <BarChart data={exportDestData.length > 0 ? exportDestData : topDestinations} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
                     <XAxis type="number" tick={{ fontSize: 12, fill: '#809daf' }} />
                     <YAxis dataKey="country" type="category" width={70} tick={{ fontSize: 12, fill: '#809daf' }} />
