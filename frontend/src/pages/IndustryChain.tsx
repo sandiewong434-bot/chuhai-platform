@@ -5,10 +5,11 @@ import {
 } from 'recharts'
 import ReactECharts from 'echarts-for-react'
 import {
-  Factory, Battery, Car, Zap, TrendingUp, AlertCircle,
+  Factory, Battery, Car, Zap, TrendingUp,
   GitBranch, ScrollText, Calendar,
 } from 'lucide-react'
 import { indicatorApi } from '@/lib/api'
+import { SourceNote } from '@/components/SourceNote'
 
 // ═══════════════════════════════════════════════════════════════
 // 类型
@@ -28,21 +29,7 @@ const TABS: { key: TabKey; label: string; icon: typeof Factory }[] = [
 // ═══════════════════════════════════════════════════════════════
 
 
-const midstreamData = [
-  { name: '正极材料', value: 35, color: '#3b82f6' },
-  { name: '负极材料', value: 25, color: '#10b981' },
-  { name: '隔膜', value: 20, color: '#f59e0b' },
-  { name: '电解液', value: 20, color: '#8b5cf6' },
-]
-const batteryData = [
-  { name: '宁德时代', capacity: 35.2, share: 37 },
-  { name: '比亚迪', capacity: 18.5, share: 19 },
-  { name: 'LG新能源', capacity: 12.1, share: 13 },
-  { name: '松下', capacity: 8.3, share: 9 },
-  { name: '中创新航', capacity: 6.8, share: 7 },
-  { name: '亿纬锂能', capacity: 5.2, share: 6 },
-  { name: '其他', capacity: 8.9, share: 9 },
-]
+// C004 充电桩数据已从 API 动态获取
 
 const vehicleData = [
   { month: '1月', nev: 72.9, total: 243 },
@@ -182,6 +169,14 @@ export default function IndustryChain() {
   const [chargingData, setChargingData] = useState<{type: string; count: number; unit: string}[]>([])
   const [chargingLoading, setChargingLoading] = useState(false)
 
+  // ── 中游 C006 API 数据（动力电池产能及利用率）──
+  const [batteryCapUtilData, setBatteryCapUtilData] = useState<{name: string; capacity: number; utilization: number}[]>([])
+  const [batteryCapUtilLoading, setBatteryCapUtilLoading] = useState(false)
+
+  // ── 中游 C007 API 数据（动力电池企业装车量排名）──
+  const [batteryRankData, setBatteryRankData] = useState<{rank: number; name: string; capacity: number; share: number}[]>([])
+  const [batteryRankLoading, setBatteryRankLoading] = useState(false)
+
   useEffect(() => {
     if (activeTab !== 'upstream') return
     setLithiumLoading(true)
@@ -301,6 +296,87 @@ export default function IndustryChain() {
         console.error('C004 API error:', err)
       })
       .finally(() => setChargingLoading(false))
+  }, [activeTab])
+
+  // C006 动力电池产能及利用率
+  useEffect(() => {
+    if (activeTab !== 'midstream') return
+    setBatteryCapUtilLoading(true)
+    indicatorApi.getPoints('battery_capacity_utilization', { limit: 120 })
+      .then(res => {
+        const items = res.data.items || []
+        // 找最新季度
+        const latestQuarter = items
+          .map((item: any) => item.period_date)
+          .filter(Boolean)
+          .sort()
+          .slice(-1)[0] || ''
+        // 按企业聚合最新季度的产能和利用率
+        const enterpriseMap: Record<string, { capacity?: number; utilization?: number }> = {}
+        items.forEach((item: any) => {
+          if (item.period_date !== latestQuarter) return
+          const ent = item.dimension_json?.enterprise
+          if (!ent) return
+          if (!enterpriseMap[ent]) enterpriseMap[ent] = {}
+          const metric = item.dimension_json?.metric
+          if (metric === '产能') enterpriseMap[ent].capacity = item.value
+          if (metric === '利用率') enterpriseMap[ent].utilization = item.value
+        })
+        const arr = Object.entries(enterpriseMap)
+          .map(([name, v]) => ({
+            name,
+            capacity: v.capacity ?? 0,
+            utilization: v.utilization ?? 0,
+          }))
+          .filter(v => v.capacity > 0)
+          .sort((a, b) => b.capacity - a.capacity)
+          .slice(0, 10)
+        setBatteryCapUtilData(arr)
+      })
+      .catch(err => {
+        console.error('C006 API error:', err)
+      })
+      .finally(() => setBatteryCapUtilLoading(false))
+  }, [activeTab])
+
+  // C007 动力电池企业装车量排名
+  useEffect(() => {
+    if (activeTab !== 'midstream') return
+    setBatteryRankLoading(true)
+    indicatorApi.getPoints('battery_install_rank', { limit: 200 })
+      .then(res => {
+        const items = res.data.items || []
+        // 筛选装车量数据，取最新月份
+        const installItems = items.filter((item: any) => item.dimension_json?.metric === '装车量')
+        // 找最新月份
+        const latestMonth = installItems
+          .map((item: any) => item.period_date?.slice(0, 7))
+          .filter(Boolean)
+          .sort()
+          .slice(-1)[0] || ''
+        // 取最新月份的数据，按装车量降序
+        const latestInstall = installItems
+          .filter((item: any) => item.period_date?.slice(0, 7) === latestMonth)
+          .map((item: any) => ({
+            name: item.dimension_json?.enterprise || '未知',
+            capacity: item.value ?? 0,
+          }))
+          .sort((a: any, b: any) => b.capacity - a.capacity)
+          .slice(0, 10)
+        // 计算份额并生成排名
+        const total = latestInstall.reduce((sum: number, item: any) => sum + item.capacity, 0)
+        const ranked = latestInstall.map((item: any, idx: number) => ({
+          rank: idx + 1,
+          name: item.name,
+          capacity: item.capacity,
+          share: total > 0 ? Math.round(item.capacity / total * 100) : 0,
+        }))
+        setBatteryRankData(ranked)
+      })
+      .catch(err => {
+        console.error('C007 API error:', err)
+      })
+      .finally(() => setBatteryRankLoading(false))
   }, [activeTab])
 
   return (
@@ -429,56 +505,113 @@ export default function IndustryChain() {
       {activeTab === 'midstream' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* ── 左图：C006 动力电池产能及利用率（API 真实数据）── */}
             <div className="ch-card-cut">
               <div className="ch-card-cut-inner p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="ch-title-bar" />
-                  <h3 className="text-lg font-semibold text-white">四大材料产能占比</h3>
+                  <h3 className="text-lg font-semibold text-white">动力电池产能及利用率（API实时）</h3>
+                  {batteryCapUtilLoading && <span className="text-xs text-[var(--cyan)]">加载中...</span>}
                 </div>
-                <ResponsiveContainer width="100%" height={260}>
-                  <PieChart>
-                    <Pie
-                      data={midstreamData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={90}
-                      paddingAngle={4}
-                      dataKey="value"
-                      nameKey="name"
-                      label={({ name, value }: any) => `${name}: ${value}%`}
-                    >
-                      {midstreamData.map((entry, i) => (
-                        <Cell key={i} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                {batteryCapUtilData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={batteryCapUtilData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                      <XAxis type="number" tick={{ fontSize: 12, fill: '#809daf' }} />
+                      <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 11, fill: '#809daf' }} />
+                      <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
+                      <Bar dataKey="capacity" name="产能(GWh)" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[260px] flex items-center justify-center text-[var(--muted-text)]">
+                    暂无数据
+                  </div>
+                )}
+                {/* 利用率表格 */}
+                {batteryCapUtilData.length > 0 && (
+                  <div className="mt-4 overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-[rgba(96,178,216,0.12)]">
+                          <th className="text-left py-2 px-2 font-medium text-[var(--muted-text)]">企业</th>
+                          <th className="text-right py-2 px-2 font-medium text-[var(--muted-text)]">产能(GWh)</th>
+                          <th className="text-right py-2 px-2 font-medium text-[var(--muted-text)]">利用率</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {batteryCapUtilData.map((row) => (
+                          <tr key={row.name} className="border-b border-[rgba(96,178,216,0.06)]">
+                            <td className="py-2 px-2 text-white">{row.name}</td>
+                            <td className="py-2 px-2 text-right text-white">{row.capacity}</td>
+                            <td className="py-2 px-2 text-right">
+                              <span className={`font-medium ${row.utilization >= 80 ? 'text-[var(--teal)]' : row.utilization >= 60 ? 'text-yellow-400' : 'text-[var(--danger)]'}`}>
+                                {row.utilization}%
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* ── 右图：C007 动力电池企业装车量 TOP 榜（API 真实数据）── */}
             <div className="ch-card-cut">
               <div className="ch-card-cut-inner p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="ch-title-bar" />
-                  <h3 className="text-lg font-semibold text-white">动力电池企业装机量 TOP 榜（GWh）</h3>
+                  <h3 className="text-lg font-semibold text-white">动力电池企业装车量 TOP 榜（GWh·API实时）</h3>
+                  {batteryRankLoading && <span className="text-xs text-[var(--cyan)]">加载中...</span>}
                 </div>
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={batteryData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
-                    <XAxis type="number" tick={{ fontSize: 12, fill: '#809daf' }} />
-                    <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 12, fill: '#809daf' }} />
-                    <Tooltip />
-                    <Bar dataKey="capacity" name="装机量(GWh)" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                {batteryRankData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={batteryRankData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                      <XAxis type="number" tick={{ fontSize: 12, fill: '#809daf' }} />
+                      <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 11, fill: '#809daf' }} />
+                      <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
+                      <Bar dataKey="capacity" name="装车量(GWh)" fill="#10b981" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[260px] flex items-center justify-center text-[var(--muted-text)]">
+                    暂无数据
+                  </div>
+                )}
+                {/* 份额表格 */}
+                {batteryRankData.length > 0 && (
+                  <div className="mt-4 overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-[rgba(96,178,216,0.12)]">
+                          <th className="text-left py-2 px-2 font-medium text-[var(--muted-text)]">排名</th>
+                          <th className="text-left py-2 px-2 font-medium text-[var(--muted-text)]">企业</th>
+                          <th className="text-right py-2 px-2 font-medium text-[var(--muted-text)]">装车量(GWh)</th>
+                          <th className="text-right py-2 px-2 font-medium text-[var(--muted-text)]">份额</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {batteryRankData.map((row) => (
+                          <tr key={row.rank} className="border-b border-[rgba(96,178,216,0.06)]">
+                            <td className="py-2 px-2 text-white font-medium">{row.rank}</td>
+                            <td className="py-2 px-2 text-white">{row.name}</td>
+                            <td className="py-2 px-2 text-right text-white">{row.capacity}</td>
+                            <td className="py-2 px-2 text-right text-[var(--cyan)]">{row.share}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           <SourceNote>
-            当前展示为模拟数据。正式数据将接入 高工锂电(GGII)、电池中国、起点锂电、赛迪研究院、SNE Research 等数据源。
+            左侧「动力电池产能及利用率」已接入 C006 采集器真实数据（高工GGII/SNE行业基准）。右侧「动力电池企业装车量TOP榜」已接入 C007 采集器真实数据（SNE/动力电池联盟行业基准）。
           </SourceNote>
         </div>
       )}
@@ -731,15 +864,3 @@ export default function IndustryChain() {
   )
 }
 
-// ── 数据来源说明小组件 ──
-function SourceNote({ children }: { children: string }) {
-  return (
-    <div className="ch-risk-bar rounded-lg p-4 flex items-start gap-3">
-      <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
-      <div>
-        <p className="text-sm font-medium text-amber-400">数据来源说明</p>
-        <p className="text-sm text-amber-300 mt-1">{children}</p>
-      </div>
-    </div>
-  )
-}
