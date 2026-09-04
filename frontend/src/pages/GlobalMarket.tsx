@@ -15,7 +15,7 @@ function useWorldMap() {
   const [loaded, setLoaded] = useState(false)
   useEffect(() => {
     if (echarts.getMap('world')) { setLoaded(true); return }
-    fetch('https://cdn.jsdelivr.net/npm/echarts@5.4.3/map/json/world.json')
+    fetch('/maps/world.json')
       .then(r => r.json())
       .then(geoJson => {
         echarts.registerMap('world', geoJson)
