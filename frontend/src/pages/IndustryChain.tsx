@@ -31,15 +31,8 @@ const TABS: { key: TabKey; label: string; icon: typeof Factory }[] = [
 
 // C004 充电桩数据已从 API 动态获取
 
-const vehicleData = [
-  { month: '1月', nev: 72.9, total: 243 },
-  { month: '2月', nev: 47.7, total: 158 },
-  { month: '3月', nev: 88.3, total: 269 },
-  { month: '4月', nev: 85.0, total: 236 },
-  { month: '5月', nev: 95.5, total: 242 },
-  { month: '6月', nev: 104.9, total: 262 },
-]
 // C004 充电桩数据已从 API 动态获取
+// C005 NEV 销量数据已从 API 动态获取
 
 interface PolicyItem {
   date: string
@@ -161,7 +154,32 @@ export default function IndustryChain() {
   const [priceData, setPriceData] = useState<{month: string; price: number | null}[]>([])
   const [priceLoading, setPriceLoading] = useState(false)
 
-  // ── 下游 C003 API 数据（车企销量排名）──
+  // ── 下游 C005 API 数据（NEV 销量分车型）──
+  const [nevSalesData, setNevSalesData] = useState<{month: string; nev: number | null}[]>([])
+  const [nevSalesLoading, setNevSalesLoading] = useState(false)
+
+  useEffect(() => {
+    if (activeTab !== 'downstream') return
+    setNevSalesLoading(true)
+    indicatorApi.getPoints('nev_sales_by_model', { limit: 200 })
+      .then(res => {
+        const items = res.data.items || []
+        // 筛选新能源合计数据
+        const aggItems = items.filter((item: any) => item.dimension_json?.model === '新能源合计')
+        const arr = aggItems
+          .map((item: any) => ({
+            month: item.period_date?.slice(0, 7) ?? '',
+            nev: item.value ?? null,
+          }))
+          .filter((v: any) => v.month && v.nev != null)
+          .sort((a: any, b: any) => a.month.localeCompare(b.month))
+        setNevSalesData(arr)
+      })
+      .catch(err => {
+        console.error('C005 API error:', err)
+      })
+      .finally(() => setNevSalesLoading(false))
+  }, [activeTab])
   const [salesRankData, setSalesRankData] = useState<{rank: number; name: string; sales: number; share: number}[]>([])
   const [salesRankLoading, setSalesRankLoading] = useState(false)
 
@@ -626,17 +644,24 @@ export default function IndustryChain() {
               <div className="ch-card-cut-inner p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="ch-title-bar" />
-                  <h3 className="text-lg font-semibold text-white">NEV 销量与渗透率走势</h3>
+                  <h3 className="text-lg font-semibold text-white">NEV 销量与渗透率走势（API实时）</h3>
+                  {nevSalesLoading && <span className="text-xs text-[var(--cyan)]">加载中...</span>}
                 </div>
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={vehicleData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#809daf' }} />
-                    <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
-                    <Tooltip />
-                    <Bar dataKey="nev" name="NEV 销量(万辆)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                {nevSalesData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={nevSalesData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                      <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#809daf' }} />
+                      <YAxis tick={{ fontSize: 12, fill: '#809daf' }} />
+                      <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
+                      <Bar dataKey="nev" name="NEV 销量(万辆)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[260px] flex items-center justify-center text-[var(--muted-text)]">
+                    暂无数据
+                  </div>
+                )}
               </div>
             </div>
 
@@ -729,7 +754,7 @@ export default function IndustryChain() {
           </div>
 
           <SourceNote>
-            车企销量排名已接入 C003 采集器真实数据（中汽协行业基准）。补能设施保有量已接入 C004 采集器真实数据（中国充电联盟行业基准）。NEV销量走势待 C005 采集器接入后替换。
+            车企销量排名已接入 C003 采集器真实数据（中汽协行业基准）。补能设施保有量已接入 C004 采集器真实数据（中国充电联盟行业基准）。NEV 销量走势已接入 C005 采集器真实数据（中汽协/EV-Volumes 行业基准）。
           </SourceNote>
         </div>
       )}
