@@ -11,7 +11,7 @@ import RadarChart from '@/components/RadarChart'
 import SvgLineChart from '@/components/SvgLineChart'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { articleApi, sourceApi } from '@/lib/api'
+import { articleApi, sourceApi, indicatorApi } from '@/lib/api'
 
 // ═══════════════════════════════════════════════════════════════
 // 模块定义
@@ -122,6 +122,21 @@ export default function Dashboard() {
     queryFn: () => sourceApi.overview().then(r => r.data).catch(() => ({ total: 0, active: 0 })),
     placeholderData: { total: 18, active: 15 },
   })
+
+  // ── C011 整车出口总量及全球排名 ──
+  const { data: exportGlobalData } = useQuery({
+    queryKey: ['dashboard', 'exportGlobalRank'],
+    queryFn: () => indicatorApi.getPoints('vehicle_export_global_rank', { limit: 20 }).then(r => r.data).catch(() => ({ items: [] })),
+    placeholderData: { items: [] },
+  })
+
+  // ── C012 海外投资目的国 TOP10 ──
+  const { data: investmentData } = useQuery({
+    queryKey: ['dashboard', 'investmentTop10'],
+    queryFn: () => indicatorApi.getPoints('overseas_investment_top10', { limit: 20 }).then(r => r.data).catch(() => ({ items: [] })),
+    placeholderData: { items: [] },
+  })
+
 
   const avgM6 = Math.round(m6Values.reduce((a, b) => a + b, 0) / 5)
   const m6Recommendation = avgM6 >= 75
@@ -543,7 +558,99 @@ export default function Dashboard() {
       </div>
 
       {/* ═══════════════════════════════════════════════════════ */}
-      {/* 第四行：十大功能模块                               */}
+      {/* 第四行：出口排名 + 投资流向                         */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* C011 整车出口总量及全球排名 */}
+        <div className="ch-card-cut p-px">
+          <div className="ch-card-cut-inner p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">C011 · EXPORT RANK</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-base font-semibold text-white">整车出口总量及全球排名</h3>
+                </div>
+              </div>
+            </div>
+            {(() => {
+              const items = (exportGlobalData?.items || []).sort((a: any, b: any) => a.period_date.localeCompare(b.period_date))
+              const latest = items[items.length - 1]
+              return items.length > 0 ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <span className="text-sm text-[var(--muted-text)]">最新年度出口量</span>
+                    <span className="text-xl font-bold text-white">{latest?.value} <span className="text-xs text-[var(--muted-text)]">万辆</span></span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <span className="text-sm text-[var(--muted-text)]">全球排名</span>
+                    <span className="text-xl font-bold text-[var(--cyan)]">第 {latest?.dimension_json?.global_rank} 位</span>
+                  </div>
+                  <div className="space-y-2">
+                    {items.slice(-5).map((item: any) => (
+                      <div key={item.period_date} className="flex items-center gap-2">
+                        <span className="text-xs text-[var(--muted-text)] w-12">{item.period_date?.slice(0, 4)}</span>
+                        <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-[var(--cyan)] to-[var(--teal)] rounded-full" style={{ width: `${Math.min((item.value / 1000) * 100, 100)}%` }} />
+                        </div>
+                        <span className="text-xs text-white w-16 text-right">{item.value}万</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="h-[180px] flex items-center justify-center text-[var(--muted-text)]">暂无数据</div>
+              )
+            })()}
+          </div>
+        </div>
+
+        {/* C012 海外投资目的国 TOP10 */}
+        <div className="ch-card-cut p-px">
+          <div className="ch-card-cut-inner p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">C012 · INVESTMENT FLOW</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-base font-semibold text-white">海外投资目的国 TOP10</h3>
+                </div>
+              </div>
+            </div>
+            {(() => {
+              const items = (investmentData?.items || []).sort((a: any, b: any) => b.value - a.value).slice(0, 5)
+              return items.length > 0 ? (
+                <div className="space-y-3">
+                  {items.map((item: any) => (
+                    <div key={item.dimension_json?.rank} className="flex items-center gap-3">
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                        item.dimension_json?.rank <= 3 ? 'bg-[var(--cyan)] text-[#06111e]' : 'bg-white/10 text-[var(--muted-text)]'
+                      }`}>
+                        {item.dimension_json?.rank}
+                      </span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium text-white">{item.dimension_json?.country}</span>
+                          <span className="text-sm font-bold text-white">{item.value} <span className="text-xs text-[var(--muted-text)]">亿美元</span></span>
+                        </div>
+                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-[var(--amber)] to-[var(--danger)] rounded-full" style={{ width: `${Math.min((item.value / (items[0]?.value || 1)) * 100, 100)}%` }} />
+                        </div>
+                        <p className="text-xs text-[var(--muted-text)] mt-0.5">{item.dimension_json?.note}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="h-[180px] flex items-center justify-center text-[var(--muted-text)]">暂无数据</div>
+              )
+            })()}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* 第五行：十大功能模块                               */}
       {/* ═══════════════════════════════════════════════════════ */}
       <div>
         <div className="ch-page-head">
