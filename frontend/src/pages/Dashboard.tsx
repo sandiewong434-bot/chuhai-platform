@@ -126,14 +126,14 @@ export default function Dashboard() {
   // ── C011 整车出口总量及全球排名 ──
   const { data: exportGlobalData } = useQuery({
     queryKey: ['dashboard', 'exportGlobalRank'],
-    queryFn: () => indicatorApi.getPoints('vehicle_export_global_rank', { limit: 20 }).then(r => r.data).catch(() => ({ items: [] })),
+    queryFn: () => indicatorApi.getPoints('vehicle_export_total_rank', { limit: 20 }).then(r => r.data).catch(() => ({ items: [] })),
     placeholderData: { items: [] },
   })
 
   // ── C012 海外投资目的国 TOP10 ──
   const { data: investmentData } = useQuery({
     queryKey: ['dashboard', 'investmentTop10'],
-    queryFn: () => indicatorApi.getPoints('overseas_investment_top10', { limit: 20 }).then(r => r.data).catch(() => ({ items: [] })),
+    queryFn: () => indicatorApi.getPoints('invest_destination_top10', { limit: 20 }).then(r => r.data).catch(() => ({ items: [] })),
     placeholderData: { items: [] },
   })
 
