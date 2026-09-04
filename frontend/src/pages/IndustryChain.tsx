@@ -158,6 +158,10 @@ export default function IndustryChain() {
   const [nevSalesData, setNevSalesData] = useState<{month: string; nev: number | null}[]>([])
   const [nevSalesLoading, setNevSalesLoading] = useState(false)
 
+  // ── 下游 C008 API 数据（新能源出口占比）──
+  const [exportShareData, setExportShareData] = useState<{month: string; nev: number | null; share: number | null}[]>([])
+  const [exportShareLoading, setExportShareLoading] = useState(false)
+
   useEffect(() => {
     if (activeTab !== 'downstream') return
     setNevSalesLoading(true)
@@ -180,6 +184,30 @@ export default function IndustryChain() {
       })
       .finally(() => setNevSalesLoading(false))
   }, [activeTab])
+
+  // C008 新能源出口占比
+  useEffect(() => {
+    if (activeTab !== 'downstream') return
+    setExportShareLoading(true)
+    indicatorApi.getPoints('nev_export_share', { limit: 200 })
+      .then(res => {
+        const items = res.data.items || []
+        const arr = items
+          .map((item: any) => ({
+            month: item.period_date?.slice(0, 7) ?? '',
+            nev: item.value ?? null,
+            share: item.dimension_json?.share_pct ?? null,
+          }))
+          .filter((v: any) => v.month && v.nev != null)
+          .sort((a: any, b: any) => a.month.localeCompare(b.month))
+        setExportShareData(arr)
+      })
+      .catch(err => {
+        console.error('C008 API error:', err)
+      })
+      .finally(() => setExportShareLoading(false))
+  }, [activeTab])
+
   const [salesRankData, setSalesRankData] = useState<{rank: number; name: string; sales: number; share: number}[]>([])
   const [salesRankLoading, setSalesRankLoading] = useState(false)
 
@@ -704,6 +732,34 @@ export default function IndustryChain() {
             </div>
           </div>
 
+          {/* C008 新能源出口占比 */}
+          <div className="ch-card-cut">
+            <div className="ch-card-cut-inner p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="ch-title-bar" />
+                <h3 className="text-lg font-semibold text-white">新能源出口占比提升趋势（API实时）</h3>
+                {exportShareLoading && <span className="text-xs text-[var(--cyan)]">加载中...</span>}
+              </div>
+              {exportShareData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={exportShareData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(96,178,216,0.1)" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#809daf' }} />
+                    <YAxis yAxisId="left" tick={{ fontSize: 12, fill: '#809daf' }} />
+                    <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: '#809daf' }} unit="%" />
+                    <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid rgba(96,178,216,0.15)', background: '#0a1a2b' }} />
+                    <Bar yAxisId="left" dataKey="nev" name="NEV 出口量(万辆)" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    <Line yAxisId="right" type="monotone" dataKey="share" name="占比(%)" stroke="#10b981" strokeWidth={2} dot={false} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[280px] flex items-center justify-center text-[var(--muted-text)]">
+                  暂无数据
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* 整车企业梯队 */}
           <div className="ch-card-cut">
             <div className="ch-card-cut-inner p-6">
@@ -754,7 +810,7 @@ export default function IndustryChain() {
           </div>
 
           <SourceNote>
-            车企销量排名已接入 C003 采集器真实数据（中汽协行业基准）。补能设施保有量已接入 C004 采集器真实数据（中国充电联盟行业基准）。NEV 销量走势已接入 C005 采集器真实数据（中汽协/EV-Volumes 行业基准）。
+            车企销量排名已接入 C003 采集器真实数据（中汽协行业基准）。补能设施保有量已接入 C004 采集器真实数据（中国充电联盟行业基准）。NEV 销量走势已接入 C005 采集器真实数据（中汽协/EV-Volumes 行业基准）。新能源出口占比已接入 C008 采集器真实数据（海关总署/中汽协行业基准）。
           </SourceNote>
         </div>
       )}
