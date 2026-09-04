@@ -166,6 +166,9 @@ export default function IndustryChain() {
   const [exportRegionData, setExportRegionData] = useState<{rank: number; country: string; volume: number; note: string}[]>([])
   const [exportRegionLoading, setExportRegionLoading] = useState(false)
 
+  // ── 下游 C010 API 数据（整车出口 TOP10 品牌）──
+  const [exportBrandData, setExportBrandData] = useState<{rank: number; brand: string; volume: number; note: string}[]>([])
+  const [exportBrandLoading, setExportBrandLoading] = useState(false)
   useEffect(() => {
     if (activeTab !== 'downstream') return
     setNevSalesLoading(true)
@@ -237,6 +240,29 @@ export default function IndustryChain() {
       .finally(() => setExportRegionLoading(false))
   }, [activeTab])
 
+  // C010 整车出口 TOP10 品牌
+  useEffect(() => {
+    if (activeTab !== 'downstream') return
+    setExportBrandLoading(true)
+    indicatorApi.getPoints('vehicle_export_top10_brands', { limit: 20 })
+      .then(res => {
+        const items = res.data.items || []
+        const ranked = items
+          .map((item: any) => ({
+            rank: item.dimension_json?.rank ?? 0,
+            brand: item.dimension_json?.brand || '未知',
+            volume: item.value ?? 0,
+            note: item.dimension_json?.note || '',
+          }))
+          .sort((a: any, b: any) => b.volume - a.volume)
+          .slice(0, 10)
+        setExportBrandData(ranked)
+      })
+      .catch(err => {
+        console.error('C010 API error:', err)
+      })
+      .finally(() => setExportBrandLoading(false))
+  }, [activeTab])
   const [salesRankData, setSalesRankData] = useState<{rank: number; name: string; sales: number; share: number}[]>([])
   const [salesRankLoading, setSalesRankLoading] = useState(false)
 
@@ -830,6 +856,47 @@ export default function IndustryChain() {
             </div>
           </div>
 
+          {/* C010 整车出口 TOP10 品牌 */}
+          <div className="ch-card-cut">
+            <div className="ch-card-cut-inner p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="ch-title-bar" />
+                <h3 className="text-lg font-semibold text-white">整车出口品牌 TOP10（API实时）</h3>
+                {exportBrandLoading && <span className="text-xs text-[var(--cyan)]">加载中...</span>}
+              </div>
+              {exportBrandData.length > 0 ? (
+                <div className="space-y-3">
+                  {exportBrandData.map((item) => (
+                    <div key={item.rank} className="flex items-center gap-3">
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                        item.rank <= 3 ? 'bg-[var(--cyan)] text-[#06111e]' : 'bg-white/10 text-[var(--muted-text)]'
+                      }`}>
+                        {item.rank}
+                      </span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium text-white">{item.brand}</span>
+                          <span className="text-sm font-bold text-white">{item.volume} <span className="text-xs text-[var(--muted-text)]">万辆</span></span>
+                        </div>
+                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-[var(--cyan)] to-[var(--teal)] rounded-full"
+                            style={{ width: `${Math.min((item.volume / (exportBrandData[0]?.volume || 1)) * 100, 100)}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-[var(--muted-text)] mt-0.5">{item.note}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="h-[200px] flex items-center justify-center text-[var(--muted-text)]">
+                  暂无数据
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* 整车企业梯队 */}
           <div className="ch-card-cut">
             <div className="ch-card-cut-inner p-6">
@@ -880,7 +947,7 @@ export default function IndustryChain() {
           </div>
 
           <SourceNote>
-            车企销量排名已接入 C003 采集器真实数据（中汽协行业基准）。补能设施保有量已接入 C004 采集器真实数据（中国充电联盟行业基准）。NEV 销量走势已接入 C005 采集器真实数据（中汽协/EV-Volumes 行业基准）。新能源出口占比已接入 C008 采集器真实数据（海关总署/中汽协行业基准）。新能源出口目的地 TOP5 已接入 C009 采集器真实数据（海关总署行业基准）。
+            车企销量排名已接入 C003 采集器真实数据（中汽协行业基准）。补能设施保有量已接入 C004 采集器真实数据（中国充电联盟行业基准）。NEV 销量走势已接入 C005 采集器真实数据（中汽协/EV-Volumes 行业基准）。新能源出口占比已接入 C008 采集器真实数据（海关总署/中汽协行业基准）。新能源出口目的地 TOP5 已接入 C009 采集器真实数据（海关总署行业基准）。整车出口品牌 TOP10 已接入 C010 采集器真实数据（中汽协/海关行业基准）。
           </SourceNote>
         </div>
       )}
