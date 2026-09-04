@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import ReactECharts from 'echarts-for-react'
+import { SafeMapChart } from '@/components/SafeECharts'
 import * as echarts from 'echarts'
 import {
   RadarChart,
@@ -495,7 +495,9 @@ export default function CountryScore() {
             </div>
             <div className="relative" style={{ height: 520 }}>
               {mapReady ? (
-                <ReactECharts
+                <SafeMapChart
+                  mapName="world"
+                  mapReady={mapReady}
                   option={mapOption}
                   style={{ height: '100%', width: '100%' }}
                   onEvents={{

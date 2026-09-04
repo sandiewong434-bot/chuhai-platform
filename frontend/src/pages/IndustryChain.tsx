@@ -3,7 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell,
 } from 'recharts'
-import ReactECharts from 'echarts-for-react'
+import { SafeECharts } from '@/components/SafeECharts'
 import {
   Factory, Battery, Car, Zap, TrendingUp,
   GitBranch, ScrollText, Calendar,
@@ -969,7 +969,7 @@ export default function IndustryChain() {
                   <span>单位：万吨 / GWh / 万辆（相对比例示意）</span>
                 </div>
               </div>
-              <ReactECharts
+              <SafeECharts
                 option={sankeyOption}
                 style={{ height: 600, width: '100%' }}
                 opts={{ renderer: 'canvas' }}

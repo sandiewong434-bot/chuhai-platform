@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import ReactECharts from 'echarts-for-react'
+import { SafeECharts, SafeMapChart } from '@/components/SafeECharts'
 import {
   Globe, TrendingUp, BarChart3, PieChart, MapPin,
   ChevronRight, ArrowUpRight, ArrowDownRight,
@@ -352,7 +352,7 @@ export default function GlobalMarket() {
                 <span className="text-xs text-[var(--muted-text)] ml-auto">2025年数据 · 深色=低 / 亮青=高</span>
               </div>
               {mapLoaded ? (
-                <ReactECharts option={mapOption} style={{ height: 520 }} />
+                <SafeMapChart mapName="world" mapReady={mapLoaded} option={mapOption} style={{ height: 520 }} />
               ) : (
                 <div className="h-[520px] flex items-center justify-center text-[var(--muted-text)]">
                   地图加载中...
@@ -393,7 +393,7 @@ export default function GlobalMarket() {
                 <div className="ch-title-bar" />
                 <h3 className="text-sm font-bold text-white">各国 NEV 渗透率排名</h3>
               </div>
-              <ReactECharts option={barOption} style={{ height: 480 }} />
+              <SafeECharts option={barOption} style={{ height: 480 }} />
             </div>
           </div>
 
@@ -404,7 +404,7 @@ export default function GlobalMarket() {
                   <div className="ch-title-bar" />
                   <h3 className="text-sm font-bold text-white">区域分布</h3>
                 </div>
-                <ReactECharts option={{
+                <SafeECharts option={{
                   backgroundColor: 'transparent',
                   series: [{
                     type: 'pie', radius: ['45%', '70%'],
@@ -552,7 +552,7 @@ export default function GlobalMarket() {
                   <div className="ch-title-bar" />
                   <h3 className="text-sm font-bold text-white">市场份额分布</h3>
                 </div>
-                <ReactECharts option={{
+                <SafeECharts option={{
                   backgroundColor: 'transparent',
                   series: [{
                     type: 'pie', radius: ['35%', '60%'],
@@ -603,7 +603,7 @@ export default function GlobalMarket() {
                 <div className="ch-title-bar" />
                 <h3 className="text-sm font-bold text-white">2025 → 2030E 区域增长空间对比</h3>
               </div>
-              <ReactECharts option={growthOption} style={{ height: 380 }} />
+              <SafeECharts option={growthOption} style={{ height: 380 }} />
             </div>
           </div>
 
