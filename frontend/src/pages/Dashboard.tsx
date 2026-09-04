@@ -184,6 +184,10 @@ export default function Dashboard() {
 
   return (
     <div className="relative space-y-8 max-w-[1400px] mx-auto ch-bg-glow ch-grid-fine">
+      {/* 扫描线装饰 */}
+      <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden" aria-hidden="true">
+        <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,194,255,0.12)] to-transparent ch-scan-line" />
+      </div>
       {/* ── 页面标题 ── */}
       <div className="ch-page-head">
         <span className="eyebrow">GLOBAL DECISION COMMAND</span>
