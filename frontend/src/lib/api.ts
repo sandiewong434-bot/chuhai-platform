@@ -40,6 +40,8 @@ export const searchApi = {
 export const ontologyApi = {
   objects: (params?: Record<string, unknown>) =>
     api.get('/ontology/objects', { params }),
+  object: (obj_id: string) =>
+    api.get(`/ontology/objects/${encodeURIComponent(obj_id)}`),
   relations: (params?: Record<string, unknown>) =>
     api.get('/ontology/relations', { params }),
   graph: (name: string, depth = 1) =>

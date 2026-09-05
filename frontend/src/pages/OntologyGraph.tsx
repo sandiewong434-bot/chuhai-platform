@@ -12,6 +12,7 @@ interface ObjectEntity {
   obj_type: string
   name: string
   source_libraries: string | null
+  attributes_json?: Record<string, unknown>
 }
 
 interface GraphData {
@@ -32,12 +33,6 @@ const MOCK_OBJECTS: ObjectEntity[] = [
   { obj_id: 'e1', obj_type: 'enterprise', name: '比亚迪', source_libraries: 'L1,L5' },
   { obj_id: 'e2', obj_type: 'enterprise', name: '宁德时代', source_libraries: 'L1,L3' },
   { obj_id: 'e3', obj_type: 'enterprise', name: '蔚来', source_libraries: 'L1,L5' },
-  { obj_id: 'e4', obj_type: 'enterprise', name: '小鹏', source_libraries: 'L1' },
-  { obj_id: 'e5', obj_type: 'enterprise', name: '上汽MG', source_libraries: 'L1,L5' },
-  { obj_id: 'c1', obj_type: 'country_region', name: '泰国', source_libraries: 'L5,L8' },
-  { obj_id: 'c2', obj_type: 'country_region', name: '匈牙利', source_libraries: 'L5' },
-  { obj_id: 'c3', obj_type: 'country_region', name: '巴西', source_libraries: 'L5' },
-  { obj_id: 'p1', obj_type: 'product_item', name: '海豹', source_libraries: 'L1' },
 ]
 
 const MOCK_GRAPHS: Record<string, GraphData> = {
@@ -45,7 +40,8 @@ const MOCK_GRAPHS: Record<string, GraphData> = {
     center: '比亚迪',
     nodes: [
       { id: '比亚迪', type: 'enterprise' },
-      { id: '泰国', type: 'country_region' }, { id: '巴西', type: 'country_region' },
+      { id: '泰国', type: 'country_region' },
+      { id: '巴西', type: 'country_region' },
       { id: '匈牙利', type: 'country_region' },
     ],
     edges: [
@@ -58,11 +54,41 @@ const MOCK_GRAPHS: Record<string, GraphData> = {
 
 const REL_TYPES = ['全部', '海外投资', '海外经营', '贸易壁垒']
 
+// 从 attributes_json 中提取可展示的字段
+function getAttrDisplay(obj: ObjectEntity | undefined): { label: string; value: string }[] {
+  if (!obj?.attributes_json) return []
+  const attrs = obj.attributes_json
+  const result: { label: string; value: string }[] = []
+  const fieldMap: Record<string, string> = {
+    '企业类型': '企业类型',
+    '产业': '产业',
+    '环节': '环节',
+    '城市': '城市',
+    '省份': '省份',
+    '上市代码': '上市代码',
+    '营收亿元': '营收(亿元)',
+    '市值亿元': '市值(亿元)',
+    '官网': '官网',
+  }
+  for (const [key, label] of Object.entries(fieldMap)) {
+    const val = attrs[key]
+    if (val !== undefined && val !== null) {
+      if (Array.isArray(val)) {
+        result.push({ label, value: val.join(', ') })
+      } else {
+        result.push({ label, value: String(val) })
+      }
+    }
+  }
+  return result
+}
+
 export default function OntologyGraph() {
   const [q, setQ] = useState('')
   const [selectedObj, setSelectedObj] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [relTypeFilter, setRelTypeFilter] = useState<string>('')
+  const [showDetail, setShowDetail] = useState(false)
 
   const { data: objectsData } = useQuery<{ items?: ObjectEntity[] }>({
     queryKey: ['objects', q],
@@ -90,6 +116,24 @@ export default function OntologyGraph() {
     enabled: !!selectedObj,
   })
 
+  // 查询选中对象的详情
+  const { data: objDetail } = useQuery<ObjectEntity>({
+    queryKey: ['objectDetail', selectedObj],
+    queryFn: async () => {
+      if (!selectedObj) return null as unknown as ObjectEntity
+      try {
+        const listRes = await ontologyApi.objects({ q: selectedObj, size: 1 })
+        const items = listRes.data.items || []
+        if (items.length === 0) return null as unknown as ObjectEntity
+        const detailRes = await ontologyApi.object(items[0].obj_id)
+        return detailRes.data
+      } catch {
+        return null as unknown as ObjectEntity
+      }
+    },
+    enabled: !!selectedObj,
+  })
+
   const objects = objectsData?.items || MOCK_OBJECTS
 
   const filteredObjects = typeFilter
@@ -108,6 +152,9 @@ export default function OntologyGraph() {
     acc[obj.obj_type] = (acc[obj.obj_type] || 0) + 1
     return acc
   }, {} as Record<string, number>)
+
+  const selectedObjData = objects.find((o) => o.name === selectedObj)
+  const attrDisplay = getAttrDisplay(objDetail || selectedObjData)
 
   return (
     <div className="space-y-6">
@@ -170,7 +217,7 @@ export default function OntologyGraph() {
                 searchedObjects.map((obj) => (
                   <button
                     key={obj.obj_id}
-                    onClick={() => setSelectedObj(obj.name)}
+                    onClick={() => { setSelectedObj(obj.name); setShowDetail(true) }}
                     className={`w-full text-left px-4 py-2.5 border-b border-[rgba(96,178,216,0.08)] hover:bg-white/5 transition-colors ${
                       selectedObj === obj.name ? 'bg-[rgba(0,194,255,0.08)]' : ''
                     }`}
@@ -191,110 +238,142 @@ export default function OntologyGraph() {
           </div>
         </div>
 
-        {/* 关系图谱 */}
-        <div className="lg:col-span-2 ch-card-cut">
-          <div className="ch-card-cut-inner p-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="ch-title-bar" />
-                <Network className="w-5 h-5 text-[var(--muted-text)]" />
-                <h3 className="font-medium text-white">
-                  {selectedObj ? `${selectedObj} 的关系网络` : '请选择对象查看关系图谱'}
-                </h3>
-              </div>
-              {graph && graph.nodes.length > 0 && (
-                <div className="flex gap-3">
-                  {Array.from(new Set(graph.nodes.map((n) => n.type))).map((t) => {
-                    const cfg = TYPE_CONFIG[t]
-                    if (!cfg) return null
-                    return (
-                      <div key={t} className="flex items-center gap-1">
-                        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.color }} />
-                        <span className="text-xs text-[var(--muted-text)]">{cfg.label}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            {graph && graph.nodes.length > 0 ? (
-              <div className="space-y-4">
-                {/* 力导向图 */}
-                <div className="ch-card-cut">
-                  <div className="ch-card-cut-inner overflow-hidden bg-white/5">
-                    <ForceGraph
-                      nodes={graph.nodes}
-                      edges={filteredEdges}
-                      width={700}
-                      height={350}
-                      centerNode={graph.center}
-                      onNodeClick={(nodeId) => setSelectedObj(nodeId)}
-                    />
+        {/* 关系图谱 + 详情 */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* 对象详情面板 */}
+          {showDetail && selectedObj && attrDisplay.length > 0 && (
+            <div className="ch-card-cut">
+              <div className="ch-card-cut-inner p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="ch-title-bar" />
+                    <h3 className="font-medium text-white">{selectedObj} 详情</h3>
+                    {selectedObjData && <TypeBadge type={selectedObjData.obj_type} />}
                   </div>
+                  <button
+                    onClick={() => setShowDetail(false)}
+                    className="text-xs text-[var(--muted-text)] hover:text-white"
+                  >
+                    收起
+                  </button>
                 </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                  {attrDisplay.map((attr) => (
+                    <div key={attr.label} className="bg-white/5 rounded-lg p-2.5">
+                      <p className="text-xs text-[var(--muted-text)]">{attr.label}</p>
+                      <p className="text-sm font-medium text-white mt-0.5 truncate">{attr.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
-                {/* 关系列表明细 */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium text-[var(--muted-text)] flex items-center gap-2">
-                      <div className="ch-title-bar" />
-                      <Link2 className="w-3.5 h-3.5" />
-                      关系明细 ({filteredEdges.length}条)
-                    </h4>
-                    {/* 关系类型筛选 */}
-                    <div className="flex gap-1.5">
-                      {REL_TYPES.map((rt) => (
-                        <button
-                          key={rt}
-                          onClick={() => setRelTypeFilter(rt === '全部' ? '' : rt)}
-                          className={`px-2 py-0.5 rounded text-xs transition-colors ${
-                            (rt === '全部' && !relTypeFilter) || relTypeFilter === rt
-                              ? 'bg-[rgba(0,194,255,0.15)] text-[var(--cyan)] border border-[rgba(0,194,255,0.3)]'
-                              : 'bg-white/5 text-[var(--muted-text)] hover:bg-white/10'
-                          }`}
+          {/* 关系图谱 */}
+          <div className="ch-card-cut">
+            <div className="ch-card-cut-inner p-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="ch-title-bar" />
+                  <Network className="w-5 h-5 text-[var(--muted-text)]" />
+                  <h3 className="font-medium text-white">
+                    {selectedObj ? `${selectedObj} 的关系网络` : '请选择对象查看关系图谱'}
+                  </h3>
+                </div>
+                {graph && graph.nodes.length > 0 && (
+                  <div className="flex gap-3">
+                    {Array.from(new Set(graph.nodes.map((n) => n.type))).map((t) => {
+                      const cfg = TYPE_CONFIG[t]
+                      if (!cfg) return null
+                      return (
+                        <div key={t} className="flex items-center gap-1">
+                          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.color }} />
+                          <span className="text-xs text-[var(--muted-text)]">{cfg.label}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {graph && graph.nodes.length > 0 ? (
+                <div className="space-y-4">
+                  {/* 力导向图 */}
+                  <div className="ch-card-cut">
+                    <div className="ch-card-cut-inner overflow-hidden bg-white/5">
+                      <ForceGraph
+                        nodes={graph.nodes}
+                        edges={filteredEdges}
+                        width={700}
+                        height={350}
+                        centerNode={graph.center}
+                        onNodeClick={(nodeId) => setSelectedObj(nodeId)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* 关系列表明细 */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium text-[var(--muted-text)] flex items-center gap-2">
+                        <div className="ch-title-bar" />
+                        <Link2 className="w-3.5 h-3.5" />
+                        关系明细 ({filteredEdges.length}条)
+                      </h4>
+                      {/* 关系类型筛选 */}
+                      <div className="flex gap-1.5">
+                        {REL_TYPES.map((rt) => (
+                          <button
+                            key={rt}
+                            onClick={() => setRelTypeFilter(rt === '全部' ? '' : rt)}
+                            className={`px-2 py-0.5 rounded text-xs transition-colors ${
+                              (rt === '全部' && !relTypeFilter) || relTypeFilter === rt
+                                ? 'bg-[rgba(0,194,255,0.15)] text-[var(--cyan)] border border-[rgba(0,194,255,0.3)]'
+                                : 'bg-white/5 text-[var(--muted-text)] hover:bg-white/10'
+                            }`}
+                          >
+                            {rt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-2 max-h-48 overflow-auto">
+                      {filteredEdges.map((edge, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center gap-2 text-sm px-3 py-2 bg-white/5 rounded hover:bg-white/10 transition-colors"
                         >
-                          {rt}
-                        </button>
+                          <span className="font-medium text-white">{edge.source}</span>
+                          <span className="text-[var(--muted-text)]">→</span>
+                          <span className="px-2 py-0.5 bg-[rgba(0,194,255,0.08)] text-[var(--cyan)] rounded text-xs border border-[rgba(96,178,216,0.12)]">
+                            {edge.type}
+                          </span>
+                          <span className="text-[var(--muted-text)]">→</span>
+                          <span className="font-medium text-white">{edge.target}</span>
+                          {edge.confidence && (
+                            <span className="ml-auto text-xs text-[var(--muted-text)]">
+                              置信度: {edge.confidence}
+                            </span>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
-                  <div className="space-y-2 max-h-48 overflow-auto">
-                    {filteredEdges.map((edge, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-2 text-sm px-3 py-2 bg-white/5 rounded hover:bg-white/10 transition-colors"
-                      >
-                        <span className="font-medium text-white">{edge.source}</span>
-                        <span className="text-[var(--muted-text)]">→</span>
-                        <span className="px-2 py-0.5 bg-[rgba(0,194,255,0.08)] text-[var(--cyan)] rounded text-xs border border-[rgba(96,178,216,0.12)]">
-                          {edge.type}
-                        </span>
-                        <span className="text-[var(--muted-text)]">→</span>
-                        <span className="font-medium text-white">{edge.target}</span>
-                        {edge.confidence && (
-                          <span className="ml-auto text-xs text-[var(--muted-text)]">
-                            置信度: {edge.confidence}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
                 </div>
-              </div>
-            ) : selectedObj ? (
-              <div className="text-center py-12 text-[var(--muted-text)]">
-                <Database className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)]" />
-                <p>暂无关系数据</p>
-                <p className="text-xs mt-1">该对象暂未提取到关系</p>
-              </div>
-            ) : (
-              <div className="text-center py-12 text-[var(--muted-text)]">
-                <Users className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)]" />
-                <p>从左侧列表选择一个对象以查看关系图谱</p>
-                <p className="text-xs mt-1">推荐：比亚迪、宁德时代、蔚来</p>
-              </div>
-            )}
+              ) : selectedObj ? (
+                <div className="text-center py-12 text-[var(--muted-text)]">
+                  <Database className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)]" />
+                  <p>暂无关系数据</p>
+                  <p className="text-xs mt-1">该对象暂未提取到关系</p>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-[var(--muted-text)]">
+                  <Users className="w-10 h-10 mx-auto mb-3 text-[var(--muted-text)]" />
+                  <p>从左侧列表选择一个对象以查看关系图谱</p>
+                  <p className="text-xs mt-1">推荐：比亚迪、宁德时代、蔚来</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
