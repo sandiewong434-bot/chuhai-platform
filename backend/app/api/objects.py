@@ -146,6 +146,10 @@ def get_object_graph(
         src_name = obj_map.get(r.from_obj, {}).get("name", r.from_obj)
         tgt_name = obj_map.get(r.to_obj, {}).get("name", r.to_obj)
 
+        # 过滤掉孤儿节点（名称以 OBJ- 开头的说明映射失败）
+        if src_name.startswith("OBJ-") or tgt_name.startswith("OBJ-"):
+            continue
+
         nodes.add(src_name)
         nodes.add(tgt_name)
 
