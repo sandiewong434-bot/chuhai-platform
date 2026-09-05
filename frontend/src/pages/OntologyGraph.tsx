@@ -20,55 +20,55 @@ interface GraphData {
   edges: { source: string; target: string; type: string; confidence: string | null }[]
 }
 
-const TYPE_CONFIG: Record<string, { color: string; bg: string; icon: typeof Factory }> = {
-  '企业': { color: '#00c2ff', bg: 'bg-[rgba(0,194,255,0.08)] text-[var(--cyan)]', icon: Factory },
-  '目的国': { color: '#3ce6b4', bg: 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)]', icon: Globe },
-  '产品': { color: '#a855f7', bg: 'bg-purple-500/10 text-purple-400', icon: Box },
-  '产业链环节': { color: '#facc15', bg: 'bg-yellow-500/10 text-yellow-400', icon: Link2 },
-  '港口/物流': { color: '#f472b6', bg: 'bg-[rgba(255,77,109,0.08)] text-[var(--danger)]', icon: TrendingUp },
+const TYPE_CONFIG: Record<string, { color: string; bg: string; icon: typeof Factory; label: string }> = {
+  enterprise:    { color: '#00c2ff', bg: 'bg-[rgba(0,194,255,0.08)] text-[var(--cyan)]', icon: Factory, label: '企业' },
+  country_region:{ color: '#3ce6b4', bg: 'bg-[rgba(60,230,180,0.08)] text-[var(--teal)]', icon: Globe, label: '目的国' },
+  product_item:  { color: '#a855f7', bg: 'bg-purple-500/10 text-purple-400', icon: Box, label: '产品' },
+  industrial_chain_segment: { color: '#facc15', bg: 'bg-yellow-500/10 text-yellow-400', icon: Link2, label: '产业链环节' },
+  port_logistics:{ color: '#f472b6', bg: 'bg-[rgba(255,77,109,0.08)] text-[var(--danger)]', icon: TrendingUp, label: '港口/物流' },
 }
 
-// 模拟对象数据
+// 模拟对象数据（obj_type 英文，与数据库一致）
 const MOCK_OBJECTS: ObjectEntity[] = [
-  { obj_id: 'e1', obj_type: '企业', name: '比亚迪', source_libraries: 'L1,L5' },
-  { obj_id: 'e2', obj_type: '企业', name: '宁德时代', source_libraries: 'L1,L3' },
-  { obj_id: 'e3', obj_type: '企业', name: '蔚来', source_libraries: 'L1,L5' },
-  { obj_id: 'e4', obj_type: '企业', name: '小鹏', source_libraries: 'L1' },
-  { obj_id: 'e5', obj_type: '企业', name: '上汽MG', source_libraries: 'L1,L5' },
-  { obj_id: 'e6', obj_type: '企业', name: '极氪', source_libraries: 'L1' },
-  { obj_id: 'e7', obj_type: '企业', name: '理想', source_libraries: 'L1' },
-  { obj_id: 'c1', obj_type: '目的国', name: '泰国', source_libraries: 'L5,L8' },
-  { obj_id: 'c2', obj_type: '目的国', name: '匈牙利', source_libraries: 'L5' },
-  { obj_id: 'c3', obj_type: '目的国', name: '巴西', source_libraries: 'L5' },
-  { obj_id: 'c4', obj_type: '目的国', name: '印尼', source_libraries: 'L5,L8' },
-  { obj_id: 'c5', obj_type: '目的国', name: '德国', source_libraries: 'L5' },
-  { obj_id: 'c6', obj_type: '目的国', name: '挪威', source_libraries: 'L5' },
-  { obj_id: 'c7', obj_type: '目的国', name: '阿联酋', source_libraries: 'L5' },
-  { obj_id: 'p1', obj_type: '产品', name: '海豹', source_libraries: 'L1' },
-  { obj_id: 'p2', obj_type: '产品', name: '海豚', source_libraries: 'L1' },
-  { obj_id: 'p3', obj_type: '产品', name: 'ET5', source_libraries: 'L1' },
-  { obj_id: 'p4', obj_type: '产品', name: 'MG4', source_libraries: 'L1' },
-  { obj_id: 'p5', obj_type: '产品', name: '麒麟电池', source_libraries: 'L3' },
-  { obj_id: 'p6', obj_type: '产品', name: '神行电池', source_libraries: 'L3' },
-  { obj_id: 'ch1', obj_type: '产业链环节', name: '电池Pack', source_libraries: 'L3' },
-  { obj_id: 'ch2', obj_type: '产业链环节', name: '电机电控', source_libraries: 'L3' },
-  { obj_id: 'ch3', obj_type: '产业链环节', name: '智能驾驶', source_libraries: 'L3' },
-  { obj_id: 'ch4', obj_type: '产业链环节', name: '车身冲压', source_libraries: 'L3' },
-  { obj_id: 'po1', obj_type: '港口/物流', name: '鹿特丹港', source_libraries: 'L8' },
-  { obj_id: 'po2', obj_type: '港口/物流', name: '林查班港', source_libraries: 'L8' },
-  { obj_id: 'po3', obj_type: '港口/物流', name: '汉堡港', source_libraries: 'L8' },
+  { obj_id: 'e1', obj_type: 'enterprise', name: '比亚迪', source_libraries: 'L1,L5' },
+  { obj_id: 'e2', obj_type: 'enterprise', name: '宁德时代', source_libraries: 'L1,L3' },
+  { obj_id: 'e3', obj_type: 'enterprise', name: '蔚来', source_libraries: 'L1,L5' },
+  { obj_id: 'e4', obj_type: 'enterprise', name: '小鹏', source_libraries: 'L1' },
+  { obj_id: 'e5', obj_type: 'enterprise', name: '上汽MG', source_libraries: 'L1,L5' },
+  { obj_id: 'e6', obj_type: 'enterprise', name: '极氪', source_libraries: 'L1' },
+  { obj_id: 'e7', obj_type: 'enterprise', name: '理想', source_libraries: 'L1' },
+  { obj_id: 'c1', obj_type: 'country_region', name: '泰国', source_libraries: 'L5,L8' },
+  { obj_id: 'c2', obj_type: 'country_region', name: '匈牙利', source_libraries: 'L5' },
+  { obj_id: 'c3', obj_type: 'country_region', name: '巴西', source_libraries: 'L5' },
+  { obj_id: 'c4', obj_type: 'country_region', name: '印尼', source_libraries: 'L5,L8' },
+  { obj_id: 'c5', obj_type: 'country_region', name: '德国', source_libraries: 'L5' },
+  { obj_id: 'c6', obj_type: 'country_region', name: '挪威', source_libraries: 'L5' },
+  { obj_id: 'c7', obj_type: 'country_region', name: '阿联酋', source_libraries: 'L5' },
+  { obj_id: 'p1', obj_type: 'product_item', name: '海豹', source_libraries: 'L1' },
+  { obj_id: 'p2', obj_type: 'product_item', name: '海豚', source_libraries: 'L1' },
+  { obj_id: 'p3', obj_type: 'product_item', name: 'ET5', source_libraries: 'L1' },
+  { obj_id: 'p4', obj_type: 'product_item', name: 'MG4', source_libraries: 'L1' },
+  { obj_id: 'p5', obj_type: 'product_item', name: '麒麟电池', source_libraries: 'L3' },
+  { obj_id: 'p6', obj_type: 'product_item', name: '神行电池', source_libraries: 'L3' },
+  { obj_id: 'ch1', obj_type: 'industrial_chain_segment', name: '电池Pack', source_libraries: 'L3' },
+  { obj_id: 'ch2', obj_type: 'industrial_chain_segment', name: '电机电控', source_libraries: 'L3' },
+  { obj_id: 'ch3', obj_type: 'industrial_chain_segment', name: '智能驾驶', source_libraries: 'L3' },
+  { obj_id: 'ch4', obj_type: 'industrial_chain_segment', name: '车身冲压', source_libraries: 'L3' },
+  { obj_id: 'po1', obj_type: 'port_logistics', name: '鹿特丹港', source_libraries: 'L8' },
+  { obj_id: 'po2', obj_type: 'port_logistics', name: '林查班港', source_libraries: 'L8' },
+  { obj_id: 'po3', obj_type: 'port_logistics', name: '汉堡港', source_libraries: 'L8' },
 ]
 
-// 模拟图谱数据
+// 模拟图谱数据（type 英文，与数据库一致）
 const MOCK_GRAPHS: Record<string, GraphData> = {
   '比亚迪': {
     center: '比亚迪',
     nodes: [
-      { id: '比亚迪', type: '企业' },
-      { id: '泰国', type: '目的国' }, { id: '巴西', type: '目的国' },
-      { id: '匈牙利', type: '目的国' }, { id: '印尼', type: '目的国' },
-      { id: '海豹', type: '产品' }, { id: '海豚', type: '产品' },
-      { id: '电池Pack', type: '产业链环节' }, { id: '鹿特丹港', type: '港口/物流' },
+      { id: '比亚迪', type: 'enterprise' },
+      { id: '泰国', type: 'country_region' }, { id: '巴西', type: 'country_region' },
+      { id: '匈牙利', type: 'country_region' }, { id: '印尼', type: 'country_region' },
+      { id: '海豹', type: 'product_item' }, { id: '海豚', type: 'product_item' },
+      { id: '电池Pack', type: 'industrial_chain_segment' }, { id: '鹿特丹港', type: 'port_logistics' },
     ],
     edges: [
       { source: '比亚迪', target: '泰国', type: '投资建厂', confidence: '0.95' },
@@ -84,11 +84,11 @@ const MOCK_GRAPHS: Record<string, GraphData> = {
   '宁德时代': {
     center: '宁德时代',
     nodes: [
-      { id: '宁德时代', type: '企业' },
-      { id: '匈牙利', type: '目的国' }, { id: '德国', type: '目的国' },
-      { id: '印尼', type: '目的国' },
-      { id: '麒麟电池', type: '产品' }, { id: '神行电池', type: '产品' },
-      { id: '电池Pack', type: '产业链环节' },
+      { id: '宁德时代', type: 'enterprise' },
+      { id: '匈牙利', type: 'country_region' }, { id: '德国', type: 'country_region' },
+      { id: '印尼', type: 'country_region' },
+      { id: '麒麟电池', type: 'product_item' }, { id: '神行电池', type: 'product_item' },
+      { id: '电池Pack', type: 'industrial_chain_segment' },
     ],
     edges: [
       { source: '宁德时代', target: '匈牙利', type: '投资建厂', confidence: '0.95' },
@@ -102,12 +102,12 @@ const MOCK_GRAPHS: Record<string, GraphData> = {
   '蔚来': {
     center: '蔚来',
     nodes: [
-      { id: '蔚来', type: '企业' },
-      { id: '挪威', type: '目的国' }, { id: '德国', type: '目的国' },
-      { id: '阿联酋', type: '目的国' },
-      { id: 'ET5', type: '产品' },
-      { id: '智能驾驶', type: '产业链环节' },
-      { id: '汉堡港', type: '港口/物流' },
+      { id: '蔚来', type: 'enterprise' },
+      { id: '挪威', type: 'country_region' }, { id: '德国', type: 'country_region' },
+      { id: '阿联酋', type: 'country_region' },
+      { id: 'ET5', type: 'product_item' },
+      { id: '智能驾驶', type: 'industrial_chain_segment' },
+      { id: '汉堡港', type: 'port_logistics' },
     ],
     edges: [
       { source: '蔚来', target: '挪威', type: '出口+换电站', confidence: '0.92' },
@@ -145,7 +145,7 @@ export default function OntologyGraph() {
         const res = await ontologyApi.graph(selectedObj, 1)
         return res.data
       } catch {
-        return MOCK_GRAPHS[selectedObj] || { center: selectedObj, nodes: [{ id: selectedObj, type: '企业' }], edges: [] }
+        return MOCK_GRAPHS[selectedObj] || { center: selectedObj, nodes: [{ id: selectedObj, type: 'enterprise' }], edges: [] }
       }
     },
     enabled: !!selectedObj,
@@ -181,7 +181,7 @@ export default function OntologyGraph() {
       {/* 统计卡片 */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {Object.entries(typeStats).map(([type, count]) => {
-          const cfg = TYPE_CONFIG[type] || TYPE_CONFIG['企业']
+          const cfg = TYPE_CONFIG[type] || TYPE_CONFIG['enterprise']
           const Icon = cfg.icon
           return (
             <button
@@ -195,7 +195,7 @@ export default function OntologyGraph() {
                 <div className="flex items-center gap-2">
                   <span className="ch-dot" style={{ backgroundColor: cfg.color }} />
                   <Icon className="w-4 h-4" style={{ color: cfg.color }} />
-                  <span className="text-xs text-[var(--muted-text)]">{type}</span>
+                  <span className="text-xs text-[var(--muted-text)]">{cfg.label}</span>
                 </div>
                 <p className="text-xl font-bold text-white ch-glow-num mt-1">{count}</p>
               </div>
@@ -267,7 +267,7 @@ export default function OntologyGraph() {
                     return (
                       <div key={t} className="flex items-center gap-1">
                         <span className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.color }} />
-                        <span className="text-xs text-[var(--muted-text)]">{t}</span>
+                        <span className="text-xs text-[var(--muted-text)]">{cfg.label}</span>
                       </div>
                     )
                   })}
@@ -358,7 +358,7 @@ function TypeBadge({ type }: { type: string }) {
   }
   return (
     <span className={`px-2 py-0.5 rounded text-xs ${cfg.bg}`}>
-      {type}
+      {cfg.label}
     </span>
   )
 }

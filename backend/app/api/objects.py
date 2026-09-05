@@ -2,7 +2,7 @@
 """本体与关系 API"""
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import desc, func
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -10,6 +10,14 @@ from app.models import ObjectEntity, Relation
 from app.schemas import ObjectEntityResponse, OntologyFilter, RelationResponse
 
 router = APIRouter(prefix="/ontology", tags=["本体"])
+
+# 关系类型中文映射
+REL_TYPE_MAP = {
+    "rel-01-overseas_invest": "海外投资",
+    "rel-02-overseas_biz": "海外经营",
+    "rel-03-trade_barrier": "贸易壁垒",
+    "rel-04-risk_impact": "风险影响",
+}
 
 
 @router.get("/objects")
@@ -91,41 +99,79 @@ def get_object_graph(
     depth: int = Query(1, ge=1, le=3),
     db: Session = Depends(get_db),
 ):
-    """获取某对象的关系图谱数据（供前端力导向图渲染）"""
-    # 直接关联的关系
+    """获取某对象的关系图谱数据（供前端力导向图渲染）
+
+    注意：relations 表中的 from_obj / to_obj 存的是 obj_id，
+    需要先从名称查找 obj_id，查询后再映射回名称。
+    """
+    # 1. 根据名称查找中心对象的 obj_id
+    center_obj = db.query(ObjectEntity).filter(ObjectEntity.name == obj_name).first()
+    if not center_obj:
+        # 尝试按 obj_id 查找（前端可能直接传 obj_id）
+        center_obj = db.query(ObjectEntity).filter(ObjectEntity.obj_id == obj_name).first()
+        if not center_obj:
+            return {"center": obj_name, "nodes": [], "edges": []}
+
+    center_id = center_obj.obj_id
+
+    # 2. 查询与中心对象直接关联的关系（通过 obj_id）
     relations = (
         db.query(Relation)
         .filter(
-            (Relation.from_obj == obj_name) | (Relation.to_obj == obj_name)
+            (Relation.from_obj == center_id) | (Relation.to_obj == center_id)
         )
+        .limit(50)  # 限制返回数量，避免前端过载
         .all()
     )
 
-    # 收集所有相关节点
-    nodes = set()
-    nodes.add(obj_name)
+    # 3. 收集所有涉及的 obj_id（中心 + 相关节点）
+    all_obj_ids = set()
+    all_obj_ids.add(center_id)
     for r in relations:
-        nodes.add(r.from_obj)
-        nodes.add(r.to_obj)
+        all_obj_ids.add(r.from_obj)
+        all_obj_ids.add(r.to_obj)
 
-    # 查询节点类型
-    node_types = {}
-    objects = db.query(ObjectEntity).filter(ObjectEntity.name.in_(list(nodes))).all()
+    # 4. 批量查询所有 obj_id 对应的名称和类型
+    obj_map = {}
+    objects = db.query(ObjectEntity).filter(ObjectEntity.obj_id.in_(list(all_obj_ids))).all()
     for o in objects:
-        node_types[o.name] = o.obj_type
+        obj_map[o.obj_id] = {"name": o.name, "type": o.obj_type}
+
+    # 5. 构建节点列表（用名称作为 id，兼容前端）
+    nodes = set()
+    nodes.add(obj_map.get(center_id, {}).get("name", center_id))
+
+    edges = []
+    for r in relations:
+        src_name = obj_map.get(r.from_obj, {}).get("name", r.from_obj)
+        tgt_name = obj_map.get(r.to_obj, {}).get("name", r.to_obj)
+
+        nodes.add(src_name)
+        nodes.add(tgt_name)
+
+        # 关系类型映射为中文显示
+        rel_type_display = REL_TYPE_MAP.get(r.rel_type, r.rel_type)
+
+        edges.append({
+            "source": src_name,
+            "target": tgt_name,
+            "type": rel_type_display,
+            "confidence": r.confidence,
+            "raw_type": r.rel_type,
+        })
+
+    # 查询所有节点（包括名称）的类型信息
+    node_names = list(nodes)
+    node_type_map = {}
+    node_objs = db.query(ObjectEntity).filter(ObjectEntity.name.in_(node_names)).all()
+    for o in node_objs:
+        node_type_map[o.name] = o.obj_type
 
     return {
-        "center": obj_name,
+        "center": obj_map.get(center_id, {}).get("name", center_id),
+        "center_type": obj_map.get(center_id, {}).get("type", "unknown"),
         "nodes": [
-            {"id": n, "type": node_types.get(n, "unknown")} for n in nodes
+            {"id": n, "type": node_type_map.get(n, "unknown")} for n in nodes
         ],
-        "edges": [
-            {
-                "source": r.from_obj,
-                "target": r.to_obj,
-                "type": r.rel_type,
-                "confidence": r.confidence,
-            }
-            for r in relations
-        ],
+        "edges": edges,
     }

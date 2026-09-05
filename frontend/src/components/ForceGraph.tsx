@@ -24,9 +24,11 @@ interface ForceGraphProps {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  企业: '#2563eb',
-  目的国: '#16a34a',
-  产品: '#9333ea',
+  enterprise: '#2563eb',
+  country_region: '#16a34a',
+  product_item: '#9333ea',
+  industrial_chain_segment: '#facc15',
+  port_logistics: '#f472b6',
 }
 
 export default function ForceGraph({
