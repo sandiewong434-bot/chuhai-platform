@@ -28,102 +28,41 @@ const TYPE_CONFIG: Record<string, { color: string; bg: string; icon: typeof Fact
   port_logistics:{ color: '#f472b6', bg: 'bg-[rgba(255,77,109,0.08)] text-[var(--danger)]', icon: TrendingUp, label: '港口/物流' },
 }
 
-// 模拟对象数据（obj_type 英文，与数据库一致）
 const MOCK_OBJECTS: ObjectEntity[] = [
   { obj_id: 'e1', obj_type: 'enterprise', name: '比亚迪', source_libraries: 'L1,L5' },
   { obj_id: 'e2', obj_type: 'enterprise', name: '宁德时代', source_libraries: 'L1,L3' },
   { obj_id: 'e3', obj_type: 'enterprise', name: '蔚来', source_libraries: 'L1,L5' },
   { obj_id: 'e4', obj_type: 'enterprise', name: '小鹏', source_libraries: 'L1' },
   { obj_id: 'e5', obj_type: 'enterprise', name: '上汽MG', source_libraries: 'L1,L5' },
-  { obj_id: 'e6', obj_type: 'enterprise', name: '极氪', source_libraries: 'L1' },
-  { obj_id: 'e7', obj_type: 'enterprise', name: '理想', source_libraries: 'L1' },
   { obj_id: 'c1', obj_type: 'country_region', name: '泰国', source_libraries: 'L5,L8' },
   { obj_id: 'c2', obj_type: 'country_region', name: '匈牙利', source_libraries: 'L5' },
   { obj_id: 'c3', obj_type: 'country_region', name: '巴西', source_libraries: 'L5' },
-  { obj_id: 'c4', obj_type: 'country_region', name: '印尼', source_libraries: 'L5,L8' },
-  { obj_id: 'c5', obj_type: 'country_region', name: '德国', source_libraries: 'L5' },
-  { obj_id: 'c6', obj_type: 'country_region', name: '挪威', source_libraries: 'L5' },
-  { obj_id: 'c7', obj_type: 'country_region', name: '阿联酋', source_libraries: 'L5' },
   { obj_id: 'p1', obj_type: 'product_item', name: '海豹', source_libraries: 'L1' },
-  { obj_id: 'p2', obj_type: 'product_item', name: '海豚', source_libraries: 'L1' },
-  { obj_id: 'p3', obj_type: 'product_item', name: 'ET5', source_libraries: 'L1' },
-  { obj_id: 'p4', obj_type: 'product_item', name: 'MG4', source_libraries: 'L1' },
-  { obj_id: 'p5', obj_type: 'product_item', name: '麒麟电池', source_libraries: 'L3' },
-  { obj_id: 'p6', obj_type: 'product_item', name: '神行电池', source_libraries: 'L3' },
-  { obj_id: 'ch1', obj_type: 'industrial_chain_segment', name: '电池Pack', source_libraries: 'L3' },
-  { obj_id: 'ch2', obj_type: 'industrial_chain_segment', name: '电机电控', source_libraries: 'L3' },
-  { obj_id: 'ch3', obj_type: 'industrial_chain_segment', name: '智能驾驶', source_libraries: 'L3' },
-  { obj_id: 'ch4', obj_type: 'industrial_chain_segment', name: '车身冲压', source_libraries: 'L3' },
-  { obj_id: 'po1', obj_type: 'port_logistics', name: '鹿特丹港', source_libraries: 'L8' },
-  { obj_id: 'po2', obj_type: 'port_logistics', name: '林查班港', source_libraries: 'L8' },
-  { obj_id: 'po3', obj_type: 'port_logistics', name: '汉堡港', source_libraries: 'L8' },
 ]
 
-// 模拟图谱数据（type 英文，与数据库一致）
 const MOCK_GRAPHS: Record<string, GraphData> = {
   '比亚迪': {
     center: '比亚迪',
     nodes: [
       { id: '比亚迪', type: 'enterprise' },
       { id: '泰国', type: 'country_region' }, { id: '巴西', type: 'country_region' },
-      { id: '匈牙利', type: 'country_region' }, { id: '印尼', type: 'country_region' },
-      { id: '海豹', type: 'product_item' }, { id: '海豚', type: 'product_item' },
-      { id: '电池Pack', type: 'industrial_chain_segment' }, { id: '鹿特丹港', type: 'port_logistics' },
+      { id: '匈牙利', type: 'country_region' },
     ],
     edges: [
-      { source: '比亚迪', target: '泰国', type: '投资建厂', confidence: '0.95' },
-      { source: '比亚迪', target: '巴西', type: '投资建厂', confidence: '0.90' },
-      { source: '比亚迪', target: '匈牙利', type: '投资建厂', confidence: '0.92' },
-      { source: '比亚迪', target: '印尼', type: '战略合作', confidence: '0.85' },
-      { source: '比亚迪', target: '海豹', type: '生产', confidence: '0.98' },
-      { source: '比亚迪', target: '海豚', type: '生产', confidence: '0.98' },
-      { source: '比亚迪', target: '电池Pack', type: '自研', confidence: '0.95' },
-      { source: '鹿特丹港', target: '比亚迪', type: '物流通道', confidence: '0.80' },
-    ],
-  },
-  '宁德时代': {
-    center: '宁德时代',
-    nodes: [
-      { id: '宁德时代', type: 'enterprise' },
-      { id: '匈牙利', type: 'country_region' }, { id: '德国', type: 'country_region' },
-      { id: '印尼', type: 'country_region' },
-      { id: '麒麟电池', type: 'product_item' }, { id: '神行电池', type: 'product_item' },
-      { id: '电池Pack', type: 'industrial_chain_segment' },
-    ],
-    edges: [
-      { source: '宁德时代', target: '匈牙利', type: '投资建厂', confidence: '0.95' },
-      { source: '宁德时代', target: '德国', type: '出口', confidence: '0.88' },
-      { source: '宁德时代', target: '印尼', type: '全产业链投资', confidence: '0.90' },
-      { source: '宁德时代', target: '麒麟电池', type: '生产', confidence: '0.99' },
-      { source: '宁德时代', target: '神行电池', type: '生产', confidence: '0.99' },
-      { source: '宁德时代', target: '电池Pack', type: '供应', confidence: '0.95' },
-    ],
-  },
-  '蔚来': {
-    center: '蔚来',
-    nodes: [
-      { id: '蔚来', type: 'enterprise' },
-      { id: '挪威', type: 'country_region' }, { id: '德国', type: 'country_region' },
-      { id: '阿联酋', type: 'country_region' },
-      { id: 'ET5', type: 'product_item' },
-      { id: '智能驾驶', type: 'industrial_chain_segment' },
-      { id: '汉堡港', type: 'port_logistics' },
-    ],
-    edges: [
-      { source: '蔚来', target: '挪威', type: '出口+换电站', confidence: '0.92' },
-      { source: '蔚来', target: '德国', type: '出口', confidence: '0.88' },
-      { source: '蔚来', target: '阿联酋', type: '区域总部', confidence: '0.85' },
-      { source: '蔚来', target: 'ET5', type: '生产', confidence: '0.98' },
-      { source: '蔚来', target: '智能驾驶', type: '自研', confidence: '0.90' },
-      { source: '汉堡港', target: '蔚来', type: '物流通道', confidence: '0.82' },
+      { source: '比亚迪', target: '泰国', type: '海外投资', confidence: '高' },
+      { source: '比亚迪', target: '巴西', type: '海外投资', confidence: '高' },
+      { source: '比亚迪', target: '匈牙利', type: '海外投资', confidence: '高' },
     ],
   },
 }
+
+const REL_TYPES = ['全部', '海外投资', '海外经营', '贸易壁垒']
 
 export default function OntologyGraph() {
   const [q, setQ] = useState('')
   const [selectedObj, setSelectedObj] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<string>('')
+  const [relTypeFilter, setRelTypeFilter] = useState<string>('')
 
   const { data: objectsData } = useQuery<{ items?: ObjectEntity[] }>({
     queryKey: ['objects', q],
@@ -160,6 +99,10 @@ export default function OntologyGraph() {
   const searchedObjects = q
     ? filteredObjects.filter((o) => o.name.includes(q))
     : filteredObjects
+
+  const filteredEdges = relTypeFilter
+    ? (graph?.edges || []).filter((e) => e.type === relTypeFilter)
+    : (graph?.edges || [])
 
   const typeStats = objects.reduce((acc, obj) => {
     acc[obj.obj_type] = (acc[obj.obj_type] || 0) + 1
@@ -282,7 +225,7 @@ export default function OntologyGraph() {
                   <div className="ch-card-cut-inner overflow-hidden bg-white/5">
                     <ForceGraph
                       nodes={graph.nodes}
-                      edges={graph.edges}
+                      edges={filteredEdges}
                       width={700}
                       height={350}
                       centerNode={graph.center}
@@ -293,16 +236,34 @@ export default function OntologyGraph() {
 
                 {/* 关系列表明细 */}
                 <div>
-                  <h4 className="text-sm font-medium text-[var(--muted-text)] mb-2 flex items-center gap-2">
-                    <div className="ch-title-bar" />
-                    <Link2 className="w-3.5 h-3.5" />
-                    关系明细 ({graph.edges?.length ?? 0}条)
-                  </h4>
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-medium text-[var(--muted-text)] flex items-center gap-2">
+                      <div className="ch-title-bar" />
+                      <Link2 className="w-3.5 h-3.5" />
+                      关系明细 ({filteredEdges.length}条)
+                    </h4>
+                    {/* 关系类型筛选 */}
+                    <div className="flex gap-1.5">
+                      {REL_TYPES.map((rt) => (
+                        <button
+                          key={rt}
+                          onClick={() => setRelTypeFilter(rt === '全部' ? '' : rt)}
+                          className={`px-2 py-0.5 rounded text-xs transition-colors ${
+                            (rt === '全部' && !relTypeFilter) || relTypeFilter === rt
+                              ? 'bg-[rgba(0,194,255,0.15)] text-[var(--cyan)] border border-[rgba(0,194,255,0.3)]'
+                              : 'bg-white/5 text-[var(--muted-text)] hover:bg-white/10'
+                          }`}
+                        >
+                          {rt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <div className="space-y-2 max-h-48 overflow-auto">
-                    {graph.edges?.map((edge, i) => (
+                    {filteredEdges.map((edge, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-2 text-sm px-3 py-2 bg-white/5 rounded hover:bg-white/5 transition-colors"
+                        className="flex items-center gap-2 text-sm px-3 py-2 bg-white/5 rounded hover:bg-white/10 transition-colors"
                       >
                         <span className="font-medium text-white">{edge.source}</span>
                         <span className="text-[var(--muted-text)]">→</span>
