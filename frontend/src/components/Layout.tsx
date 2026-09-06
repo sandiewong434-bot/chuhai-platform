@@ -83,13 +83,15 @@ function useDataStatus() {
     staleTime: 30000,
   })
 
-  const sourceHealth = overview
-    ? {
-        total: overview.total ?? 87,
-        online: overview.online ?? 82,
-        offline: overview.offline ?? 5,
-      }
-    : { total: 87, online: 82, offline: 5 }
+  const total = overview?.total ?? 0
+  const active = overview?.active ?? 0
+  const withIssue = overview?.with_issue ?? 0
+
+  const sourceHealth = {
+    total,
+    online: active - withIssue,
+    offline: withIssue,
+  }
 
   const refresh = () => {
     setIsRefreshing(true)

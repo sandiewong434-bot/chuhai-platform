@@ -103,7 +103,7 @@ export default function SourceHealth() {
     },
   })
 
-  const sources = data?.items || MOCK_SOURCES
+  const sources = Array.isArray(data) ? data : (data?.items || MOCK_SOURCES)
 
   // 筛选
   let filtered = sources
@@ -153,6 +153,8 @@ export default function SourceHealth() {
   const issueCount = sources.filter((s) => s.network_issue).length
   const silentCount = sources.filter((s) => s.is_active && !s.network_issue && s.week_count === 0).length
   const totalWeekArticles = sources.reduce((sum, s) => sum + s.week_count, 0)
+
+  const libEntries = Object.entries(libraryStats) as [string, { total: number; active: number; issue: number }][]
 
   return (
     <div className="space-y-6">
@@ -216,7 +218,7 @@ export default function SourceHealth() {
 
       {/* 库别分布 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {Object.entries(libraryStats).map(([lib, stats]) => (
+        {libEntries.map(([lib, stats]) => (
           <button
             key={lib}
             onClick={() => setLibraryFilter(libraryFilter === lib ? '' : lib)}
