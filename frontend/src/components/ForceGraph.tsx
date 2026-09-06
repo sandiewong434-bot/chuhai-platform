@@ -24,9 +24,9 @@ interface ForceGraphProps {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  enterprise: '#2563eb',
-  country_region: '#16a34a',
-  product_item: '#9333ea',
+  enterprise: '#00c2ff',
+  country_region: '#3ce6b4',
+  product_item: '#a855f7',
   industrial_chain_segment: '#facc15',
   port_logistics: '#f472b6',
 }
@@ -218,7 +218,7 @@ export default function ForceGraph({
         ctx.font = `bold ${isCenter ? 12 : 10}px sans-serif`
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.fillText(n.id.slice(0, 4), n.x, n.y - 2)
+        ctx.fillText(n.id.length > 5 ? n.id.slice(0, 4) + '...' : n.id, n.x, n.y - 2)
 
         // 类型小字
         ctx.fillStyle = '#ffffffcc'
