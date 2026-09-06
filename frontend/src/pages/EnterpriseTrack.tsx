@@ -22,12 +22,14 @@ interface EnterpriseEvent {
 interface EnterpriseInfo {
   id: string
   name: string
-  industry: string
-  headquarters: string
-  founded_year: number
-  overseas_countries: number
-  flagship_products: string[]
+  industry?: string
+  headquarters?: string
+  founded_year?: number
+  overseas_countries?: number
+  flagship_products?: string[]
+  keywords?: string[]
 }
+
 
 interface EnterpriseListData {
   total: number
@@ -264,21 +266,30 @@ export default function EnterpriseTrack() {
                     <Building2 className="w-6 h-6 text-[var(--cyan)]" />
                     <div>
                       <h3 className="font-bold text-white">{ent.name}</h3>
-                      <p className="text-xs text-[var(--muted-text)]">{ent.industry} · 成立于{ent.founded_year}年</p>
+                      <p className="text-xs text-[var(--muted-text)]">
+                        {ent.industry || '新能源汽车'}
+                        {ent.founded_year ? ` · 成立于${ent.founded_year}年` : ''}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
-                    <MapPin className="w-4 h-4" />
-                    总部：{ent.headquarters}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
-                    <Globe className="w-4 h-4" />
-                    出海国家：{ent.overseas_countries}个
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
-                    <Car className="w-4 h-4" />
-                    主力产品：{ent.flagship_products?.join(' / ') || '未知'}
-                  </div>
+                  {ent.headquarters && (
+                    <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
+                      <MapPin className="w-4 h-4" />
+                      总部：{ent.headquarters}
+                    </div>
+                  )}
+                  {ent.overseas_countries !== undefined && (
+                    <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
+                      <Globe className="w-4 h-4" />
+                      出海国家：{ent.overseas_countries}个
+                    </div>
+                  )}
+                  {ent.flagship_products && ent.flagship_products.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-[var(--muted-text)]">
+                      <Car className="w-4 h-4" />
+                      主力产品：{ent.flagship_products.join(' / ')}
+                    </div>
+                  )}
                 </div>
               )
             })()}
