@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { articleApi } from '@/lib/api'
 import {
   BarChart,
   Bar,
@@ -233,6 +235,16 @@ const CHART_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444']
 
 export default function TechCooperation() {
   const [activeTab, setActiveTab] = useState<TabKey>('scale')
+  const { data: articlesData, isLoading: articlesLoading, isError: articlesError } = useQuery({
+    queryKey: ['articles', 'module'],
+    queryFn: async () => {
+      const res = await articleApi.list({ limit: 8, offset: 0 })
+      return res.data
+    },
+  })
+  const articles = articlesData?.items || articlesData?.data || articlesData || []
+
+
 
   return (
     <div className="space-y-6">
@@ -684,6 +696,55 @@ export default function TechCooperation() {
           </div>
         </div>
       )}
+
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* 相关出海动态 (API数据)                              */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <div className="ch-card-cut">
+        <div className="ch-card-cut-inner p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="ch-title-bar" />
+            <h3 className="text-sm font-bold text-white">相关出海动态</h3>
+            <span className="text-xs text-[var(--muted-text)] ml-auto">
+              {articlesLoading ? '加载中...' : articlesError ? '加载失败' : `${articles?.length || 0} 条`}
+            </span>
+          </div>
+          {articlesLoading ? (
+            <div className="text-xs text-[var(--muted-text)] py-4 text-center">加载中...</div>
+          ) : articlesError ? (
+            <div className="text-xs text-[var(--danger)] py-4 text-center">数据加载失败</div>
+          ) : !articles || articles.length === 0 ? (
+            <div className="text-xs text-[var(--muted-text)] py-4 text-center">暂无数据</div>
+          ) : (
+            <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1 scrollbar-thin">
+              {articles.slice(0, 8).map((article: any) => (
+                <a
+                  key={article.id}
+                  href={`/articles/${article.id}`}
+                  className="flex items-start gap-3 p-2.5 rounded-lg bg-white/5 hover:bg-white/[0.08] transition-colors group"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--cyan)] mt-1.5 flex-shrink-0 shadow-[0_0_4px_var(--cyan)]" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-white font-medium truncate group-hover:text-[var(--cyan)] transition-colors">
+                      {article.title}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[10px] text-[var(--muted-text)]">{article.source_name || article.source || '未知来源'}</span>
+                      <span className="text-[10px] text-[var(--muted-text)]">{article.publish_date ? article.publish_date.split('T')[0] : ''}</span>
+                      {article.g_label && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(0,194,255,0.1)] text-[var(--cyan)] border border-[rgba(0,194,255,0.15)]">
+                          {article.g_label}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* ── 数据来源说明 ── */}
       <div className="ch-risk-bar rounded-lg p-4 flex items-start gap-3">
