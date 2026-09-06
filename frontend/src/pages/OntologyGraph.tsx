@@ -52,7 +52,30 @@ const MOCK_GRAPHS: Record<string, GraphData> = {
   },
 }
 
-const REL_TYPES = ['全部', '海外投资', '海外经营', '贸易壁垒']
+const REL_TYPE_MAP: Record<string, string> = {
+  '全部': '',
+  '海外投资': 'rel-01-overseas_invest',
+  '海外经营': 'rel-02-overseas_biz',
+  '贸易壁垒': 'rel-03-trade_barrier',
+  '风险影响': 'rel-04-risk_impact',
+}
+const REL_TYPE_LABELS: Record<string, string> = {
+  'rel-01-overseas_invest': '海外投资',
+  'rel-02-overseas_biz': '海外经营',
+  'rel-03-trade_barrier': '贸易壁垒',
+  'rel-04-risk_impact': '风险影响',
+}
+const REL_TYPES = Object.keys(REL_TYPE_MAP)
+const CONFIDENCE_LEVELS = ['全部', '高', '中', '低']
+
+function getConfidenceStyle(level: string | null) {
+  switch (level) {
+    case '高': return 'bg-[rgba(60,230,180,0.12)] text-[var(--teal)] border-[rgba(60,230,180,0.25)]'
+    case '中': return 'bg-[rgba(250,204,21,0.12)] text-yellow-400 border-yellow-500/25'
+    case '低': return 'bg-[rgba(255,77,109,0.12)] text-[var(--danger)] border-[rgba(255,77,109,0.25)]'
+    default: return 'bg-white/5 text-[var(--muted-text)] border-white/10'
+  }
+}
 
 // 从 attributes_json 中提取可展示的字段
 function getAttrDisplay(obj: ObjectEntity | undefined): { label: string; value: string }[] {
@@ -88,6 +111,7 @@ export default function OntologyGraph() {
   const [selectedObj, setSelectedObj] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [relTypeFilter, setRelTypeFilter] = useState<string>('')
+  const [confidenceFilter, setConfidenceFilter] = useState<string>('')
   const [showDetail, setShowDetail] = useState(false)
 
   const { data: objectsData } = useQuery<{ items?: ObjectEntity[] }>({
@@ -144,9 +168,11 @@ export default function OntologyGraph() {
     ? filteredObjects.filter((o) => o.name.includes(q))
     : filteredObjects
 
-  const filteredEdges = relTypeFilter
-    ? (graph?.edges || []).filter((e) => e.type === relTypeFilter)
-    : (graph?.edges || [])
+  const filteredEdges = (graph?.edges || []).filter((e) => {
+    const relMatch = !relTypeFilter || e.type === REL_TYPE_MAP[relTypeFilter]
+    const confMatch = !confidenceFilter || e.confidence === confidenceFilter
+    return relMatch && confMatch
+  })
 
   const typeStats = objects.reduce((acc, obj) => {
     acc[obj.obj_type] = (acc[obj.obj_type] || 0) + 1
@@ -337,6 +363,23 @@ export default function OntologyGraph() {
                         ))}
                       </div>
                     </div>
+                    {/* 置信度筛选 */}
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <span className="text-xs text-[var(--muted-text)]">置信度:</span>
+                      {CONFIDENCE_LEVELS.map((cl) => (
+                        <button
+                          key={cl}
+                          onClick={() => setConfidenceFilter(cl === '全部' ? '' : cl)}
+                          className={`px-2 py-0.5 rounded text-xs transition-colors border ${
+                            (cl === '全部' && !confidenceFilter) || confidenceFilter === cl
+                              ? 'bg-[rgba(0,194,255,0.15)] text-[var(--cyan)] border-[rgba(0,194,255,0.3)]'
+                              : 'bg-white/5 text-[var(--muted-text)] border-white/10 hover:bg-white/10'
+                          }`}
+                        >
+                          {cl}
+                        </button>
+                      ))}
+                    </div>
                     <div className="space-y-2 max-h-48 overflow-auto">
                       {filteredEdges.map((edge, i) => (
                         <div
@@ -346,13 +389,13 @@ export default function OntologyGraph() {
                           <span className="font-medium text-white">{edge.source}</span>
                           <span className="text-[var(--muted-text)]">→</span>
                           <span className="px-2 py-0.5 bg-[rgba(0,194,255,0.08)] text-[var(--cyan)] rounded text-xs border border-[rgba(96,178,216,0.12)]">
-                            {edge.type}
+                            {REL_TYPE_LABELS[edge.type] || edge.type}
                           </span>
                           <span className="text-[var(--muted-text)]">→</span>
                           <span className="font-medium text-white">{edge.target}</span>
                           {edge.confidence && (
-                            <span className="ml-auto text-xs text-[var(--muted-text)]">
-                              置信度: {edge.confidence}
+                            <span className={`ml-auto text-xs px-1.5 py-0.5 rounded border ${getConfidenceStyle(edge.confidence)}`}>
+                              {edge.confidence}
                             </span>
                           )}
                         </div>
