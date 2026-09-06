@@ -141,18 +141,18 @@ export default function OntologyGraph() {
   })
 
   // 查询选中对象的详情
-  const { data: objDetail } = useQuery<ObjectEntity>({
+  const { data: objDetail, isLoading: detailLoading } = useQuery<ObjectEntity | null>({
     queryKey: ['objectDetail', selectedObj],
     queryFn: async () => {
-      if (!selectedObj) return null as unknown as ObjectEntity
+      if (!selectedObj) return null
       try {
         const listRes = await ontologyApi.objects({ q: selectedObj, size: 1 })
         const items = listRes.data.items || []
-        if (items.length === 0) return null as unknown as ObjectEntity
+        if (items.length === 0) return null
         const detailRes = await ontologyApi.object(items[0].obj_id)
-        return detailRes.data
+        return detailRes.data as ObjectEntity
       } catch {
-        return null as unknown as ObjectEntity
+        return null
       }
     },
     enabled: !!selectedObj,
@@ -267,7 +267,7 @@ export default function OntologyGraph() {
         {/* 关系图谱 + 详情 */}
         <div className="lg:col-span-2 space-y-4">
           {/* 对象详情面板 */}
-          {showDetail && selectedObj && attrDisplay.length > 0 && (
+          {showDetail && selectedObj && (
             <div className="ch-card-cut">
               <div className="ch-card-cut-inner p-4">
                 <div className="flex items-center justify-between mb-3">
@@ -283,14 +283,20 @@ export default function OntologyGraph() {
                     收起
                   </button>
                 </div>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  {attrDisplay.map((attr) => (
-                    <div key={attr.label} className="bg-white/5 rounded-lg p-2.5">
-                      <p className="text-xs text-[var(--muted-text)]">{attr.label}</p>
-                      <p className="text-sm font-medium text-white mt-0.5 truncate">{attr.value}</p>
-                    </div>
-                  ))}
-                </div>
+                {detailLoading ? (
+                  <div className="text-center py-6 text-[var(--muted-text)] text-sm">加载中...</div>
+                ) : attrDisplay.length > 0 ? (
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    {attrDisplay.map((attr) => (
+                      <div key={attr.label} className="bg-white/5 rounded-lg p-2.5">
+                        <p className="text-xs text-[var(--muted-text)]">{attr.label}</p>
+                        <p className="text-sm font-medium text-white mt-0.5 truncate">{attr.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-[var(--muted-text)] text-sm">暂无详细属性</div>
+                )}
               </div>
             </div>
           )}
