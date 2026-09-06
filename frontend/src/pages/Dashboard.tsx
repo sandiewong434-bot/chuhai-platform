@@ -11,7 +11,7 @@ import RadarChart from '@/components/RadarChart'
 import SvgLineChart from '@/components/SvgLineChart'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { articleApi, sourceApi, indicatorApi } from '@/lib/api'
+import { articleApi, sourceApi, indicatorApi, ontologyApi, barrierApi } from '@/lib/api'
 
 // ═══════════════════════════════════════════════════════════════
 // 模块定义
@@ -137,6 +137,20 @@ export default function Dashboard() {
     placeholderData: { items: [] },
   })
 
+  // ── 本体对象数量 ──
+  const { data: ontologyOverview } = useQuery({
+    queryKey: ['dashboard', 'ontologyOverview'],
+    queryFn: () => ontologyApi.objects({ size: 1 }).then(r => r.data).catch(() => ({ total: 0 })),
+    placeholderData: { total: 0 },
+  })
+
+  // ── 贸易壁垒数量 ──
+  const { data: barrierOverview } = useQuery({
+    queryKey: ['dashboard', 'barrierOverview'],
+    queryFn: () => barrierApi.list({ size: 1 }).then(r => r.data).catch(() => ({ total: 0 })),
+    placeholderData: { total: 0 },
+  })
+
 
   const avgM6 = Math.round(m6Values.reduce((a, b) => a + b, 0) / 5)
   const m6Recommendation = avgM6 >= 75
@@ -223,8 +237,8 @@ export default function Dashboard() {
         <div className="lg:col-span-1 space-y-3">
           <KpiCard label="收录文章" value={String(articleTotal)} note={`${articleNew > 0 ? '+' : ''}${articleNew} 本周`} status="up" icon={FileText} />
           <KpiCard label="信源数量" value={String(sourceTotal)} note={`${sourceOnline} 在线`} status="up" icon={Radio} />
-          <KpiCard label="机会市场" value="26" note="3" status="up" icon={Globe} />
-          <KpiCard label="待处置风险" value="07" note="2" status="danger" icon={AlertTriangle} />
+          <KpiCard label="本体对象" value={String(ontologyOverview?.total ?? 651)} note="实时" status="up" icon={Network} />
+          <KpiCard label="贸易壁垒" value={String(barrierOverview?.total ?? 5)} note="监测中" status="danger" icon={AlertTriangle} />
         </div>
 
         {/* 核心可视化 - 态势球 */}
