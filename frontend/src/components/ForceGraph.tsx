@@ -31,6 +31,17 @@ const TYPE_COLORS: Record<string, string> = {
   port_logistics: '#f472b6',
 }
 
+const REL_COLORS: Record<string, string> = {
+  'rel-01-overseas_invest': '#00c2ff',
+  'rel-02-overseas_biz': '#3ce6b4',
+  'rel-03-trade_barrier': '#f472b6',
+  'rel-04-risk_impact': '#ef4444',
+  '海外投资': '#00c2ff',
+  '海外经营': '#3ce6b4',
+  '贸易壁垒': '#f472b6',
+  '风险影响': '#ef4444',
+}
+
 export default function ForceGraph({
   nodes,
   edges,
@@ -42,6 +53,11 @@ export default function ForceGraph({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [hoveredNode, setHoveredNode] = useState<string | null>(null)
   const [draggingNode, setDraggingNode] = useState<string | null>(null)
+  const [scale, setScale] = useState(1)
+  const [offset, setOffset] = useState({ x: 0, y: 0 })
+  const [isPanning, setIsPanning] = useState(false)
+  const panStart = useRef({ x: 0, y: 0 })
+  const offsetRef = useRef({ x: 0, y: 0 })
 
   // 初始化节点位置
   const initPositions = useCallback(() => {
@@ -62,7 +78,19 @@ export default function ForceGraph({
     nodeRef.current = initPositions()
   }, [initPositions])
 
-  // 力导向模拟
+  // 计算与悬停节点相关的边
+  const relatedEdges = useCallback((nodeId: string | null) => {
+    if (!nodeId) return new Set<string>()
+    const set = new Set<string>()
+    edges.forEach((e, i) => {
+      if (e.source === nodeId || e.target === nodeId) {
+        set.add(i.toString())
+      }
+    })
+    return set
+  }, [edges])
+
+  // 力导向模拟 + 绘制
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -72,6 +100,7 @@ export default function ForceGraph({
     let animId: number
     let simTicks = 0
     const maxTicks = 300
+    const relSet = relatedEdges(hoveredNode)
 
     const simulate = () => {
       const nodeMap = new Map(nodeRef.current.map((n) => [n.id, n]))
@@ -83,7 +112,6 @@ export default function ForceGraph({
         if (simTicks >= maxTicks) break
         simTicks++
 
-        // 1. 节点间斥力
         for (let a = 0; a < nodeRef.current.length; a++) {
           for (let b = a + 1; b < nodeRef.current.length; b++) {
             const na = nodeRef.current[a]
@@ -101,7 +129,6 @@ export default function ForceGraph({
           }
         }
 
-        // 2. 边引力
         edges.forEach((e) => {
           const na = nodeMap.get(e.source)
           const nb = nodeMap.get(e.target)
@@ -119,7 +146,6 @@ export default function ForceGraph({
           nb.vy -= fy
         })
 
-        // 3. 中心引力
         nodeRef.current.forEach((n) => {
           const dx = w / 2 - n.x
           const dy = h / 2 - n.y
@@ -127,14 +153,11 @@ export default function ForceGraph({
           n.vy += dy * 0.0005
         })
 
-        // 4. 更新位置 + 阻尼
         nodeRef.current.forEach((n) => {
           n.vx *= 0.9
           n.vy *= 0.9
           n.x += n.vx
           n.y += n.vy
-
-          // 边界约束
           const margin = 30
           n.x = Math.max(margin, Math.min(w - margin, n.x))
           n.y = Math.max(margin, Math.min(h - margin, n.y))
@@ -143,18 +166,28 @@ export default function ForceGraph({
 
       // 绘制
       ctx.clearRect(0, 0, w, h)
+      ctx.save()
+      ctx.translate(offset.x, offset.y)
+      ctx.scale(scale, scale)
 
       // 绘制边
-      edges.forEach((e) => {
+      edges.forEach((e, idx) => {
         const na = nodeMap.get(e.source)
         const nb = nodeMap.get(e.target)
         if (!na || !nb) return
 
+        const isRelated = hoveredNode && relSet.has(idx.toString())
+        const isDimmed = hoveredNode && !isRelated
+
         ctx.beginPath()
         ctx.moveTo(na.x, na.y)
         ctx.lineTo(nb.x, nb.y)
-        ctx.strokeStyle = '#d1d5db'
-        ctx.lineWidth = 1.5
+        ctx.strokeStyle = isRelated
+          ? (REL_COLORS[e.type] || '#00c2ff')
+          : isDimmed
+            ? 'rgba(96,178,216,0.08)'
+            : 'rgba(96,178,216,0.2)'
+        ctx.lineWidth = isRelated ? 2.5 : 1.2
         ctx.stroke()
 
         // 箭头
@@ -178,25 +211,47 @@ export default function ForceGraph({
           endX - arrowLen * Math.cos(angle + arrowAngle),
           endY - arrowLen * Math.sin(angle + arrowAngle)
         )
-        ctx.strokeStyle = '#9ca3af'
-        ctx.lineWidth = 1
+        ctx.strokeStyle = isRelated
+          ? (REL_COLORS[e.type] || '#00c2ff')
+          : isDimmed
+            ? 'rgba(96,178,216,0.08)'
+            : 'rgba(96,178,216,0.3)'
+        ctx.lineWidth = isRelated ? 2 : 1
         ctx.stroke()
 
-        // 关系标签
-        const midX = (na.x + nb.x) / 2
-        const midY = (na.y + nb.y) / 2
-        ctx.fillStyle = '#6b7280'
-        ctx.font = '10px sans-serif'
-        ctx.textAlign = 'center'
-        ctx.fillText(e.type, midX, midY - 4)
+        // 关系标签（仅相关边或无边悬停时显示）
+        if (!hoveredNode || isRelated) {
+          const midX = (na.x + nb.x) / 2
+          const midY = (na.y + nb.y) / 2
+          ctx.fillStyle = isRelated ? '#eaf8ff' : 'rgba(128,157,175,0.6)'
+          ctx.font = isRelated ? 'bold 10px sans-serif' : '10px sans-serif'
+          ctx.textAlign = 'center'
+          ctx.fillText(e.type, midX, midY - 4)
+        }
       })
 
       // 绘制节点
       nodeRef.current.forEach((n) => {
         const isCenter = n.id === centerNode
         const isHovered = n.id === hoveredNode
+        const isNeighbor = hoveredNode && edges.some(
+          (e) => (e.source === hoveredNode && e.target === n.id) ||
+                 (e.target === hoveredNode && e.source === n.id)
+        )
+        const isDimmed = hoveredNode && !isHovered && !isNeighbor && n.id !== hoveredNode
         const color = TYPE_COLORS[n.type] || '#6b7280'
         const radius = isCenter ? 22 : 16
+        const alpha = isDimmed ? 0.25 : 1
+
+        ctx.globalAlpha = alpha
+
+        // 外发光（悬停或邻居）
+        if (isHovered || isNeighbor) {
+          ctx.beginPath()
+          ctx.arc(n.x, n.y, radius + 10, 0, Math.PI * 2)
+          ctx.fillStyle = color + '18'
+          ctx.fill()
+        }
 
         // 节点圆圈
         ctx.beginPath()
@@ -208,7 +263,7 @@ export default function ForceGraph({
         if (isCenter) {
           ctx.beginPath()
           ctx.arc(n.x, n.y, radius + 6, 0, Math.PI * 2)
-          ctx.strokeStyle = color + '55'
+          ctx.strokeStyle = color + '88'
           ctx.lineWidth = 3
           ctx.stroke()
         }
@@ -224,7 +279,11 @@ export default function ForceGraph({
         ctx.fillStyle = '#ffffffcc'
         ctx.font = '8px sans-serif'
         ctx.fillText(n.type, n.x, n.y + 10)
+
+        ctx.globalAlpha = 1
       })
+
+      ctx.restore()
 
       if (simTicks < maxTicks) {
         animId = requestAnimationFrame(simulate)
@@ -234,22 +293,39 @@ export default function ForceGraph({
     simulate()
 
     return () => cancelAnimationFrame(animId)
-  }, [nodes, edges, width, height, hoveredNode, centerNode])
+  }, [nodes, edges, width, height, hoveredNode, centerNode, scale, offset, relatedEdges])
 
-  // 鼠标事件
+  // 坐标变换：屏幕 -> 画布内部
+  const screenToWorld = useCallback((sx: number, sy: number) => {
+    return {
+      x: (sx - offset.x) / scale,
+      y: (sy - offset.y) / scale,
+    }
+  }, [offset, scale])
+
   const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => { e.preventDefault();
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      e.preventDefault()
       const canvas = canvasRef.current
       if (!canvas) return
       const rect = canvas.getBoundingClientRect()
-      const mx = e.clientX - rect.left
-      const my = e.clientY - rect.top
+      const sx = e.clientX - rect.left
+      const sy = e.clientY - rect.top
+      const pos = screenToWorld(sx, sy)
+
+      if (isPanning) {
+        setOffset({
+          x: offsetRef.current.x + (e.clientX - panStart.current.x),
+          y: offsetRef.current.y + (e.clientY - panStart.current.y),
+        })
+        return
+      }
 
       if (draggingNode) {
         const node = nodeRef.current.find((n) => n.id === draggingNode)
         if (node) {
-          node.x = mx
-          node.y = my
+          node.x = pos.x
+          node.y = pos.y
           node.vx = 0
           node.vy = 0
         }
@@ -258,8 +334,8 @@ export default function ForceGraph({
 
       let found: string | null = null
       for (const n of nodeRef.current) {
-        const dx = mx - n.x
-        const dy = my - n.y
+        const dx = pos.x - n.x
+        const dy = pos.y - n.y
         if (Math.sqrt(dx * dx + dy * dy) < 20) {
           found = n.id
           break
@@ -267,40 +343,74 @@ export default function ForceGraph({
       }
       setHoveredNode(found)
     },
-    [draggingNode]
+    [draggingNode, isPanning, screenToWorld]
   )
 
   const handleMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => { e.preventDefault();
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      e.preventDefault()
       const canvas = canvasRef.current
       if (!canvas) return
       const rect = canvas.getBoundingClientRect()
-      const mx = e.clientX - rect.left
-      const my = e.clientY - rect.top
+      const pos = screenToWorld(e.clientX - rect.left, e.clientY - rect.top)
 
       for (const n of nodeRef.current) {
-        const dx = mx - n.x
-        const dy = my - n.y
+        const dx = pos.x - n.x
+        const dy = pos.y - n.y
         if (Math.sqrt(dx * dx + dy * dy) < 20) {
           setDraggingNode(n.id)
           return
         }
       }
+
+      // 没有点到节点，开始平移
+      setIsPanning(true)
+      panStart.current = { x: e.clientX, y: e.clientY }
+      offsetRef.current = { ...offset }
     },
-    []
+    [screenToWorld, offset]
   )
 
   const handleMouseUp = useCallback(() => {
     setDraggingNode(null)
-  }, [])
+    setIsPanning(false)
+    offsetRef.current = { ...offset }
+  }, [offset])
 
   const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLCanvasElement>) => { e.preventDefault();
-      if (hoveredNode && onNodeClick) {
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      e.preventDefault()
+      if (hoveredNode && onNodeClick && !isPanning) {
         onNodeClick(hoveredNode)
       }
     },
-    [hoveredNode, onNodeClick]
+    [hoveredNode, onNodeClick, isPanning]
+  )
+
+  const handleWheel = useCallback(
+    (e: React.WheelEvent<HTMLCanvasElement>) => {
+      e.preventDefault()
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const rect = canvas.getBoundingClientRect()
+      const sx = e.clientX - rect.left
+      const sy = e.clientY - rect.top
+      const pos = screenToWorld(sx, sy)
+
+      const delta = e.deltaY > 0 ? 0.9 : 1.1
+      const newScale = Math.min(3, Math.max(0.3, scale * delta))
+
+      setScale(newScale)
+      setOffset({
+        x: sx - pos.x * newScale,
+        y: sy - pos.y * newScale,
+      })
+      offsetRef.current = {
+        x: sx - pos.x * newScale,
+        y: sy - pos.y * newScale,
+      }
+    },
+    [scale, screenToWorld]
   )
 
   return (
@@ -308,13 +418,14 @@ export default function ForceGraph({
       ref={canvasRef}
       width={width}
       height={height}
-      className="w-full cursor-pointer"
+      className="w-full cursor-grab active:cursor-grabbing"
       style={{ height }}
       onMouseMove={handleMouseMove}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onClick={handleClick}
+      onWheel={handleWheel}
     />
   )
 }
