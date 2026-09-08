@@ -256,10 +256,17 @@ export default function IndustryChain() {
   useEffect(() => {
     if (activeTab !== 'downstream') return
     setExportBrandLoading(true)
-    indicatorApi.getPoints('vehicle_export_top10_brands', { limit: 20 })
+    indicatorApi.getPoints('vehicle_export_top10_brands', { limit: 200 })
       .then(res => {
         const items = res.data.items || []
+        // 找最新年份（数据为年度序列 2023-2025）
+        const latestYear = items
+          .map((item: any) => item.period_date?.slice(0, 4))
+          .filter(Boolean)
+          .sort()
+          .slice(-1)[0] || ''
         const ranked = items
+          .filter((item: any) => item.period_date?.slice(0, 4) === latestYear)
           .map((item: any) => ({
             rank: item.dimension_json?.rank ?? 0,
             brand: item.dimension_json?.brand || '未知',
@@ -268,6 +275,7 @@ export default function IndustryChain() {
           }))
           .sort((a: any, b: any) => b.volume - a.volume)
           .slice(0, 10)
+          .map((item: any, idx: number) => ({ ...item, rank: idx + 1 }))
         setExportBrandData(ranked)
       })
       .catch(err => {
