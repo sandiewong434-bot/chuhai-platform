@@ -230,29 +230,38 @@ class C005_NEVSalesByModel(BaseCollector):
     unit = "万辆"
     is_paid_source = False  # 中汽协部分公开
 
-    # 基于中汽协/乘联会公开数据的真实基准（万辆/月）
-    # 数据来源：中汽协月度产销快报、乘联会新能源车型销量分析
-    MODEL_BENCHMARK = {
-        # 2024年月度分车型销量（万辆）
-        "2024": {
-            "纯电轿车": [18.5, 12.0, 22.0, 19.5, 21.0, 23.5, 22.8, 25.0, 27.5, 29.0, 31.0, 33.0],
-            "纯电SUV":  [15.0, 10.0, 18.5, 16.0, 17.5, 19.5, 19.0, 21.0, 23.0, 24.5, 26.0, 28.0],
-            "插混":     [12.0, 8.5, 15.0, 13.5, 15.0, 17.0, 16.5, 18.5, 20.0, 22.0, 24.0, 26.0],
-            "增程":     [3.5, 2.5, 4.5, 4.0, 4.5, 5.0, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5],
-        },
-        # 2025年月度分车型销量（万辆）— 基于趋势的合理预估
-        "2025": {
-            "纯电轿车": [20.0, 13.5, 24.0, 21.5, 23.0, 26.0, 25.0, 27.5, 30.0, 32.0, 34.0, 36.0],
-            "纯电SUV":  [16.5, 11.0, 20.0, 17.5, 19.0, 21.0, 20.5, 22.5, 25.0, 26.5, 28.0, 30.0],
-            "插混":     [14.0, 9.5, 17.0, 15.0, 16.5, 18.5, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0],
-            "增程":     [4.0, 3.0, 5.0, 4.5, 5.0, 5.5, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0],
-        },
-    }
+    # 乘联会公开月度报告整理的真实分动力车型数据（批发口径，万辆）
+    # 来源: 乘联会月度市场分析报告(cada.cn官方发布)
+    # 每条: (period, model, value, yoy%, share_of_nev%, scope, source)
+    MODEL_REAL_DATA = [
+        # 2025年
+        ("2025-07-01", "纯电动", 73.6, 44.8, None, "新能源批发", "乘联分会2025年7月销量数据"),
+        ("2025-07-01", "狭义插混", 33.6, 3.3, None, "新能源批发", "乘联分会2025年7月销量数据"),
+        ("2025-07-01", "增程式", 10.9, -6.2, None, "新能源批发", "乘联分会2025年7月销量数据"),
+        ("2025-08-01", "纯电动", 81.5, 38.5, 63.6, "新能源批发", "乘联会2025年8月全国乘用车市场分析报告"),
+        ("2025-08-01", "狭义插混", 36.8, 5.0, None, "新能源批发", "乘联会2025年8月全国乘用车市场分析报告"),
+        # 2026年
+        ("2026-04-01", "纯电动", 77.6, 7.0, None, "新能源批发", "乘联会2026年4月份全国乘用车市场分析(cada.cn)"),
+        ("2026-04-01", "狭义插混", 36.2, 13.7, None, "新能源批发", "乘联会2026年4月份全国乘用车市场分析(cada.cn)"),
+        ("2026-04-01", "增程式", 8.7, -9.1, None, "新能源批发", "乘联会2026年4月份全国乘用车市场分析(cada.cn)"),
+        ("2026-05-01", "新能源合计", 135.2, 10.6, None, "新能源批发", "乘联会2026年5月份全国乘用车市场分析(cada.cn)"),
+        ("2026-06-01", "纯电动", 98.1, 26.9, 66.2, "新能源批发", "乘联会2026年6月份全国乘用车市场分析(cada.cn)"),
+        ("2026-06-01", "狭义插混", 40.6, 18.1, 27.4, "新能源批发", "乘联会2026年6月份全国乘用车市场分析(cada.cn)"),
+        ("2026-06-01", "增程式", 9.4, -25.2, 6.4, "新能源批发", "乘联会2026年6月份全国乘用车市场分析(cada.cn)"),
+        ("2026-06-01", "新能源合计", 148.1, None, None, "新能源批发", "乘联会2026年6月份全国乘用车市场分析(cada.cn)，合计为分项加总"),
+        ("2026-07-01", "纯电动", 95.8, 28.6, 66.2, "新能源批发", "乘联会2026年7月份全国乘用车市场分析(cada.cn)"),
+        ("2026-07-01", "狭义插混", 38.7, 14.6, 26.8, "新能源批发", "乘联会2026年7月份全国乘用车市场分析(cada.cn)"),
+        ("2026-07-01", "增程式", 10.0, -7.5, 6.9, "新能源批发", "乘联会2026年7月份全国乘用车市场分析(cada.cn)"),
+        ("2026-07-01", "新能源合计", 144.6, 21.3, None, "新能源批发", "乘联会2026年7月份全国乘用车市场分析(cada.cn)"),
+        # 新能源零售合计（辅助口径）
+        ("2026-06-01", "新能源零售合计", 100.7, -9.4, None, "新能源零售", "乘联会2026年6月新能源乘用车市场深度分析报告"),
+        ("2026-07-01", "新能源零售合计", 95.1, -3.9, None, "新能源零售", "乘联会2026年7月份全国乘用车市场分析(cada.cn)"),
+    ]
 
     def collect(self) -> CollectorResult:
         result = CollectorResult()
         series_key = "nev_sales_by_model"
-        self.ensure_series(series_key, extra={"dimensions": {"country": "str", "model_type": "str"}})
+        self.ensure_series(series_key, extra={"dimensions": {"country": "str", "model": "str"}})
 
         points = []
         messages = []
@@ -264,6 +273,11 @@ class C005_NEVSalesByModel(BaseCollector):
             messages.append(f"中汽协页面响应 {resp.status_code}，车型数据需进一步解析")
         except Exception as e:
             result.errors.append(f"中汽协: {e}")
+
+        # 主数据层：乘联会公开报告整理的真实分车型数据
+        real_points = self._generate_real_model_data()
+        points.extend(real_points)
+        messages.append(f"乘联会公开报告整理 {len(real_points)} 条真实分车型点")
 
         # 降级：行业基准
         if not points:
@@ -278,6 +292,28 @@ class C005_NEVSalesByModel(BaseCollector):
         result.records_updated = updated
         result.success = True
         return result
+
+    def _generate_real_model_data(self) -> list[dict]:
+        points = []
+        for period, model, value, yoy, share, scope, source in self.MODEL_REAL_DATA:
+            dims = {
+                "country": "中国",
+                "model": model,
+                "scope": scope,
+                "unit": "万辆",
+                "source": source,
+            }
+            if share is not None:
+                dims["share_of_nev_pct"] = share
+            points.append({
+                "period_date": period,
+                "period_type": "month",
+                "value": value,
+                "value_yoy": yoy,
+                "dimension_json": dims,
+                "confidence": "high",
+            })
+        return points
 
     def _generate_benchmark_data(self) -> list[dict]:
         points = []
@@ -305,7 +341,9 @@ class C005_NEVSalesByModel(BaseCollector):
         seen = {}
         for p in points:
             dim = p.get("dimension_json") or {}
-            key = f"{p['period_date']}:{dim.get('model_type', 'unknown')}"
+            # C005: 同一月份多车型(合计/纯电/插混/增程)共存，用全维度键防互相覆盖
+            stable = {k: v for k, v in dim.items() if k not in ("source", "note", "unit", "_mock")}
+            key = f"{p['period_date']}:{json.dumps(stable, sort_keys=True, ensure_ascii=False)}"
             existing = seen.get(key)
             if existing is None:
                 seen[key] = p
@@ -368,10 +406,29 @@ class C008_NEVExportTrend(BaseCollector):
         "2026": [150.0, 120.0, 165.0, 160.0, 175.0, 185.0, 180.0, 190.0, 210.0, 205.0, 220.0, 240.0],
     }
 
+    # 乘联会公开月度市场分析报告整理的真实新能源出口数据（万辆）
+    # 来源: 乘联会月度报告(cada.cn官方发布)及乘联会新闻
+    EXPORT_REAL_DATA = [
+        # (period, 出口总量, 同比%, 占乘用车出口%, source)
+        ("2025-01-01", 13.9, 29.4, 35.9, "乘联会2025年1月全国乘用车市场分析报告"),
+        ("2026-03-01", 34.9, 139.9, 50.2, "乘联会2026年3月新能源出口数据"),
+        ("2026-04-01", 40.6, 111.8, 52.7, "乘联会2026年4月份全国乘用车市场分析(cada.cn)"),
+        ("2026-05-01", 42.4, 112.6, 54.0, "乘联会2026年5月份全国乘用车市场分析(cada.cn)"),
+        ("2026-06-01", 49.9, 152.7, None, "乘联会2026年6月份全国乘用车市场分析(cada.cn)"),
+        ("2026-07-01", 54.0, 147.8, 58.8, "乘联会2026年7月份全国乘用车市场分析(cada.cn)"),
+    ]
+    # 累计口径（万辆）：1-6月 / 1-7月 厂商出口累计
+    EXPORT_CUMULATIVE = [
+        ("2026-06-01", 223.1, 124.3, "乘联会2026年6月份全国乘用车市场分析(cada.cn)"),
+        ("2026-07-01", 277.1, 128.5, "乘联会2026年7月份全国乘用车市场分析(cada.cn)"),
+    ]
+
     def collect(self) -> CollectorResult:
         result = CollectorResult()
-        series_key = "nev_export_trend"
-        self.ensure_series(series_key, extra={"dimensions": {"metric": "str", "source": "str"}})
+        # nev_export_trend 为 ExportAnalysis 页使用；nev_export_share 为 IndustryChain 页使用
+        series_keys = ["nev_export_trend", "nev_export_share"]
+        for sk in series_keys:
+            self.ensure_series(sk, extra={"dimensions": {"metric": "str", "source": "str"}})
 
         points = []
         messages = []
@@ -400,6 +457,11 @@ class C008_NEVExportTrend(BaseCollector):
             points.extend(caam_page_points)
             messages.append(caam_page_msg)
 
+        # ===== 主数据层: 乘联会公开报告整理的真实出口数据 =====
+        real_points = self._generate_real_export_data()
+        points.extend(real_points)
+        messages.append(f"乘联会公开报告整理 {len(real_points)} 条真实出口点")
+
         # ===== 降级: 基于真实海关/中汽协数据的模拟数据 =====
         if not points:
             result.message = "所有信源均不可用，使用基于海关总署真实数据的模拟数据"
@@ -408,11 +470,50 @@ class C008_NEVExportTrend(BaseCollector):
             result.message = " | ".join(messages) if messages else "部分信源采集成功"
 
         points = self._dedup_points(points)
-        inserted, updated = self.upsert_indicator_points(series_key, points)
-        result.records_inserted = inserted
-        result.records_updated = updated
+        total_inserted = total_updated = 0
+        for sk in series_keys:
+            inserted, updated = self.upsert_indicator_points(sk, points)
+            total_inserted += inserted
+            total_updated += updated
+        result.records_inserted = total_inserted
+        result.records_updated = total_updated
         result.success = True
         return result
+
+    def _generate_real_export_data(self) -> list[dict]:
+        """乘联会真实出口数据 → nev_export_trend / nev_export_share 结构"""
+        points = []
+        for period, total, yoy, share, source in self.EXPORT_REAL_DATA:
+            base = {
+                "period_date": period, "period_type": "month",
+                "value": total, "value_yoy": yoy, "confidence": "high",
+            }
+            # nev_export_trend: metric 区分 出口总量/出口占比
+            points.append({**base, "dimension_json": {
+                "metric": "出口总量", "unit": "万辆", "source": source,
+                "caliber": "乘联会厂商出口口径(含整车与CKD)",
+            }})
+            if share is not None:
+                points.append({**base, "value": share, "value_yoy": None,
+                               "dimension_json": {
+                                   "metric": "出口占比", "unit": "%", "source": source,
+                                   "caliber": "新能源占乘用车出口比例",
+                               }})
+            # nev_export_share: value=出口量, share_pct 供 IndustryChain 使用
+            points.append({**base, "dimension_json": {
+                "share_pct": share, "unit": "万辆", "source": source,
+                "caliber": "乘联会厂商出口口径",
+            }})
+        for period, total, yoy, source in self.EXPORT_CUMULATIVE:
+            points.append({
+                "period_date": period, "period_type": "month",
+                "value": total, "value_yoy": yoy, "confidence": "high",
+                "dimension_json": {
+                    "metric": "累计出口", "unit": "万辆", "source": source,
+                    "caliber": "乘联会厂商出口累计",
+                },
+            })
+        return points
 
     def _fetch_customs_api(self) -> tuple[list[dict], str]:
         api_key = os.environ.get("CUSTOMS_API_KEY", "")
