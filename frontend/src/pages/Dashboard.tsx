@@ -137,6 +137,20 @@ export default function Dashboard() {
     placeholderData: { items: [] },
   })
 
+  // ── C013 海外投资金额 TOP10 企业 ──
+  const { data: investEnterpriseData } = useQuery({
+    queryKey: ['dashboard', 'investEnterpriseTop10'],
+    queryFn: () => indicatorApi.getPoints('invest_enterprise_top10', { limit: 20 }).then(r => r.data).catch(() => ({ items: [] })),
+    placeholderData: { items: [] },
+  })
+
+  // ── C014 产业链海外投资总额及增速 ──
+  const { data: investGrowthData } = useQuery({
+    queryKey: ['dashboard', 'investTotalGrowth'],
+    queryFn: () => indicatorApi.getPoints('invest_total_growth', { limit: 30 }).then(r => r.data).catch(() => ({ items: [] })),
+    placeholderData: { items: [] },
+  })
+
   // ── 本体对象数量 ──
   const { data: ontologyOverview } = useQuery({
     queryKey: ['dashboard', 'ontologyOverview'],
@@ -658,6 +672,97 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
+                </div>
+              ) : (
+                <div className="h-[180px] flex items-center justify-center text-[var(--muted-text)]">暂无数据</div>
+              )
+            })()}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* 投资流向深化：C013 企业TOP10 + C014 总额及增速           */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* C013 海外投资金额 TOP10 企业 */}
+        <div className="ch-card-cut p-px">
+          <div className="ch-card-cut-inner p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">C013 · INVEST BY ENTERPRISE</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-base font-semibold text-white">海外投资金额 TOP10 企业</h3>
+                </div>
+              </div>
+              <span className="text-[10px] text-[var(--muted-text)]">2013-2025累计 · 亿美元</span>
+            </div>
+            {(() => {
+              const items = (investEnterpriseData?.items || []).sort((a: any, b: any) => b.value - a.value).slice(0, 8)
+              return items.length > 0 ? (
+                <div className="space-y-3">
+                  {items.map((item: any) => (
+                    <div key={item.dimension_json?.rank} className="flex items-center gap-3">
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                        item.dimension_json?.rank <= 3 ? 'bg-[var(--amber)] text-[#06111e]' : 'bg-white/10 text-[var(--muted-text)]'
+                      }`}>
+                        {item.dimension_json?.rank}
+                      </span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium text-white">{item.dimension_json?.enterprise}</span>
+                          <span className="text-sm font-bold text-white">{item.value} <span className="text-xs text-[var(--muted-text)]">亿美元</span></span>
+                        </div>
+                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-[var(--cyan)] to-[var(--teal)] rounded-full" style={{ width: `${Math.min((item.value / (items[0]?.value || 1)) * 100, 100)}%` }} />
+                        </div>
+                        <p className="text-xs text-[var(--muted-text)] mt-0.5">{item.dimension_json?.note} · {item.dimension_json?.projects} 个项目</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="h-[180px] flex items-center justify-center text-[var(--muted-text)]">暂无数据</div>
+              )
+            })()}
+          </div>
+        </div>
+
+        {/* C014 产业链海外投资总额及增速 */}
+        <div className="ch-card-cut p-px">
+          <div className="ch-card-cut-inner p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-[var(--cyan)]">C014 · INVESTMENT GROWTH</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="ch-title-bar" />
+                  <h3 className="text-base font-semibold text-white">产业链海外投资总额及增速</h3>
+                </div>
+              </div>
+              <span className="text-[10px] text-[var(--muted-text)]">NEV产业链 · 年度</span>
+            </div>
+            {(() => {
+              const items = (investGrowthData?.items || []).sort((a: any, b: any) => a.period_date.localeCompare(b.period_date))
+              const max = Math.max(...items.map((i: any) => i.value), 1)
+              return items.length > 0 ? (
+                <div className="space-y-2">
+                  {items.slice(-8).map((item: any) => (
+                    <div key={item.period_date} className="flex items-center gap-3">
+                      <span className="text-xs text-[var(--muted-text)] w-10">{item.period_date?.slice(0, 4)}</span>
+                      <div className="flex-1 h-6 bg-white/5 rounded overflow-hidden relative">
+                        <div
+                          className={`h-full rounded ${item.value_yoy != null && item.value_yoy >= 0 ? 'bg-gradient-to-r from-[var(--teal)] to-[var(--cyan)]' : 'bg-gradient-to-r from-[var(--danger)] to-[var(--amber)]'}`}
+                          style={{ width: `${Math.min((item.value / max) * 100, 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-white w-20 text-right font-semibold">{item.value} 亿</span>
+                      <span className={`text-xs w-16 text-right font-medium ${item.value_yoy != null && item.value_yoy >= 0 ? 'text-[var(--teal)]' : 'text-[var(--danger)]'}`}>
+                        {item.value_yoy != null ? `${item.value_yoy >= 0 ? '+' : ''}${item.value_yoy}%` : '—'}
+                      </span>
+                    </div>
+                  ))}
+                  <p className="text-[10px] text-[var(--muted-text)] pt-1">口径：fDi Markets 中国对 NEV 产业链（汽车OEM/零部件/电池/储能电池）绿地与并购投资，2013-2025</p>
                 </div>
               ) : (
                 <div className="h-[180px] flex items-center justify-center text-[var(--muted-text)]">暂无数据</div>
