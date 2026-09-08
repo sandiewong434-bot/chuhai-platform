@@ -52,41 +52,85 @@ class C003_AutoSalesRank(BaseCollector):
         except Exception as e:
             result.errors.append(str(e))
 
-    # 基于中汽协/乘联会公开数据的真实基准（万辆/月）
-    # 数据来源：中汽协月度产销快报、乘联会月度销量分析
-    SALES_BENCHMARK = {
-        # 2024年月度销量（万辆）
-        "2024": {
-            "比亚迪":   [20.1, 12.2, 30.2, 25.4, 28.6, 32.1, 31.5, 35.2, 38.5, 42.0, 45.2, 48.5],
-            "吉利":     [18.5, 11.8, 15.0, 13.5, 14.8, 16.2, 15.5, 17.0, 18.5, 19.8, 21.0, 22.5],
-            "一汽":     [22.0, 14.5, 18.0, 16.5, 17.8, 19.0, 18.5, 20.0, 21.5, 22.8, 24.0, 25.5],
-            "长安":     [16.0, 10.5, 13.5, 12.0, 13.2, 14.5, 14.0, 15.5, 16.8, 18.0, 19.2, 20.5],
-            "奇瑞":     [14.5, 9.8, 12.5, 11.5, 12.8, 14.0, 13.5, 15.0, 16.2, 17.5, 18.8, 20.0],
-            "上汽":     [20.0, 12.5, 16.0, 14.5, 15.8, 17.0, 16.5, 18.0, 19.5, 21.0, 22.5, 24.0],
-            "长城":     [8.5, 5.2, 7.0, 6.5, 7.2, 7.8, 7.5, 8.2, 9.0, 9.5, 10.2, 11.0],
-            "广汽":     [12.0, 7.5, 10.0, 9.0, 9.8, 10.5, 10.2, 11.0, 12.0, 12.8, 13.5, 14.5],
-            "特斯拉中国": [7.0, 3.0, 8.9, 6.2, 7.2, 7.1, 7.4, 8.6, 8.8, 6.8, 7.3, 8.3],
-            "蔚来":     [1.0, 0.8, 1.2, 1.1, 1.3, 1.5, 1.4, 1.6, 1.8, 2.0, 2.1, 2.3],
-        },
-        # 2025年月度销量（万辆）— 基于趋势的合理预估
-        "2025": {
-            "比亚迪":   [22.0, 14.0, 33.0, 28.0, 31.0, 35.0, 34.0, 38.0, 42.0, 45.0, 48.0, 52.0],
-            "吉利":     [20.0, 13.0, 16.5, 15.0, 16.2, 17.8, 17.0, 18.5, 20.0, 21.5, 23.0, 24.5],
-            "一汽":     [24.0, 16.0, 19.5, 18.0, 19.2, 20.5, 20.0, 21.5, 23.0, 24.5, 26.0, 27.5],
-            "长安":     [17.5, 11.5, 14.8, 13.2, 14.5, 15.8, 15.2, 16.8, 18.2, 19.5, 21.0, 22.5],
-            "奇瑞":     [16.0, 10.8, 13.8, 12.8, 14.0, 15.5, 15.0, 16.5, 18.0, 19.2, 20.5, 22.0],
-            "上汽":     [22.0, 14.0, 17.5, 16.0, 17.2, 18.5, 18.0, 19.5, 21.0, 22.5, 24.0, 25.5],
-            "长城":     [9.2, 5.8, 7.5, 7.0, 7.8, 8.5, 8.2, 9.0, 9.8, 10.5, 11.2, 12.0],
-            "广汽":     [13.0, 8.2, 11.0, 10.0, 10.8, 11.5, 11.2, 12.0, 13.0, 13.8, 14.5, 15.5],
-            "特斯拉中国": [7.5, 3.5, 9.5, 6.8, 7.8, 7.6, 8.0, 9.2, 9.5, 7.2, 7.8, 8.8],
-            "蔚来":     [1.2, 0.9, 1.4, 1.3, 1.5, 1.7, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6],
-        },
-    }
+    # 基于乘联会公开报告整理的 REAL 数据（万辆）
+    # 口径随月份标注（狭义零售/新能源批发/新能源零售），每条注明来源
+    # 来源：乘联会月度市场分析报告/销量快报（经 cada.cn、新浪财经、凤凰网、网易等转载核对）
+    SALES_REAL_DATA: list[dict] = [
+        # ── 2025年度 狭义乘用车零售榜（乘联会年度榜单）──
+        {"period_date": "2025-12-01", "period_type": "year", "enterprise": "比亚迪", "value": 348.5, "yoy": -6.3, "scope": "狭义乘用车零售", "source": "乘联会2025年度销量榜单"},
+        {"period_date": "2025-12-01", "period_type": "year", "enterprise": "吉利汽车", "value": 260.6, "yoy": 46.9, "scope": "狭义乘用车零售", "source": "乘联会2025年度销量榜单"},
+        {"period_date": "2025-12-01", "period_type": "year", "enterprise": "一汽大众", "value": 153.1, "yoy": None, "scope": "狭义乘用车零售", "source": "乘联会2025年度销量榜单"},
+        {"period_date": "2025-12-01", "period_type": "year", "enterprise": "长安汽车", "value": 140.1, "yoy": 2.6, "scope": "狭义乘用车零售", "source": "乘联会2025年度销量榜单"},
+        {"period_date": "2025-12-01", "period_type": "year", "enterprise": "奇瑞汽车", "value": 134.8, "yoy": 1.0, "scope": "狭义乘用车零售", "source": "乘联会2025年度销量榜单"},
+        {"period_date": "2025-12-01", "period_type": "year", "enterprise": "上汽大众", "value": 106.3, "yoy": -11.4, "scope": "狭义乘用车零售", "source": "乘联会2025年度销量榜单"},
+        {"period_date": "2025-12-01", "period_type": "year", "enterprise": "一汽丰田", "value": 80.4, "yoy": 0.7, "scope": "狭义乘用车零售", "source": "乘联会2025年度销量榜单"},
+        {"period_date": "2025-12-01", "period_type": "year", "enterprise": "广汽丰田", "value": 77.3, "yoy": 0.3, "scope": "狭义乘用车零售", "source": "乘联会2025年度销量榜单"},
+        # ── 2026年5月 新能源乘用车批发榜（乘联会5月报告，精确到辆）──
+        {"period_date": "2026-05-01", "period_type": "month", "enterprise": "比亚迪", "value": 37.70, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年5月全国乘用车市场分析报告"},
+        {"period_date": "2026-05-01", "period_type": "month", "enterprise": "吉利汽车", "value": 13.10, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年5月全国乘用车市场分析报告"},
+        {"period_date": "2026-05-01", "period_type": "month", "enterprise": "奇瑞汽车", "value": 9.48, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年5月全国乘用车市场分析报告"},
+        {"period_date": "2026-05-01", "period_type": "month", "enterprise": "特斯拉中国", "value": 8.60, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年5月全国乘用车市场分析报告"},
+        {"period_date": "2026-05-01", "period_type": "month", "enterprise": "零跑汽车", "value": 8.16, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年5月全国乘用车市场分析报告"},
+        {"period_date": "2026-05-01", "period_type": "month", "enterprise": "上汽通用五菱", "value": 6.47, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年5月全国乘用车市场分析报告"},
+        {"period_date": "2026-05-01", "period_type": "month", "enterprise": "长安汽车", "value": 6.33, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年5月全国乘用车市场分析报告"},
+        {"period_date": "2026-05-01", "period_type": "month", "enterprise": "上汽乘用车", "value": 4.66, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年5月全国乘用车市场分析报告"},
+        {"period_date": "2026-05-01", "period_type": "month", "enterprise": "蔚来汽车", "value": 3.77, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年5月全国乘用车市场分析报告"},
+        {"period_date": "2026-05-01", "period_type": "month", "enterprise": "东风汽车", "value": 3.69, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年5月全国乘用车市场分析报告"},
+        # ── 2026年6月 新能源乘用车批发榜（乘联会6月深度分析报告）──
+        {"period_date": "2026-06-01", "period_type": "month", "enterprise": "比亚迪", "value": 39.7, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年6月新能源乘用车市场深度分析报告"},
+        {"period_date": "2026-06-01", "period_type": "month", "enterprise": "吉利汽车", "value": 15.9, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年6月新能源乘用车市场深度分析报告"},
+        {"period_date": "2026-06-01", "period_type": "month", "enterprise": "奇瑞汽车", "value": 10.7, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年6月新能源乘用车市场深度分析报告"},
+        {"period_date": "2026-06-01", "period_type": "month", "enterprise": "零跑汽车", "value": 9.3, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年6月新能源乘用车市场深度分析报告"},
+        {"period_date": "2026-06-01", "period_type": "month", "enterprise": "特斯拉中国", "value": 8.9, "yoy": None, "scope": "新能源批发", "source": "乘联会2026年6月新能源乘用车市场深度分析报告"},
+        # ── 2026年7月 狭义乘用车零售厂商榜（乘联会7月快报，自主首包揽前五）──
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "比亚迪", "value": 22.3, "yoy": None, "share": 15.3, "scope": "狭义乘用车零售", "source": "乘联会2026年7月厂商销量排名快报"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "吉利汽车", "value": 16.1, "yoy": None, "share": 11.0, "scope": "狭义乘用车零售", "source": "乘联会2026年7月厂商销量排名快报"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "零跑汽车", "value": 8.4, "yoy": None, "share": 5.7, "scope": "狭义乘用车零售", "source": "乘联会2026年7月厂商销量排名快报"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "长安汽车", "value": 8.0, "yoy": None, "share": 5.5, "scope": "狭义乘用车零售", "source": "乘联会2026年7月厂商销量排名快报"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "奇瑞汽车", "value": 7.5, "yoy": None, "share": 5.1, "scope": "狭义乘用车零售", "source": "乘联会2026年7月厂商销量排名快报"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "一汽大众", "value": 7.3, "yoy": -33.9, "share": 5.0, "scope": "狭义乘用车零售", "source": "乘联会2026年7月厂商销量排名快报"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "上汽通用五菱", "value": 5.6, "yoy": -11.4, "share": 3.8, "scope": "狭义乘用车零售", "source": "乘联会2026年7月厂商销量排名快报"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "广汽丰田", "value": 5.3, "yoy": -19.5, "share": 3.6, "scope": "狭义乘用车零售", "source": "乘联会2026年7月厂商销量排名快报"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "一汽丰田", "value": 5.0, "yoy": -26.2, "share": 3.4, "scope": "狭义乘用车零售", "source": "乘联会2026年7月厂商销量排名快报"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "上汽大众", "value": 4.8, "yoy": -41.9, "share": 3.3, "scope": "狭义乘用车零售", "source": "乘联会2026年7月厂商销量排名快报"},
+        # ── 2026年7月 新能源乘用车批发榜（乘联会7月市场分析，精确到辆）──
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "比亚迪", "value": 41.06, "yoy": 21.8, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "吉利汽车", "value": 15.66, "yoy": None, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "奇瑞汽车", "value": 12.21, "yoy": None, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "零跑汽车", "value": 10.13, "yoy": None, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "特斯拉中国", "value": 9.36, "yoy": None, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "上汽通用五菱", "value": 6.15, "yoy": None, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "长安汽车", "value": 5.71, "yoy": None, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "上汽乘用车", "value": 5.61, "yoy": None, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "小鹏汽车", "value": 3.80, "yoy": None, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "蔚来汽车", "value": 3.59, "yoy": None, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "长城汽车", "value": 3.46, "yoy": 3.5, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "小米汽车", "value": 3.13, "yoy": None, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "理想汽车", "value": 3.05, "yoy": None, "scope": "新能源批发", "metric": "新能源批发", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        # ── 2026年7月 新能源乘用车零售榜（乘联会7月市场分析，精确到辆）──
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "比亚迪", "value": 22.35, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "吉利汽车", "value": 10.55, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "零跑汽车", "value": 8.37, "yoy": 16.0, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "长安汽车", "value": 5.99, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "上汽通用五菱", "value": 4.90, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "鸿蒙智行", "value": 4.54, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "奇瑞汽车", "value": 3.91, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "蔚来汽车", "value": 3.58, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "上汽乘用车", "value": 3.15, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "小米汽车", "value": 3.13, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "理想汽车", "value": 3.05, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "小鹏汽车", "value": 2.83, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "特斯拉中国", "value": 2.72, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+        {"period_date": "2026-07-01", "period_type": "month", "enterprise": "长城汽车", "value": 2.45, "yoy": None, "scope": "新能源零售", "metric": "新能源零售", "source": "乘联会2026年7月份全国乘用车市场分析(cada.cn)"},
+    ]
 
     def collect(self) -> CollectorResult:
         result = CollectorResult()
-        series_key = "auto_sales_rank"
-        self.ensure_series(series_key, extra={"dimensions": {"enterprise": "str", "scope": "str"}})
+        # auto_sales_rank 与 vehicle_sales_rank 同为 C003 序列（前端用后者），
+        # 真实数据同时写入两个 key，保证口径一致
+        series_keys = ["auto_sales_rank", "vehicle_sales_rank"]
+        for sk in series_keys:
+            self.ensure_series(sk, extra={"dimensions": {"enterprise": "str", "scope": "str"}})
 
         points = []
         messages = []
@@ -100,17 +144,20 @@ class C003_AutoSalesRank(BaseCollector):
         except Exception as e:
             result.errors.append(f"本体抽取: {e}")
 
-        # 降级：行业基准
-        if not points:
-            result.message = "本体关系库无销量记录，使用基于中汽协/乘联会的行业基准"
-            points = self._generate_benchmark_data()
-        else:
-            result.message = " | ".join(messages) if messages else "部分信源采集成功"
+        # 主数据层：乘联会公开报告整理的真实销量
+        real_points = self._generate_real_data()
+        points.extend(real_points)
+        messages.append(f"乘联会公开报告整理 {len(real_points)} 条真实销量点")
 
         points = self._dedup_points(points)
-        inserted, updated = self.upsert_indicator_points(series_key, points)
-        result.records_inserted = inserted
-        result.records_updated = updated
+        total_inserted = total_updated = 0
+        for sk in series_keys:
+            inserted, updated = self.upsert_indicator_points(sk, points)
+            total_inserted += inserted
+            total_updated += updated
+        result.records_inserted = total_inserted
+        result.records_updated = total_updated
+        result.message = " | ".join(messages)
         result.success = True
         return result
 
@@ -126,25 +173,29 @@ class C003_AutoSalesRank(BaseCollector):
         except Exception as e:
             return [], f"本体抽取失败: {e}"
 
-    def _generate_benchmark_data(self) -> list[dict]:
+    def _generate_real_data(self) -> list[dict]:
+        """乘联会公开报告整理的真实销量点 → indicator_points 结构"""
         points = []
-        for year, monthly_data in self.SALES_BENCHMARK.items():
-            for ent, monthly_sales in monthly_data.items():
-                for month, sales in enumerate(monthly_sales, 1):
-                    period_date = f"{year}-{month:02d}-01"
-                    points.append({
-                        "period_date": period_date,
-                        "period_type": "month",
-                        "value": round(sales, 2),
-                        "dimension_json": {
-                            "enterprise": ent,
-                            "scope": "中国",
-                            "unit": "万辆",
-                            "source": "中汽协/乘联会行业基准",
-                            "_mock": True,
-                        },
-                        "confidence": "medium",
-                    })
+        for row in self.SALES_REAL_DATA:
+            dims: dict = {
+                "enterprise": row["enterprise"],
+                "metric": row.get("metric", "销量"),
+                "scope": row["scope"],
+                "unit": "万辆",
+                "source": row["source"],
+            }
+            if row.get("yoy") is not None:
+                dims["yoy"] = row["yoy"]
+            if row.get("share") is not None:
+                dims["share"] = row["share"]
+            points.append({
+                "period_date": row["period_date"],
+                "period_type": row["period_type"],
+                "value": row["value"],
+                "value_yoy": row.get("yoy"),
+                "dimension_json": dims,
+                "confidence": "high",
+            })
         return points
 
     @staticmethod
@@ -152,7 +203,10 @@ class C003_AutoSalesRank(BaseCollector):
         seen = {}
         for p in points:
             dim = p.get("dimension_json") or {}
-            key = f"{p['period_date']}:{dim.get('enterprise', 'unknown')}"
+            # 冲突键取全部维度字段（剔除来源/备注等非维度噪声），
+            # 同一企业同一月可存在不同口径（零售/批发/新能源），不能互相覆盖
+            stable = {k: v for k, v in dim.items() if k not in ("source", "note", "unit", "_mock")}
+            key = f"{p['period_date']}:{json.dumps(stable, sort_keys=True, ensure_ascii=False)}"
             existing = seen.get(key)
             if existing is None:
                 seen[key] = p
@@ -700,7 +754,10 @@ class C010_VehicleExportTopBrands(BaseCollector):
         seen = {}
         for p in points:
             dim = p.get("dimension_json") or {}
-            key = f"{p['period_date']}:{dim.get('enterprise', 'unknown')}"
+            # 冲突键取全部维度字段（剔除来源/备注等非维度噪声），
+            # 同一企业同一月可存在不同口径（零售/批发/新能源），不能互相覆盖
+            stable = {k: v for k, v in dim.items() if k not in ("source", "note", "unit", "_mock")}
+            key = f"{p['period_date']}:{json.dumps(stable, sort_keys=True, ensure_ascii=False)}"
             existing = seen.get(key)
             if existing is None:
                 seen[key] = p
