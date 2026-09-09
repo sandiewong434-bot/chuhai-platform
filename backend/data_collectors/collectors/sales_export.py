@@ -653,10 +653,27 @@ class C009_NEVExportDestinations(BaseCollector):
         "西班牙": 1.2,
     }
 
+    # 真实出口目的地数据（乘联会/海关口径，万辆）
+    # 注意: 前端按 value 跨期全局排序取 TOPN，多期/多口径混写会挤进同一张榜，
+    # 因此每个序列只保留一个口径一致的最新快照，历史口径轮替时整组替换。
+    # (period_date, caliber, [(country, value_万辆), ...])
+    # 2026-05: 新能源出口目的国TOP10（乘联会，cada 6月报告）
+    # 备选口径（暂不入库，换月时替换）:
+    #   2026-04 整车出口TOP10: 巴西12.18/俄罗斯7.75/比利时5.15/澳大利亚4.99/英国4.38/墨西哥2.93/菲律宾2.67/阿尔及利亚2.27/泰国2.25/意大利2.20
+    #   2026-06 整车出口1-6月累计TOP10: 俄罗斯44.82/巴西41.08/英国25.53/澳大利亚23.78/比利时21.97/墨西哥21.02/意大利15.49/菲律宾14.87/阿联酋14.63/阿尔及利亚14.30
+    DEST_REAL_DATA: list[tuple] = [
+        ("2026-05-01", "新能源出口（月度）", [
+            ("巴西", 6.72), ("澳大利亚", 4.50), ("泰国", 3.87), ("菲律宾", 3.43),
+            ("英国", 2.50), ("比利时", 2.46), ("意大利", 1.48), ("西班牙", 1.39),
+            ("墨西哥", 1.38), ("韩国", 1.33),
+        ]),
+    ]
+
     def collect(self) -> CollectorResult:
         result = CollectorResult()
-        series_key = "nev_export_destinations"
-        self.ensure_series(series_key, extra={"dimensions": {"country": "str", "rank": "int", "source": "str"}})
+        series_keys = ["nev_export_destinations", "nev_export_top5_regions"]
+        for sk in series_keys:
+            self.ensure_series(sk, extra={"dimensions": {"country": "str", "rank": "int", "caliber": "str"}})
 
         points = []
         messages = []
@@ -673,6 +690,11 @@ class C009_NEVExportDestinations(BaseCollector):
             points.extend(customs_page_points)
             messages.append(customs_page_msg)
 
+        # ===== 主数据层: 乘联会/海关真实目的地榜单 =====
+        real_points = self._generate_real_dest_data()
+        points.extend(real_points)
+        messages.append(f"真实目的地数据 {len(real_points)} 条")
+
         # ===== 降级: 基于真实海关数据的模拟数据 =====
         if not points:
             result.message = "所有信源均不可用，使用基于海关总署真实数据的模拟数据"
@@ -681,7 +703,12 @@ class C009_NEVExportDestinations(BaseCollector):
             result.message = " | ".join(messages) if messages else "部分信源采集成功"
 
         points = self._dedup_points(points)
-        inserted, updated = self.upsert_indicator_points(series_key, points)
+
+        inserted = updated = 0
+        for sk in series_keys:
+            i, u = self.upsert_indicator_points(sk, points)
+            inserted += i
+            updated += u
         result.records_inserted = inserted
         result.records_updated = updated
         result.success = True
@@ -700,6 +727,27 @@ class C009_NEVExportDestinations(BaseCollector):
             return [], f"海关首页已访问 (HTTP {resp.status_code})，目的地数据需进一步解析"
         except Exception as e:
             return [], f"海关抓取失败: {e}"
+
+    def _generate_real_dest_data(self) -> list[dict]:
+        """乘联会/海关真实出口目的地榜单（万辆）。"""
+        points = []
+        for period_date, caliber, rows in self.DEST_REAL_DATA:
+            for rank, (country, value) in enumerate(rows, 1):
+                points.append({
+                    "period_date": period_date,
+                    "period_type": "month",
+                    "value": round(value, 2),
+                    "dimension_json": {
+                        "country": country,
+                        "rank": rank,
+                        "caliber": caliber,
+                        "note": f"{caliber}目的国第{rank}名",
+                        "source": "乘联会/海关总署",
+                        "unit": "万辆",
+                    },
+                    "confidence": "high",
+                })
+        return points
 
     def _generate_realistic_destination_data(self) -> list[dict]:
         points = []
@@ -728,7 +776,10 @@ class C009_NEVExportDestinations(BaseCollector):
         seen = {}
         for p in points:
             dim = p.get("dimension_json") or {}
-            key = f"{p['period_date']}:{dim.get('country', 'unknown')}"
+            # 冲突键取全部维度字段（剔除来源/备注等非维度噪声），
+            # 同一国家同一月可存在不同口径（整车/新能源/累计），不能互相覆盖
+            stable = {k: v for k, v in dim.items() if k not in ("source", "note", "unit", "_mock")}
+            key = f"{p['period_date']}:{json.dumps(stable, sort_keys=True, ensure_ascii=False)}"
             existing = seen.get(key)
             if existing is None:
                 seen[key] = p
@@ -785,10 +836,27 @@ class C010_VehicleExportTopBrands(BaseCollector):
         },
     }
 
+    # 真实品牌出口数据（万辆）
+    # 注意: 前端按年份取数后按 value 全局排序取 TOP10，多口径混写会挤进同一张榜，
+    # 因此只保留一个口径一致的最新快照（2026上半年集团整车出口，新浪财经7月盘点）。
+    # 备选口径（暂不入库，换月时替换）:
+    #   2026-03 单月整车出口: 奇瑞14.88/上汽12.10/比亚迪11.96/长安10.39/吉利8.16(同比+120%)（eet-china引乘联会）
+    #   2026-04 新能源出口: 比亚迪13.00/奇瑞5.79/特斯拉5.35/吉利4.89/上汽乘用车2.43/零跑1.42/东风1.07/长安0.98/五菱0.86/小鹏0.60（cada，万辆）
+    BRAND_REAL_DATA: list[tuple] = [
+        ("2026-06-01", "整车出口（2026上半年累计）", [
+            ("奇瑞集团", 94.38, "同比+71.5%"),
+            ("比亚迪海外", 78.94, "同比接近翻倍"),
+            ("吉利", 47.42, "同比+158%"),
+            ("长安", 40.20, "同比+35.1%"),
+            ("长城", 29.14, "同比+44.5%"),
+        ]),
+    ]
+
     def collect(self) -> CollectorResult:
         result = CollectorResult()
-        series_key = "vehicle_export_top_brands"
-        self.ensure_series(series_key, extra={"dimensions": {"enterprise": "str", "rank": "int"}})
+        series_keys = ["vehicle_export_top_brands", "vehicle_export_top10_brands"]
+        for sk in series_keys:
+            self.ensure_series(sk, extra={"dimensions": {"brand": "str", "rank": "int", "caliber": "str"}})
 
         points = []
         messages = []
@@ -808,6 +876,11 @@ class C010_VehicleExportTopBrands(BaseCollector):
         except Exception as e:
             result.errors.append(f"海关: {e}")
 
+        # 主数据层: 真实品牌出口榜单
+        real_points = self._generate_real_brand_data()
+        points.extend(real_points)
+        messages.append(f"真实品牌出口数据 {len(real_points)} 条")
+
         # 降级：行业基准
         if not points:
             result.message = "所有信源均不可用，使用基于中汽协/海关总署的行业基准"
@@ -816,11 +889,39 @@ class C010_VehicleExportTopBrands(BaseCollector):
             result.message = " | ".join(messages) if messages else "部分信源采集成功"
 
         points = self._dedup_points(points)
-        inserted, updated = self.upsert_indicator_points(series_key, points)
+
+        inserted = updated = 0
+        for sk in series_keys:
+            i, u = self.upsert_indicator_points(sk, points)
+            inserted += i
+            updated += u
         result.records_inserted = inserted
         result.records_updated = updated
         result.success = True
         return result
+
+    def _generate_real_brand_data(self) -> list[dict]:
+        """真实品牌出口榜单（万辆）。"""
+        points = []
+        for period_date, caliber, rows in self.BRAND_REAL_DATA:
+            for rank, (brand, value, yoy) in enumerate(rows, 1):
+                dim = {
+                    "brand": brand,
+                    "rank": rank,
+                    "caliber": caliber,
+                    "source": "中汽协/乘联会",
+                    "unit": "万辆",
+                }
+                if yoy:
+                    dim["note"] = yoy
+                points.append({
+                    "period_date": period_date,
+                    "period_type": "month",
+                    "value": round(value, 2),
+                    "dimension_json": dim,
+                    "confidence": "high",
+                })
+        return points
 
     def _generate_benchmark_data(self) -> list[dict]:
         points = []
