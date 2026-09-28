@@ -27,6 +27,10 @@ services:
     container_name: chuhai-backend
     ports:
       - "8000:8000"
+    # 从根目录 .env（git 已忽略，不提交）读取敏感配置。
+    # 目前在 .env 中填 DEEPSEEK_API_KEY=sk-... 即可启用 LLM 标注，无需改本文件。
+    env_file:
+      - .env
     environment:
       # 测试环境使用 SQLite（挂载宿主机已有数据库）
       - DATABASE_URL=sqlite:///./data/chuhai.db
